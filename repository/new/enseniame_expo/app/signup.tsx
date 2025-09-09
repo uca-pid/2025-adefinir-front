@@ -26,7 +26,7 @@ export default function Login() {
       </Pressable>
       <View >
         <Text >¿Ya tienes un usuario? </Text>
-        <Link href="/" >
+        <Link href="/login" >
           <Text style={{color:"blue"}}>Inicia sesión aquí</Text>
         </Link>
       </View>
