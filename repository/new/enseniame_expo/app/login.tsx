@@ -17,14 +17,7 @@ export default function Login() {
   const [password, setPassword] = useState('');
   return (
     <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        width: '100%',
-        height: '100%',
-        backgroundColor: "#7209B7"
-      }}
+      style={styles.mainView}
     >
       
         <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
@@ -86,6 +79,13 @@ export default function Login() {
 }
 
 const styles = StyleSheet.create({
+  mainView:{
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    width: '100%',
+    height: '100%',
+    backgroundColor: "#7209B7"},
   textInput:{
         padding:8,
         backgroundColor: "white",
