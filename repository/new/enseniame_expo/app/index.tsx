@@ -59,15 +59,15 @@ export default function Login() {
       </ThemedView>
 
       <View style={{flexDirection:"row", alignContent:"center",justifyContent:"center"}}>
-        <Pressable onPress={()=>{router.replace('/signup');}} style={{borderWidth:3,backgroundColor: '#4CC9F0', padding:10, margin:5}} >
+        <Pressable onPress={()=>{router.replace('/signup');}} style={styles.loginButton} >
           <ThemedText type="subtitle" lightColor='white'>Soy alumno</ThemedText>
         </Pressable>
-        <Pressable onPress={()=>{router.replace('/signup');}} style={{borderWidth:3,backgroundColor: '#4CC9F0', padding:10, margin:5}} >
+        <Pressable onPress={()=>{router.replace('/signup');}} style={styles.loginButton} >
             <ThemedText type="subtitle" lightColor='white'>Soy profesor</ThemedText>
         </Pressable>
       </View>
         
-      <View >
+      <View style={styles.centrado} >
         <ThemedText >¿Ya tienes un usuario? </ThemedText>
         <Link href="/login" >
           <ThemedText type='link'>Inicia sesión aquí</ThemedText>
@@ -78,6 +78,12 @@ export default function Login() {
   );
 }
 const styles = StyleSheet.create({
+  centrado:{
+    alignContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    justifyContent: "center"
+  },
   logo: {
     height: 350,
     width: "100%",
@@ -93,5 +99,15 @@ const styles = StyleSheet.create({
   stepContainer: {
     gap: 8,
     marginBottom: 8,
+  },
+  loginButton: {
+      backgroundColor: '#F72585',
+      borderRadius: 10,
+      height: 50,
+      padding: 10,
+      paddingHorizontal: 20,
+      justifyContent: 'center',
+      alignItems: 'center',
+      margin: 5,
   },
 })
