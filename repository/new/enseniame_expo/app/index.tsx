@@ -8,133 +8,106 @@ import {
   Platform,
   ScrollView,
 } from 'react-native';
+import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { useEffect, useState } from "react";
-import { Link , router} from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
+import { Link, router } from 'expo-router';
+import { Image } from 'expo-image';
+import { HelloWave } from '@/components/HelloWave';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
 
 export default function Login() {
-  const [mail, setMail] = useState('');
-  const [password, setPassword] = useState('');
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        width: '100%',
-        height: '100%',
-        backgroundColor: "#7209B7"
-      }}
-    >
+    <ParallaxScrollView
+          headerBackgroundColor={{ light: '#4CC9F0', dark: '#1D3D47' }}
+          headerImage={
+            <Image
+              source={require('@/assets/images/LSA.png')}
+              style={styles.logo}
+            />
+          }>
+      <ThemedView style={styles.titleContainer}>
+        <ThemedText type="title">¡Hola!</ThemedText>
+        <HelloWave />
+      </ThemedView>
       
-        <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
-          <View style={styles.formContainer}>
-            
-            <Text style={styles.title}>Iniciar Sesión</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
-              <TextInput
-              style={styles.textInput}
-              textContentType="emailAddress"
-              keyboardType="email-address"
-              onChangeText={setMail}
-              value={mail}
-              placeholder="Correo electrónico"
-              placeholderTextColor="#999"
-              />
-            </View>
-            <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                secureTextEntry={true}
-                textContentType="password"
-                onChangeText={setPassword}
-                value={password}
-                placeholder="Contraseña"
-                placeholderTextColor="#999"
-              />
-              {/* <Pressable onPress={()=> {}} >
-                <Ionicons
-                  name= "eye-outline" 
-                  size={24}
-                  color="#666"
-                />
-              </Pressable> */}
-            </View>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">¿Qué es enSEÑAme?</ThemedText>
+        <ThemedText>
+          <ThemedText type="defaultSemiBold">enSEÑAme</ThemedText>{' '}
+           es una aplicación de aprendizaje de 
+          <ThemedText type="defaultSemiBold"> Lengua de Señas Argentina (LSA)</ThemedText>.
+        </ThemedText>
+          
+      </ThemedView>
 
-            <Pressable onPress={()=>{router.push('/tabs');}} style={styles.loginButton} >
-              <Text style={{fontWeight: "bold",color:"white", fontSize: 18,}}>Ingresar</Text>
-            </Pressable>
-            <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
-              <Text style={{fontSize: 16}}>¿No tienes un usuario? </Text>
-              <Link href="/signup" >
-                <Text style={{fontSize: 16,color:"blue"}}>Regístrate aquí</Text>
-              </Link>
-            </View>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">¿Para quién es?</ThemedText>
+        <ThemedText>
+          Está pensada para personas oyentes que desean aprender 
+          <ThemedText type="defaultSemiBold"> LSA</ThemedText>{' '}
+           para poder comunicarse con las personas sordas en su lengua natural. 
+        </ThemedText>
+      </ThemedView>
 
-            <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}}>
-              <Link href="/acc_recovery" >
-                <Text style={{fontSize: 16,color:"blue"}}>Olvidé mi contraseña</Text>
-              </Link>
-            </View>
-          </View>
-        </ScrollView>
-      
-    </View>
+      <ThemedView style={styles.stepContainer}>
+        <ThemedText type="subtitle">Primeros pasos</ThemedText>
+        <ThemedText>
+          {`Para comenzar, creá una nueva cuenta y... `}
+          <ThemedText type="defaultSemiBold">¡a aprender!</ThemedText>
+        </ThemedText>
+      </ThemedView>
+
+      <View style={{flexDirection:"row", alignContent:"center",justifyContent:"center"}}>
+        <Pressable onPress={()=>{router.replace('/signup');}} style={styles.loginButton} >
+          <ThemedText type="subtitle" lightColor='white'>Soy alumno</ThemedText>
+        </Pressable>
+        <Pressable onPress={()=>{router.replace('/signup');}} style={styles.loginButton} >
+            <ThemedText type="subtitle" lightColor='white'>Soy profesor</ThemedText>
+        </Pressable>
+      </View>
+        
+      <View style={styles.centrado} >
+        <ThemedText >¿Ya tienes un usuario? </ThemedText>
+        <Link href="/login" >
+          <ThemedText type='link'>Inicia sesión aquí</ThemedText>
+        </Link>
+      </View>
+    
+    </ParallaxScrollView>
   );
 }
-
 const styles = StyleSheet.create({
-  textInput:{
-        padding:8,
-        backgroundColor: "white",
-        fontSize:18,
-        
-        minWidth: "60%",
-        maxHeight: 60,
-        minHeight: 40,
-        borderColor: "#0538cf",
-        borderRadius: 5,
-        borderWidth: 2,
-        flex: 1,
-    },
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 15
-    },
-    inputIcon: {
-      marginRight: 10,
-    },
-     scrollViewContent: {
-      flexGrow: 1,
-      justifyContent: 'center',
-      minWidth: "80%"
-    },
-    formContainer: {
-        width: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        borderRadius: 10,
-        padding: 20,
-        justifyContent: "center",
-        alignItems: 'center',
-        height: 500
-    },
-    loginButton: {
+  centrado:{
+    alignContent: "center",
+    alignItems: "center",
+    alignSelf: "center",
+    justifyContent: "center"
+  },
+  logo: {
+    height: 350,
+    width: "100%",
+    bottom: -100,
+    left: 0,
+    position: 'absolute',
+  },
+  titleContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+  },
+  stepContainer: {
+    gap: 8,
+    marginBottom: 8,
+  },
+  loginButton: {
       backgroundColor: '#F72585',
       borderRadius: 10,
       height: 50,
-      minWidth: "60%",
+      padding: 10,
+      paddingHorizontal: 20,
       justifyContent: 'center',
       alignItems: 'center',
-      margin: 30,
-  },
-   title : {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 40,
-    textAlign: 'center',
+      margin: 5,
   },
 })
