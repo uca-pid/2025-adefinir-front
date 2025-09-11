@@ -14,8 +14,9 @@ import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { estilos } from '@/components/estilos';
 import { Checkbox } from 'expo-checkbox';
-import Toast from 'react-native-toast-message';
+import { error_alert,success_alert } from '@/components/alert';
 import { validateEmail, validatePassword, validateInstitution } from '@/components/validaciones';
+import Toast from 'react-native-toast-message';
 
 export default function Signup() {
   const [mail, setMail] = useState('');
@@ -80,16 +81,11 @@ export default function Signup() {
     const isInstitutionValid = validateInstitution(institucion);
 
     if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid && (!esProfe || (esProfe && isInstitutionValid))) {
-
-
+      
       router.replace('/tabs');
     }
     else {
-      Toast.show({
-        type: 'error',
-        text1: 'Error',
-        text2: 'Complete todos los campos para continuar'
-      });
+      error_alert("Complete todos los campos para continuar");
     }
   }
 
