@@ -11,6 +11,7 @@ import {
 import { useEffect, useState } from "react";
 import { Link , router} from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function Login() {
   const [mail, setMail] = useState('');
@@ -57,7 +58,8 @@ export default function Login() {
             </View>
 
             <Pressable onPress={()=>{router.push('/tabs');}} style={styles.loginButton} >
-              <Text style={{fontWeight: "bold",color:"white", fontSize: 18,}}>Ingresar</Text>
+              <ThemedText type="subtitle" lightColor='white'>Ingresar</ThemedText>
+              
             </Pressable>
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
               <Text style={{fontSize: 16}}>¿No tienes un usuario? </Text>

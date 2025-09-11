@@ -4,30 +4,39 @@ import {
   TextInput,
   View,
   StyleSheet,
-  KeyboardAvoidingView,
   Platform,
-  ScrollView,
+  ScrollView, KeyboardAvoidingView
 } from 'react-native';
 import { useEffect, useState } from "react";
 import { Link, router } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
+import { estilos } from '@/components/estilos';
+import { Checkbox } from 'expo-checkbox';
 
 export default function Signup() {
   const [mail, setMail] = useState('');
   const [name, setName] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
+  const [institucion, setInstitucion]= useState('');
 
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
+  const [esProfe, setProfe] = useState(false);
+
   return (
     <View style={styles.mainView} >
+      <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{flex: 1}}
+      >
       <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+       
           <View style={styles.formContainer}>
-      
+       
         <ThemedText type="title" style={{margin:40}}>Crear cuenta</ThemedText>
       
       
@@ -95,17 +104,39 @@ export default function Signup() {
         </Pressable>
       </View>
 
+      <View style={styles.inputContainer}>
+        <ThemedText type='defaultSemiBold' lightColor='white'>Soy profesor</ThemedText>
+        <Checkbox style={styles.checkbox} value={esProfe} onValueChange={setProfe} />
+      </View>
+
+      {esProfe ? (
+        <View style={styles.inputContainer}>
+        <Ionicons name="build-outline" size={24} color="#666" style={styles.inputIcon} />
+        <TextInput
+          style={styles.textInput}
+          onChangeText={setInstitucion}
+          value={institucion}
+          placeholder="Institución"
+          placeholderTextColor="#999"
+        />
+      </View>):<></>}
+      
+
       <Pressable onPress={()=>{router.replace('/tabs');}} style={styles.loginButton} >
-          <Text style={{fontWeight: "bold",color:"white"}}>Registrarse</Text>
+        <ThemedText type="subtitle" lightColor='white'>Registrarse</ThemedText>
       </Pressable>
-      <View >
+      <View style={[estilos.centrado,{marginBottom:10}]}>
         <Text >¿Ya tienes un usuario? </Text>
         <Link href="/login" >
           <Text style={{color:"blue"}}>Inicia sesión aquí</Text>
         </Link>
       </View>
+
+
       </View>
+      
       </ScrollView>
+      </KeyboardAvoidingView>
     </View>
   );
 }
@@ -117,7 +148,7 @@ const styles=StyleSheet.create({
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "#3A0CA3"
+    backgroundColor: "#3F37C9"
   },
   scrollViewContent: {
     flexGrow: 1,
@@ -131,7 +162,7 @@ const styles=StyleSheet.create({
       padding: 20,
       justifyContent: "center",
       alignItems: 'center',
-      height: 500
+      //height: 500
   },
   loginButton: {
       backgroundColor: '#4CC9F0',
@@ -169,5 +200,8 @@ const styles=StyleSheet.create({
     color: '#333',
     marginBottom: 50,
     textAlign: 'center',
+  },
+  checkbox: {
+    margin: 8,
   },
 })
