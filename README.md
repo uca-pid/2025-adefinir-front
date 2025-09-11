@@ -11,3 +11,8 @@ Metacello new
    githubUser: 'uca-argentina' project: 'project-template' commitish: 'master' path: 'repository';
    load: 'development'.
 ```
+
+
+## Dependencias
+
+npx expo install expo-checkbox
