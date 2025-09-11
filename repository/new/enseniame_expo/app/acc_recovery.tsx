@@ -7,21 +7,35 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  Modal
 } from 'react-native';
 import { useEffect, useState } from "react";
 import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { validateEmail } from '@/components/validaciones';
+import { estilos } from '@/components/estilos';
 
 export default function Login() {
   const [mail, setMail] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
-
+  const [modalVisible, setModalVisible] = useState(false);
+  const [inputCode,setInputCode]= useState('');
+  const codigo ="1234";
   const handleEmailChange = (text:any) => {
         setMail(text);
         setErrorEmail(validateEmail(text).msj);
     };
-  async function recuperar() {}
+  async function enviar_codigo() {
+    
+    setModalVisible(true)
+  }
+
+  async function recuperar() {
+    //verificar código
+    if (inputCode===codigo){
+      alert("codigo correcto")
+    }
+  }
   return (
     <View
       style={styles.mainView}
@@ -33,10 +47,10 @@ export default function Login() {
       <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
         
         <View style={styles.formContainer}>
-            <ThemedText type='title' lightColor='white'>Recuperar cuenta</ThemedText>
+            <ThemedText type='title' lightColor='white' style={{margin:20}}>Recuperar cuenta</ThemedText>
 
             <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
+              <Ionicons name="mail-outline" size={24} color="white" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 textContentType="emailAddress"
@@ -49,13 +63,50 @@ export default function Login() {
             </View>
             {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
-            <Pressable onPress={recuperar} style={styles.loginButton} >
-              <ThemedText type="subtitle" lightColor='white'>Recuperar</ThemedText>
+            <Pressable onPress={enviar_codigo} style={styles.loginButton} >
+              <ThemedText type="subtitle" lightColor='white'>Enviar código</ThemedText>
             </Pressable>
         </View>
       </ScrollView>
       </KeyboardAvoidingView>
+
+      <Modal animationType="slide"
+          transparent={false}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}>
+            <View style={styles.mainView}>
+               <ThemedText type='subtitle'>Ingresar código</ThemedText>
+               <ThemedText> Se envió un correo a tu casilla.</ThemedText>
+
+               <View style={styles.inputContainer}>
+              <Ionicons name="mail-outline" size={24} color="white" style={styles.inputIcon} />
+              <TextInput
+                style={styles.textInput}
+                keyboardType="default"
+                onChangeText={setInputCode}
+                value={inputCode}
+                placeholder="Código"
+                placeholderTextColor="#999"
+              />
+            </View>
+            {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
+
+               <Pressable onPress={recuperar} style={styles.loginButton} >
+                  <ThemedText type="subtitle" lightColor='white'>Recuperar</ThemedText>
+                </Pressable>
+
+                <ThemedText> ¿No lo recibiste?</ThemedText>
+                <Pressable style={styles.loginButton}>
+                  <ThemedText type="subtitle" lightColor='white'>Reenviar</ThemedText>
+                </Pressable>
+            </View>
+           
+
+      </Modal>
     </View>
+    
   );
 }
 
@@ -75,11 +126,14 @@ const styles = StyleSheet.create({
       padding: 20,
       justifyContent: "center",
       alignItems: 'center',
+      height: 500
+
   },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    minWidth: "90%"
+    minWidth: "90%",
+    
   },
   loginButton: {
       backgroundColor: '#B5179E',
