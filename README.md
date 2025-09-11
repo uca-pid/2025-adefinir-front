@@ -16,3 +16,4 @@ Metacello new
 ## Dependencias
 
 npx expo install expo-checkbox
+npm install --save react-native-toast-message
