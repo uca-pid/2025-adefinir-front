@@ -10,10 +10,13 @@ import {
   Modal
 } from 'react-native';
 import { useEffect, useState } from "react";
+import { Link, router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { validateEmail } from '@/components/validaciones';
 import { estilos } from '@/components/estilos';
+import { error_alert } from '@/components/alert';
+import Toast from 'react-native-toast-message';
 
 export default function Login() {
   const [mail, setMail] = useState('');
@@ -31,9 +34,13 @@ export default function Login() {
   }
 
   async function recuperar() {
-    //verificar código
+    
     if (inputCode===codigo){
-      alert("codigo correcto")
+      alert("codigo correcto");
+      router.replace('/tabs');
+    } else {
+      error_alert("Contraseña incorrecta");
+      console.log("No")
     }
   }
   return (
@@ -50,7 +57,7 @@ export default function Login() {
             <ThemedText type='title' lightColor='white' style={{margin:20}}>Recuperar cuenta</ThemedText>
 
             <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={24} color="white" style={styles.inputIcon} />
+              <Ionicons name="code-download" size={24} color="white" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 textContentType="emailAddress"
@@ -78,10 +85,11 @@ export default function Login() {
           }}>
             <View style={styles.mainView}>
                <ThemedText type='subtitle'>Ingresar código</ThemedText>
-               <ThemedText> Se envió un correo a tu casilla.</ThemedText>
+               <ThemedText style={estilos.centrado}> Se envió un correo a tu casilla </ThemedText>
+               <ThemedText>con una contraseña temporal.</ThemedText>
 
                <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={24} color="white" style={styles.inputIcon} />
+              <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
                 keyboardType="default"
@@ -101,10 +109,12 @@ export default function Login() {
                 <Pressable style={styles.loginButton}>
                   <ThemedText type="subtitle" lightColor='white'>Reenviar</ThemedText>
                 </Pressable>
+                <Toast/>
             </View>
            
 
       </Modal>
+      <Toast/>
     </View>
     
   );
