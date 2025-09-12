@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView, Dimensions } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
+import { router } from 'expo-router';
 
 export default function HomeStudent() {
   const [user] = useState({ nombre: 'Juan', racha: 5, nivel: 2, xp: 120, xpMax: 200 });
@@ -38,11 +39,11 @@ export default function HomeStudent() {
 
           {/* Atajos */}
           <View style={styles.shortcutsRow}>
-            <Pressable style={styles.shortcutCard}>
+            <Pressable style={styles.shortcutCard} onPress={() => router.push('/Cursos')}>
               <Ionicons name="book" size={26} color="#560bad" />
               <Text style={styles.shortcutText}>Cursos</Text>
             </Pressable>
-            <Pressable style={styles.shortcutCard}>
+            <Pressable style={styles.shortcutCard} onPress={() => router.push('/Diccionario')}>
               <Ionicons name="search" size={26} color="#560bad" />
               <Text style={styles.shortcutText}>Diccionario</Text>
             </Pressable>
