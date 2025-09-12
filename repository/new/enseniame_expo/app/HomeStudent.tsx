@@ -1,194 +1,187 @@
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView, Dimensions } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from 'react';
 
 export default function HomeStudent() {
-  // Simulación de datos de usuario y progreso
   const [user] = useState({ nombre: 'Juan', racha: 5, nivel: 2, xp: 120, xpMax: 200 });
 
   return (
-    <View style={styles.mainView}>
-      <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
-        {/* Encabezado */}
-        <View style={styles.headerContainer}>
-          <Text style={styles.greeting}>Hola, {user.nombre} <Text style={{fontSize: 22}}>👋</Text></Text>
-          <View style={styles.streakContainer}>
-            <Ionicons name="flame" size={22} color="#ff9100" />
-            <Text style={styles.streakText}>{user.racha} días de racha</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.mainView}>
+        <ScrollView contentContainerStyle={styles.scrollContent}>
+          {/* Saludo */}
+          <View style={styles.headerContainer}>
+            <Text style={styles.greeting}>Hola, {user.nombre} 👋</Text>
           </View>
-        </View>
 
-        {/* Progreso */}
-        <View style={styles.progressContainer}>
-          <Text style={styles.progressText}>Nivel {user.nivel} – {user.xp}/{user.xpMax} XP</Text>
-          <View style={styles.progressBarBg}>
-            <View style={[styles.progressBarFill, {width: `${(user.xp/user.xpMax)*100}%`}]} />
+          {/* Racha */}
+          <View style={styles.streakHighlight}>
+            <Ionicons name="flame" size={22} color="#F72585" />
+            <Text style={styles.streakHighlightText}>{user.racha} días de racha</Text>
           </View>
-        </View>
 
-        {/* Acción principal */}
-        <Pressable style={styles.ctaButton}>
-          <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
-          <Text style={styles.ctaButtonText}>Practicar ahora 🎯</Text>
-        </Pressable>
+          {/* Progreso */}
+          <View style={styles.progressMiniCard}>
+            <Text style={styles.progressMiniText}>
+              Nivel {user.nivel} – {user.xp}/{user.xpMax} XP
+            </Text>
+            <View style={styles.progressMiniBarBg}>
+              <View style={[styles.progressMiniBarFill, { width: `${(user.xp / user.xpMax) * 100}%` }]} />
+            </View>
+          </View>
 
-        {/* Atajos */}
-        <View style={styles.shortcutsContainer}>
-          <Pressable style={styles.shortcutButton}>
-            <Ionicons name="book" size={22} color="#3b82f6" style={styles.shortcutIcon} />
-            <Text style={styles.shortcutText}>Cursos</Text>
+          {/* Botón central */}
+          <Pressable style={styles.ctaButton}>
+            <Ionicons name="flash" size={26} color="#fff" style={styles.buttonIcon} />
+            <Text style={styles.ctaButtonText}>Practicar ahora</Text>
           </Pressable>
-          <Pressable style={styles.shortcutButton}>
-            <Ionicons name="search" size={22} color="#3b82f6" style={styles.shortcutIcon} />
-            <Text style={styles.shortcutText}>Diccionario</Text>
-          </Pressable>
-        </View>
-      </ScrollView>
-      {/* Barra de navegación inferior */}
-      <View style={styles.navBar}>
-        <View style={styles.navItem}>
-          <Ionicons name="home-outline" size={26} color="#fff" />
-          <Text style={styles.navText}>Inicio</Text>
-        </View>
-        <View style={styles.navItem}>
-          <Ionicons name="book" size={26} color="#fff" />
-          <Text style={styles.navText}>Cursos</Text>
-        </View>
-        <View style={styles.navItem}>
-          <Ionicons name="search" size={26} color="#fff" />
-          <Text style={styles.navText}>Diccionario</Text>
-        </View>
-        <View style={styles.navItem}>
-          <Ionicons name="person-circle-outline" size={26} color="#fff" />
-          <Text style={styles.navText}>Perfil</Text>
+
+          {/* Atajos */}
+          <View style={styles.shortcutsRow}>
+            <Pressable style={styles.shortcutCard}>
+              <Ionicons name="book" size={26} color="#560bad" />
+              <Text style={styles.shortcutText}>Cursos</Text>
+            </Pressable>
+            <Pressable style={styles.shortcutCard}>
+              <Ionicons name="search" size={26} color="#560bad" />
+              <Text style={styles.shortcutText}>Diccionario</Text>
+            </Pressable>
+          </View>
+        </ScrollView>
+
+        {/* NavBar Fija en la parte inferior */}
+        <View style={styles.navBar}>
+          <View style={styles.navItem}>
+            <Ionicons name="home" size={22} color="#fff" />
+            <Text style={styles.navText}>Inicio</Text>
+          </View>
+          <View style={styles.navItem}>
+            <Ionicons name="book" size={22} color="#fff" />
+            <Text style={styles.navText}>Cursos</Text>
+          </View>
+          <View style={styles.navItem}>
+            <Ionicons name="search" size={22} color="#fff" />
+            <Text style={styles.navText}>Diccionario</Text>
+          </View>
+          <View style={styles.navItem}>
+            <Ionicons name="person-circle-outline" size={22} color="#fff" />
+            <Text style={styles.navText}>Perfil</Text>
+          </View>
         </View>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#fff',
+  },
   mainView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: '100%',
-    height: '100%',
-    backgroundColor: "#7209B7"
+    position: 'relative',
   },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    minWidth: "80%"
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 50,
+    paddingBottom: 100, // Espacio para la barra de navegación
   },
   headerContainer: {
-    width: '100%',
     marginBottom: 10,
-    marginTop: 10,
-    alignItems: 'flex-start',
-    paddingHorizontal: 10,
   },
   greeting: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 4,
+    fontSize: 26,
+    fontWeight: "bold",
+    color: "#560bad",
   },
-  streakContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginBottom: 8,
+  streakHighlight: {
+    flexDirection: "row",
+    alignItems: "center",
+    alignSelf: "flex-start",
+    backgroundColor: "#f3e8ff",
+    borderRadius: 12,
+    paddingHorizontal: 12,
+    paddingVertical: 6,
+    marginBottom: 20,
   },
-  streakText: {
-    color: '#ff9100',
-    fontWeight: 'bold',
-    marginLeft: 6,
-    fontSize: 16,
+  streakHighlightText: {
+    marginLeft: 8,
+    color: "#560bad",
+    fontWeight: "600",
+    fontSize: 14,
   },
-  progressContainer: {
-    width: '100%',
-    marginBottom: 18,
-    paddingHorizontal: 10,
+  progressMiniCard: {
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    padding: 12,
+    marginBottom: 25,
   },
-  progressText: {
-    fontSize: 16,
-    color: '#333',
-    marginBottom: 4,
-    fontWeight: '500',
+  progressMiniText: {
+    fontSize: 14,
+    color: "#560bad",
+    fontWeight: "bold",
+    marginBottom: 6,
   },
-  progressBarBg: {
-    width: '100%',
-    height: 16,
-    backgroundColor: '#e0e7ef',
-    borderRadius: 8,
-    overflow: 'hidden',
+  progressMiniBarBg: {
+    width: "100%",
+    height: 8,
+    backgroundColor: "#e5defa",
+    borderRadius: 4,
   },
-  progressBarFill: {
-    height: '100%',
-    backgroundColor: '#3b82f6',
-    borderRadius: 8,
+  progressMiniBarFill: {
+    height: "100%",
+    backgroundColor: "#F72585",
+    borderRadius: 4,
   },
   ctaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F72585',
-    borderRadius: 12,
+    flexDirection: "row",
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#560bad",
+    borderRadius: 14,
     height: 60,
-    justifyContent: 'center',
-    marginVertical: 18,
-    marginHorizontal: 10,
-    paddingHorizontal: 30,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.15,
-    shadowRadius: 4,
-    elevation: 4,
+    marginBottom: 30,
+    shadowColor: "#000",
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
   },
   ctaButtonText: {
-    color: '#fff',
-    fontSize: 20,
-    fontWeight: 'bold',
-    textAlign: 'center',
+    color: "#fff",
+    fontSize: 18,
+    fontWeight: "bold",
   },
   buttonIcon: {
     marginRight: 10,
   },
-  shortcutsContainer: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    width: '100%',
-    marginTop: 10,
-    marginBottom: 20,
+  shortcutsRow: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    marginBottom: 30,
   },
-  shortcutButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#fff',
-    borderRadius: 10,
-    paddingVertical: 10,
-    paddingHorizontal: 18,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.08,
-    shadowRadius: 2,
-    elevation: 2,
-    marginHorizontal: 5,
-  },
-  shortcutIcon: {
-    marginRight: 8,
+  shortcutCard: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#f8f9fa",
+    borderRadius: 12,
+    paddingVertical: 20,
+    marginHorizontal: 6,
   },
   shortcutText: {
-    color: '#3b82f6',
-    fontWeight: 'bold',
-    fontSize: 16,
+    color: "#560bad",
+    fontWeight: "bold",
+    fontSize: 14,
+    marginTop: 6,
   },
+  // Barra de navegación mejorada
   navBar: {
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
     backgroundColor: '#560bad',
-    paddingVertical: 8,
-    paddingBottom: 16,
+    paddingVertical: 12,
     width: '100%',
     position: 'absolute',
     bottom: 0,
@@ -196,19 +189,20 @@ const styles = StyleSheet.create({
     borderTopLeftRadius: 16,
     borderTopRightRadius: 16,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: -2 },
-    shadowOpacity: 0.1,
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.2,
     shadowRadius: 4,
     elevation: 10,
   },
   navItem: {
-    flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
+    minWidth: 70, // Ancho mínimo para cada elemento
   },
   navText: {
     color: '#fff',
     fontSize: 12,
-    marginTop: 2,
+    marginTop: 4,
+    fontWeight: '500',
   },
 });
