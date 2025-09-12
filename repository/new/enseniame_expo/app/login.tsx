@@ -56,7 +56,7 @@ export default function Login() {
               </Pressable> */}
             </View>
 
-            <Pressable onPress={()=>{router.push('/tabs');}} style={styles.loginButton} >
+            <Pressable onPress={()=>{router.replace('/HomeStudent');}} style={styles.loginButton} >
               <Text style={{fontWeight: "bold",color:"white", fontSize: 18,}}>Ingresar</Text>
             </Pressable>
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
