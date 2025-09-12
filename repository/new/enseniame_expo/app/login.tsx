@@ -56,9 +56,9 @@ export default function Login() {
               </Pressable> */}
             </View>
 
-            <Pressable onPress={()=>{router.push('/tabs');}} style={styles.loginButton} >
-              <Text style={{fontWeight: "bold",color:"white", fontSize: 18,}}>Ingresar</Text>
-            </Pressable>
+            <Pressable onPress={()=>{router.push('/HomeStudent');}} style={styles.loginButton} >
+  <Text style={{fontWeight: "bold",color:"white", fontSize: 18,}}>Ingresar</Text>
+</Pressable>
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
               <Text style={{fontSize: 16}}>¿No tienes un usuario? </Text>
               <Link href="/signup" >
