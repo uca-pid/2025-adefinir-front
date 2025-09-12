@@ -20,6 +20,24 @@ export default function HomeStudent() {
           </Pressable>
         </View>
       </ScrollView>
+      <View style={styles.navBar}>
+        <View style={styles.navItem}>
+          <Ionicons name="home-outline" size={26} color="#fff" />
+          <Text style={styles.navText}>Inicio</Text>
+        </View>
+        <View style={styles.navItem}>
+          <Ionicons name="book" size={26} color="#fff" />
+          <Text style={styles.navText}>Cursos</Text>
+        </View>
+        <View style={styles.navItem}>
+          <Ionicons name="search" size={26} color="#fff" />
+          <Text style={styles.navText}>Diccionario</Text>
+        </View>
+        <View style={styles.navItem}>
+          <Ionicons name="person-circle-outline" size={26} color="#fff" />
+          <Text style={styles.navText}>Perfil</Text>
+        </View>
+      </View>
     </View>
   );
 }
@@ -79,5 +97,34 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: 'bold',
     textAlign: "center",
+  },
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-around',
+    alignItems: 'center',
+    backgroundColor: '#560bad',
+    paddingVertical: 8,
+    paddingBottom: 16,
+    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 10,
+  },
+  navItem: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  navText: {
+    color: '#fff',
+    fontSize: 12,
+    marginTop: 2,
   },
 });
