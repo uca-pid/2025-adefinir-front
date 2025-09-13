@@ -8,7 +8,7 @@ import {
   ScrollView, KeyboardAvoidingView
 } from 'react-native';
 import { useEffect, useState } from "react";
-import { Link, router } from 'expo-router';
+import { Link, router, useLocalSearchParams } from 'expo-router';
 import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
@@ -19,6 +19,8 @@ import { validateEmail, validatePassword, validateInstitution } from '@/componen
 import Toast from 'react-native-toast-message';
 
 export default function Signup() {
+  const { soyProfe = 0} = useLocalSearchParams();
+  
   const [mail, setMail] = useState('');
   const [name, setName] = useState('');
   const [password1, setPassword1] = useState('');

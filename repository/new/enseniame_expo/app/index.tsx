@@ -62,7 +62,7 @@ export default function Login() {
         <Pressable onPress={()=>{router.replace('/signup');}} style={styles.loginButton} >
           <ThemedText type="subtitle" lightColor='white'>Soy alumno</ThemedText>
         </Pressable>
-        <Pressable onPress={()=>{router.replace('/signup');}} style={styles.loginButton} >
+        <Pressable onPress={()=>{router.replace({pathname:'/signup', params:{soyProfe:1}});}} style={styles.loginButton} >
             <ThemedText type="subtitle" lightColor='white'>Soy profesor</ThemedText>
         </Pressable>
       </View>
