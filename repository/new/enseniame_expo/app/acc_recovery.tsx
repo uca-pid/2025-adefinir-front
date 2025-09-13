@@ -7,7 +7,8 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  Modal
+  Modal,
+  Animated
 } from 'react-native';
 import { useEffect, useState } from "react";
 import { Link, router } from 'expo-router';
@@ -15,7 +16,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { validateEmail } from '@/components/validaciones';
 import { estilos } from '@/components/estilos';
-import { error_alert } from '@/components/alert';
+import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 
 export default function Login() {
@@ -25,18 +26,22 @@ export default function Login() {
   const [inputCode,setInputCode]= useState('');
   const codigo ="1234";
   const handleEmailChange = (text:any) => {
-        setMail(text);
-        setErrorEmail(validateEmail(text).msj);
+      setMail(text);
+      setErrorEmail(validateEmail(text).msj);
     };
   async function enviar_codigo() {
-    
-    setModalVisible(true)
+    if (validateEmail(mail).status){
+      //verificar que la cuenta exista en la db
+      setModalVisible(true);
+    } else{
+      error_alert("Ingrese un mail válido");
+    }
   }
 
   async function recuperar() {
     
     if (inputCode===codigo){
-      alert("codigo correcto");
+      success_alert("Código correcto");
       router.replace('/tabs');
     } else {
       error_alert("Contraseña incorrecta");
@@ -47,10 +52,7 @@ export default function Login() {
     <View
       style={styles.mainView}
     >
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={{flex: 1}}
-      >
+      
       <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
         
         <View style={styles.formContainer}>
@@ -75,7 +77,7 @@ export default function Login() {
             </Pressable>
         </View>
       </ScrollView>
-      </KeyboardAvoidingView>
+      
 
       <Modal animationType="slide"
           transparent={false}
@@ -101,8 +103,12 @@ export default function Login() {
             </View>
             {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
-               <Pressable onPress={recuperar} style={styles.loginButton} >
-                  <ThemedText type="subtitle" lightColor='white'>Recuperar</ThemedText>
+              <Pressable onPress={recuperar} style={styles.loginButton} >
+                <ThemedText type="subtitle" lightColor='white'>Recuperar</ThemedText>
+              </Pressable>
+
+                <Pressable style={[styles.cancelButton]} onPress={() => router.back()}   >
+                    <Text style={styles.cancelButtonText}>Cancelar</Text>
                 </Pressable>
 
                 <ThemedText> ¿No lo recibiste?</ThemedText>
@@ -154,12 +160,29 @@ const styles = StyleSheet.create({
       alignItems: 'center',
       margin: 30,
   },
+  cancelButton: {
+      backgroundColor: '#fff',
+      borderRadius: 10,
+      height: 50,
+      minWidth: "60%",
+      justifyContent: 'center',
+      alignItems: 'center',
+      borderWidth: 1,
+      borderColor: '#7209B7',
+      marginBottom: 30
+  },
+  cancelButtonText: {
+    color: '#7209B7',
+    fontSize: 18,
+    fontWeight: 'bold',
+  },
   textInput:{
         padding:8,
         backgroundColor: "white",
         fontSize:18,
         
         minWidth: "60%",
+        maxWidth: "80%",
         maxHeight: 60,
         minHeight: 40,
         borderColor: "#0538cf",
