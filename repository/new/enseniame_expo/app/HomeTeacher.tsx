@@ -39,19 +39,12 @@ export default function HomeTeacher() {
             <Ionicons name="home" size={22} color="#fff" />
             <Text style={styles.navText}>Inicio</Text>
           </View>
-          <View style={[styles.navItem, styles.navItemLeft]}>
+          <View style={styles.navItem}>
             <Ionicons name="book" size={22} color="#fff" />
             <Text style={styles.navText}>Cursos</Text>
           </View>
-
-          
-          <View style={styles.fabContainer}>
-            <Pressable style={styles.fabButton}>
-              <Ionicons name="add" size={32} color="#fff" />
-            </Pressable>
-          </View>
-
-          <View style={[styles.navItem, styles.navItemRight]}>
+          <View style={styles.fabPlaceholder} />
+          <View style={styles.navItem}>
             <Ionicons name="search" size={22} color="#fff" />
             <Text style={styles.navText}>Diccionario</Text>
           </View>
@@ -60,6 +53,10 @@ export default function HomeTeacher() {
             <Text style={styles.navText}>Perfil</Text>
           </View>
         </View>
+        {/* Botón flotante central sobre la barra */}
+        <Pressable style={styles.fabButton}>
+          <Ionicons name="add" size={32} color="#fff" />
+        </Pressable>
       </View>
     </SafeAreaView>
   );
@@ -141,7 +138,7 @@ const styles = StyleSheet.create({
   // summaryCard y summaryText eliminados
   navBar: {
     flexDirection: 'row',
-    justifyContent: 'space-between',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     backgroundColor: '#560bad',
     paddingVertical: 12,
@@ -158,11 +155,8 @@ const styles = StyleSheet.create({
     elevation: 10,
     zIndex: 1,
   },
-  navItemLeft: {
-    marginRight: 36,
-  },
-  navItemRight: {
-    marginLeft: 36,
+  fabPlaceholder: {
+    width: 80,
   },
   navItem: {
     alignItems: 'center',
@@ -175,14 +169,11 @@ const styles = StyleSheet.create({
     marginTop: 4,
     fontWeight: '500',
   },
-  fabContainer: {
-    position: 'relative',
-    width: 80,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginBottom: 32,
-  },
   fabButton: {
+    position: 'absolute',
+    left: '50%',
+    bottom: 1,
+    transform: [{ translateX: -32 }, { translateY: -32 }],
     backgroundColor: '#7209B7',
     width: 64,
     height: 64,
@@ -195,5 +186,6 @@ const styles = StyleSheet.create({
     elevation: 8,
     borderWidth: 4,
     borderColor: '#f3e8ff',
+    zIndex: 2,
   },
 });
