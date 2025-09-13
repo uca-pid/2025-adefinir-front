@@ -37,7 +37,7 @@ export default function Login() {
         router.push('/tabs');
       }
     } else {
-      error_alert("Complete todos los campos para continuar");
+      error_alert("Complete todos los campos para continuar");  
     }
   }
   return (
@@ -86,15 +86,15 @@ export default function Login() {
               
             </Pressable>
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
-              <Text style={{fontSize: 16}}>¿No tienes un usuario? </Text>
+              <ThemedText style={{fontSize: 16}}>¿No tienes un usuario? </ThemedText>
               <Link href="/signup" >
-                <Text style={{fontSize: 16,color:"blue"}}>Regístrate aquí</Text>
+                <ThemedText style={{fontSize: 16}} type='link' >Regístrate aquí</ThemedText>
               </Link>
             </View>
 
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}}>
               <Link href="/acc_recovery" >
-                <Text style={{fontSize: 16,color:"blue"}}>Olvidé mi contraseña</Text>
+                <ThemedText style={{fontSize: 16}} type='link' >Olvidé mi contraseña</ThemedText>
               </Link>
             </View>
           </View>

@@ -87,7 +87,7 @@ export default function Signup() {
       router.replace('/tabs');
     }
     else {
-      error_alert("Complete todos los campos para continuar");
+      error_alert("Complete todos los campos para continuar");  
     }
   }
 
@@ -97,7 +97,7 @@ export default function Signup() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{flex: 1}}
       >
-      <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+      <ScrollView contentContainerStyle={[styles.scrollViewContent,estilos.centrado]}>
        
           <View style={styles.formContainer}>
        
@@ -195,9 +195,9 @@ export default function Signup() {
         <ThemedText type="subtitle" lightColor='white'>Registrarse</ThemedText>
       </Pressable>
       <View style={[estilos.centrado,{marginBottom:10}]}>
-        <Text >¿Ya tienes un usuario? </Text>
+        <ThemedText style={{fontSize: 16}}>¿Ya tienes un usuario? </ThemedText>
         <Link href="/login" >
-          <Text style={{color:"blue"}}>Inicia sesión aquí</Text>
+          <ThemedText style={{fontSize: 16}} type='link' >Inicia sesión aquí</ThemedText>
         </Link>
       </View>
       
@@ -216,12 +216,13 @@ const styles=StyleSheet.create({
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "#3F37C9"
+    backgroundColor: "#560bad"
   },
+  
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    minWidth: "90%"
+    minWidth: "85%"
   },
   formContainer: {
       width: '100%',
@@ -230,16 +231,19 @@ const styles=StyleSheet.create({
       padding: 20,
       justifyContent: "center",
       alignItems: 'center',
-      //height: 500
+      height: 600
   },
   loginButton: {
-      backgroundColor: '#4CC9F0',
+      backgroundColor: '#F72585',
       borderRadius: 10,
       height: 50,
       minWidth: "60%",
       justifyContent: 'center',
       alignItems: 'center',
       margin: 30,
+      shadowColor: "#000",
+      shadowOpacity: 0.15,
+      shadowRadius: 6,
   },
   textInput:{
         padding:8,
