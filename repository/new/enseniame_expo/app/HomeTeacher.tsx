@@ -6,7 +6,7 @@ export default function HomeTeacher() {
     <View style={styles.mainView}>
       <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
         <View style={styles.formContainer}>
-          <Text style={styles.title}>Bienvenido/a Profesor/a �</Text>
+          <Text style={styles.title}>Bienvenido Profesor!</Text>
           <Text style={styles.subtitle}>Panel de gestión de clases</Text>
 
           <Pressable style={styles.button}>
