@@ -31,6 +31,35 @@ export default function HomeTeacher() {
             <Text style={styles.quickActionText}>Ver progreso de estudiantes</Text>
           </Pressable>
         </View>
+
+
+        {/* Barra de navegación inferior con botón flotante */}
+        <View style={styles.navBar}>
+          <View style={styles.navItem}>
+            <Ionicons name="home" size={22} color="#fff" />
+            <Text style={styles.navText}>Inicio</Text>
+          </View>
+          <View style={[styles.navItem, styles.navItemLeft]}>
+            <Ionicons name="book" size={22} color="#fff" />
+            <Text style={styles.navText}>Cursos</Text>
+          </View>
+
+          
+          <View style={styles.fabContainer}>
+            <Pressable style={styles.fabButton}>
+              <Ionicons name="add" size={32} color="#fff" />
+            </Pressable>
+          </View>
+
+          <View style={[styles.navItem, styles.navItemRight]}>
+            <Ionicons name="search" size={22} color="#fff" />
+            <Text style={styles.navText}>Diccionario</Text>
+          </View>
+          <View style={styles.navItem}>
+            <Ionicons name="person-circle-outline" size={22} color="#fff" />
+            <Text style={styles.navText}>Perfil</Text>
+          </View>
+        </View>
       </View>
     </SafeAreaView>
   );
@@ -108,5 +137,63 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 6,
     textAlign: 'center',
+  },
+  // summaryCard y summaryText eliminados
+  navBar: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    backgroundColor: '#560bad',
+    paddingVertical: 12,
+    width: '100%',
+    position: 'absolute',
+    bottom: 0,
+    left: 0,
+    borderTopLeftRadius: 16,
+    borderTopRightRadius: 16,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: -3 },
+    shadowOpacity: 0.2,
+    shadowRadius: 4,
+    elevation: 10,
+    zIndex: 1,
+  },
+  navItemLeft: {
+    marginRight: 36,
+  },
+  navItemRight: {
+    marginLeft: 36,
+  },
+  navItem: {
+    alignItems: 'center',
+    justifyContent: 'center',
+    minWidth: 60,
+  },
+  navText: {
+    color: '#fff',
+    fontSize: 12,
+    marginTop: 4,
+    fontWeight: '500',
+  },
+  fabContainer: {
+    position: 'relative',
+    width: 80,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginBottom: 32,
+  },
+  fabButton: {
+    backgroundColor: '#7209B7',
+    width: 64,
+    height: 64,
+    borderRadius: 32,
+    alignItems: 'center',
+    justifyContent: 'center',
+    shadowColor: '#000',
+    shadowOpacity: 0.18,
+    shadowRadius: 8,
+    elevation: 8,
+    borderWidth: 4,
+    borderColor: '#f3e8ff',
   },
 });
