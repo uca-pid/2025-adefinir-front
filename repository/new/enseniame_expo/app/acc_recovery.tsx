@@ -24,6 +24,7 @@ export default function Login() {
   const [errorEmail, setErrorEmail] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [inputCode,setInputCode]= useState('');
+  const [showPassword, setShowPassword] = useState(false);
   const codigo ="1234";
   const handleEmailChange = (text:any) => {
       setMail(text);
@@ -45,80 +46,100 @@ export default function Login() {
       router.replace('/tabs');
     } else {
       error_alert("Contraseña incorrecta");
-      console.log("No")
     }
   }
   return (
-    <View
-      style={styles.mainView}
-    >
+    <View  style={styles.mainView}  >
       
-      <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+      <ScrollView contentContainerStyle={[styles.scrollViewContent, ]}>
         
         <View style={styles.formContainer}>
-            <ThemedText type='title' lightColor='white' style={{margin:20}}>Recuperar cuenta</ThemedText>
+          <View >
+          <ThemedText type='title' style={{margin:20}}>Recuperar cuenta</ThemedText>
 
-            <View style={styles.inputContainer}>
-              <Ionicons name="code-download" size={24} color="white" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                textContentType="emailAddress"
-                keyboardType="email-address"
-                onChangeText={handleEmailChange}
-                value={mail}
-                placeholder="Correo electrónico"
-                placeholderTextColor="#999"
-              />
-            </View>
-            {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
+          <View style={[styles.inputContainer,]}>
+            <Ionicons name="mail-outline" size={24} color="white" style={styles.inputIcon} />
+            <TextInput
+              style={styles.textInput}
+              textContentType="emailAddress"
+              keyboardType="email-address"
+              onChangeText={handleEmailChange}
+              value={mail}
+              placeholder="Correo electrónico"
+              placeholderTextColor="#999"
+            />
+          </View>
+          {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
-            <Pressable onPress={enviar_codigo} style={styles.loginButton} >
-              <ThemedText type="subtitle" lightColor='white'>Enviar código</ThemedText>
-            </Pressable>
+          <Pressable onPress={enviar_codigo} style={styles.loginButton} >
+            <ThemedText type="subtitle" lightColor='white'>Enviar código</ThemedText>
+          </Pressable>
+
+          <Pressable style={[styles.loginButton,{borderWidth: 1, borderColor: '#7209B7',backgroundColor: '#fff',}]} onPress={() => router.back()}   >
+            <ThemedText type="subtitle" lightColor='#7209B7'>Cancelar</ThemedText>
+          </Pressable>
+          </View>
         </View>
       </ScrollView>
       
 
-      <Modal animationType="slide"
-          transparent={false}
+      <Modal animationType="slide" 
+          transparent={true}
           visible={modalVisible}
           onRequestClose={() => {
             setModalVisible(!modalVisible);
           }}>
-            <View style={styles.mainView}>
-               <ThemedText type='subtitle'>Ingresar código</ThemedText>
-               <ThemedText style={estilos.centrado}> Se envió un correo a tu casilla </ThemedText>
+            <View style={[styles.mainView,{backgroundColor:'rgba(255, 255, 255, 0)'}]}>
+              <ScrollView contentContainerStyle={[styles.scrollViewContent, {minWidth:"85%"} ]}>
+        
+              <View style={[styles.formContainer,{backgroundColor:"white"}]}>
+               <ThemedText type='title'>Ingresar código</ThemedText>
+               <ThemedText style={[estilos.centrado,{marginTop:20}]}> Se envió un correo a tu casilla </ThemedText>
                <ThemedText>con una contraseña temporal.</ThemedText>
+               <ThemedText>Recuerde restaurarla luego de ingresar.</ThemedText>
 
                <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                keyboardType="default"
-                onChangeText={setInputCode}
-                value={inputCode}
-                placeholder="Código"
-                placeholderTextColor="#999"
-              />
-            </View>
-            {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
+                <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
+                <TextInput
+                  style={styles.textInput}
+                  keyboardType="default"
+                  secureTextEntry={!showPassword}
+                  textContentType="newPassword"
+                  onChangeText={setInputCode}
+                  value={inputCode}
+                  placeholder="Código"
+                  placeholderTextColor="#999"
+                  />
+                  <Pressable onPress={()=> setShowPassword(!showPassword)} >
+                    <Ionicons
+                      name={showPassword ? "eye-outline" : "eye-off-outline"}
+                      size={24}
+                      color="#666"
+                    />
+                  </Pressable>
+              </View>
+              {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
-              <Pressable onPress={recuperar} style={styles.loginButton} >
+              <Pressable onPress={recuperar} style={[styles.loginButton,{width:"80%"}]} >
                 <ThemedText type="subtitle" lightColor='white'>Recuperar</ThemedText>
               </Pressable>
 
-                <Pressable style={[styles.cancelButton]} onPress={() => router.back()}   >
-                    <Text style={styles.cancelButtonText}>Cancelar</Text>
-                </Pressable>
-
+              <Pressable style={[styles.loginButton,{width:"80%",borderWidth: 1, borderColor: '#7209B7',backgroundColor: '#fff',}]} onPress={() => setModalVisible(false)}   >
+                <ThemedText type="subtitle" lightColor='#7209B7'>Cancelar</ThemedText>
+              </Pressable>
+            
+              <View style={[estilos.centrado,{marginTop: 30,width:"100%"}]}>
                 <ThemedText> ¿No lo recibiste?</ThemedText>
-                <Pressable style={styles.loginButton}>
+                <Pressable style={[styles.loginButton, {backgroundColor: '#F72585',width:"80%"}]}>
                   <ThemedText type="subtitle" lightColor='white'>Reenviar</ThemedText>
                 </Pressable>
-                <Toast/>
+              </View>
+              </View>
+              </ScrollView>
+              <Toast/>
             </View>
            
-
+          <Toast/>
       </Modal>
       <Toast/>
     </View>
@@ -133,23 +154,22 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "white"
+    backgroundColor: "#560bad"
   },
   formContainer: {
-      width: '100%',
-      backgroundColor: '#7209B7',
-      borderRadius: 10,
-      padding: 20,
-      justifyContent: "center",
-      alignItems: 'center',
-      height: 500
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0.8)',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: 'center',
+    height: 500
 
   },
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
-    minWidth: "90%",
-    
+    minWidth: "80%",
   },
   loginButton: {
       backgroundColor: '#B5179E',
@@ -158,19 +178,10 @@ const styles = StyleSheet.create({
       minWidth: "60%",
       justifyContent: 'center',
       alignItems: 'center',
-      margin: 30,
+      marginTop: 20,
+      marginHorizontal: 30
   },
-  cancelButton: {
-      backgroundColor: '#fff',
-      borderRadius: 10,
-      height: 50,
-      minWidth: "60%",
-      justifyContent: 'center',
-      alignItems: 'center',
-      borderWidth: 1,
-      borderColor: '#7209B7',
-      marginBottom: 30
-  },
+  
   cancelButtonText: {
     color: '#7209B7',
     fontSize: 18,
