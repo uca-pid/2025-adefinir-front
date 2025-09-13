@@ -1,83 +1,112 @@
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import React from 'react';
+import { View, Text, StyleSheet, SafeAreaView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 
 export default function HomeTeacher() {
+  // Simulación de nombre docente
+  const teacherName = 'Prof. Martínez';
   return (
-    <View style={styles.mainView}>
-      <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
-        <View style={styles.formContainer}>
-          <Text style={styles.title}>Bienvenido Profesor!</Text>
-          <Text style={styles.subtitle}>Panel de gestión de clases</Text>
+    <SafeAreaView style={styles.safeArea}>
+      <View style={styles.mainView}>
+        {/* Encabezado */}
+        <View style={styles.headerContainer}>
+          <Text style={styles.panelTitle}>Panel del Profesor <Text style={{fontSize:22}}></Text></Text>
+          <Text style={styles.teacherName}>Bienvenido, {teacherName}</Text>
+        </View>
 
-          <Pressable style={styles.button}>
-            <Ionicons name="people-outline" size={24} color="#fff" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>Mis Alumnos</Text>
+        {/* CTA principal */}
+        <Pressable style={styles.ctaButton}>
+          <Ionicons name="add" size={28} color="#fff" style={styles.ctaIcon} />
+          <Text style={styles.ctaButtonText}>Crear contenido</Text>
+        </Pressable>
+
+        {/* Gestión rápida */}
+        <View style={styles.quickActionsRow}>
+          <Pressable style={styles.quickActionCard}>
+            <Ionicons name="videocam-outline" size={26} color="#560bad" />
+            <Text style={styles.quickActionText}>Subir video de seña</Text>
           </Pressable>
-
-          <Pressable style={styles.button}>
-            <Ionicons name="create-outline" size={24} color="#fff" style={styles.buttonIcon} />
-            <Text style={styles.buttonText}>Crear Clase</Text>
+          <Pressable style={styles.quickActionCard}>
+            <Ionicons name="school-outline" size={26} color="#560bad" />
+            <Text style={styles.quickActionText}>Ver progreso de estudiantes</Text>
           </Pressable>
         </View>
-      </ScrollView>
-    </View>
+      </View>
+    </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
+  safeArea: {
+    flex: 1,
+    backgroundColor: '#f3e8ff', // violeta claro
+  },
   mainView: {
     flex: 1,
-    justifyContent: "center",
-    alignItems: "center",
-    width: '100%',
-    height: '100%',
-    backgroundColor: "#7209B7"
-  },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'center',
-    minWidth: "80%"
-  },
-  formContainer: {
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0.8)',
-    borderRadius: 10,
-    padding: 20,
-    justifyContent: "center",
+    backgroundColor: '#f3e8ff',
+    justifyContent: 'flex-start',
     alignItems: 'center',
-    height: 400
+    paddingTop: 60,
   },
-  title: {
-    fontSize: 28,
+  headerContainer: {
+    marginBottom: 24,
+    alignItems: 'center',
+  },
+  panelTitle: {
+    fontSize: 26,
     fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 20,
-    textAlign: 'center',
+    color: '#560bad',
+    marginBottom: 4,
   },
-  subtitle: {
+  teacherName: {
     fontSize: 18,
-    color: "#475569",
-    marginBottom: 30,
-    textAlign: 'center',
+    color: '#560bad',
+    fontWeight: '500',
+    marginBottom: 18,
   },
-  button: {
+  ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#F72585',
-    borderRadius: 10,
-    height: 50,
-    minWidth: "60%",
     justifyContent: 'center',
-    margin: 10,
-    paddingHorizontal: 20,
+    backgroundColor: '#F72585',
+    borderRadius: 14,
+    height: 60,
+    marginBottom: 28,
+    shadowColor: '#000',
+    shadowOpacity: 0.1,
+    shadowRadius: 6,
+    elevation: 3,
+    paddingHorizontal: 24,
   },
-  buttonIcon: {
+  ctaIcon: {
     marginRight: 10,
   },
-  buttonText: {
-    color: "#fff",
+  ctaButtonText: {
+    color: '#fff',
     fontSize: 18,
     fontWeight: 'bold',
-    textAlign: "center",
+  },
+  quickActionsRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 22,
+    width: '100%',
+    paddingHorizontal: 16,
+  },
+  quickActionCard: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#f8f9fa',
+    borderRadius: 12,
+    paddingVertical: 20,
+    marginHorizontal: 6,
+  },
+  quickActionText: {
+    color: '#560bad',
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginTop: 6,
+    textAlign: 'center',
   },
 });
