@@ -7,6 +7,7 @@ import {
   KeyboardAvoidingView,
   Platform,
   ScrollView,
+  AppState 
 } from 'react-native';
 import { useEffect, useState } from "react";
 import { Link , router} from 'expo-router';
@@ -15,6 +16,20 @@ import { ThemedText } from '@/components/ThemedText';
 import { validateEmail, validatePassword } from '@/components/validaciones';
 import { error_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
+
+import { supabase } from '../lib/supabase'
+
+// Tells Supabase Auth to continuously refresh the session automatically if
+// the app is in the foreground. When this is added, you will continue to receive
+// `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event
+// if the user's session is terminated. This should only be registered once.
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh()
+  } else {
+    supabase.auth.stopAutoRefresh()
+  }
+})
 
 const hardcodeado= {
   username: "a@mail.com", password: "12345678!"
@@ -30,12 +45,29 @@ export default function Login() {
     const isPasswordValid = validatePassword(password).status;
     if (isPasswordValid && isEmailValid) {
       //acceder a db
+      try {
+        const { data: todos, error } = await supabase.from('Users').select('*').eq('mail', mail);
 
-      if (password!= hardcodeado.password || mail!= hardcodeado.username) {
-        error_alert("Usuario o contraseña incorrectos");
-      } else{
-        router.push('/tabs');
+        if (error) {
+          console.error('Error:', error.message);
+          error_alert("Error de autenticación. Verifique sus credenciales y vuelva a intentar");
+          return;
+        }
+       
+        if (todos && todos.length > 0) {
+          console.log(todos);
+          if (password!= todos[0].hashed_password || mail!= todos[0].mail) {
+            error_alert("Usuario o contraseña incorrectos");
+            console.log
+          } else{
+            router.push('/tabs');
+          }
+        }
+        
+      } catch (error: any) {
+        console.error('Error fetching todos:', error.message);
       }
+      
     } else {
       error_alert("Complete todos los campos para continuar");  
     }
