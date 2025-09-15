@@ -1,11 +1,5 @@
-import { 
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  StyleSheet,
-  Platform,
-  ScrollView, KeyboardAvoidingView
+import { Pressable,  Text,  TextInput,  View,
+  StyleSheet,  Platform,  ScrollView, KeyboardAvoidingView
 } from 'react-native';
 import { useEffect, useState } from "react";
 import { Link, router, useLocalSearchParams } from 'expo-router';
@@ -20,6 +14,8 @@ import Toast from 'react-native-toast-message';
 
 export default function Signup() {
   const { soyProfe = 0} = useLocalSearchParams();
+  var flag=true;
+  if (soyProfe==0) flag= false;
   
   const [mail, setMail] = useState('');
   const [name, setName] = useState('');
@@ -36,7 +32,7 @@ export default function Signup() {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
-  const [esProfe, setProfe] = useState(false);
+  const [esProfe, setProfe] = useState(flag);
 
   const validatePasswordConfirm = (password1:String, password2:String) => {
         if (password1 !== password2) {
@@ -83,7 +79,22 @@ export default function Signup() {
     const isInstitutionValid = validateInstitution(institucion);
 
     if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid && (!esProfe || (esProfe && isInstitutionValid))) {
-      
+      try {
+        const rsp = await fetch(`${process.env.EXPO_PUBLIC_DATABASE_URL}/`, {
+          method: "GET",
+          headers: { "Content-Type": "application/json" },
+          
+        });
+
+        if (!rsp.ok) {
+          console.log(rsp.status)
+            if (rsp.status == 400) throw new Error("Usuario o contraseña incorrectos");
+            throw new Error();
+        }
+      } catch (error) {
+        error_alert(String(error));
+      }
+
       router.replace('/tabs');
     }
     else {
@@ -99,7 +110,7 @@ export default function Signup() {
       >
       <ScrollView contentContainerStyle={[styles.scrollViewContent,estilos.centrado]}>
        
-          <View style={styles.formContainer}>
+        <View style={styles.formContainer}>
        
         <ThemedText type="title" style={{margin:40}}>Crear cuenta</ThemedText>
       

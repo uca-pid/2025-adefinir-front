@@ -31,10 +31,6 @@ AppState.addEventListener('change', (state) => {
   }
 })
 
-const hardcodeado= {
-  username: "a@mail.com", password: "12345678!"
-}
-
 export default function Login() {
   const [mail, setMail] = useState('');
   const [password, setPassword] = useState('');
