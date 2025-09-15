@@ -1,4 +1,4 @@
-class User {
+abstract class User {
     mail: string;
     username: string;
     hashed_password: string;
@@ -29,4 +29,4 @@ class Profesor extends User  {
 } 
 interface Logged_Profesor extends Profesor {id:number}
 
-export type {User, Logged_Profesor, Alumno, Profesor}
+export {User, Logged_Profesor, Alumno, Profesor}

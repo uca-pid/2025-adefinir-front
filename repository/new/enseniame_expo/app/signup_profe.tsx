@@ -32,8 +32,6 @@ export default function Signup() {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
-  const [usuario,setUsuario] = useState<Profesor>();
-
   const validatePasswordConfirm = (password1:String, password2:String) => {
         if (password1 !== password2) {
             setErrorPasswordConfirm('Las contraseñas deben coincidir');
@@ -79,7 +77,8 @@ export default function Signup() {
     const isInstitutionValid = validateInstitution(institucion);
 
     if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid && isInstitutionValid) {
-      registrarse({username:name,hashed_password:password1,mail:mail, institution:institucion});      
+      const user = new Profesor(mail,name,password1,institucion)
+      registrarse(user);      
     }
     else {
       error_alert("Complete todos los campos para continuar");  
@@ -167,12 +166,7 @@ export default function Signup() {
       </View>
       {errorPasswordConfirm ? <ThemedText type='error'>{errorPasswordConfirm}</ThemedText> : null}
 
-      <View style={styles.inputContainer}>
-        <ThemedText type='defaultSemiBold' lightColor='white'>Soy profesor</ThemedText>
-        <Checkbox style={styles.checkbox} value={esProfe} onValueChange={setProfe} />
-      </View>
-
-      {esProfe ? (
+      
         <View style={styles.inputContainer}>
         <Ionicons name="business-outline" size={24} color="#666" style={styles.inputIcon} />
         <TextInput
@@ -183,8 +177,8 @@ export default function Signup() {
           placeholderTextColor="#999"
         />
       </View>
-    ):null}
-      {esProfe && errorI ? <ThemedText type='error'>{errorI}</ThemedText> : null}
+    
+      {errorI ? <ThemedText type='error'>{errorI}</ThemedText> : null}
 
       <TouchableOpacity onPress={signup} style={styles.loginButton} >
         <ThemedText type="subtitle" lightColor='white'>Registrarse</ThemedText>
@@ -233,7 +227,7 @@ const styles=StyleSheet.create({
       padding: 20,
       justifyContent: "center",
       alignItems: 'center',
-      height: 600
+      height: 650
   },
   loginButton: {
       backgroundColor: '#F72585',

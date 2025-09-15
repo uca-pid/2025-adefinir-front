@@ -13,7 +13,7 @@ import { error_alert,success_alert } from '@/components/alert';
 import { validateEmail, validatePassword, validateInstitution } from '@/components/validaciones';
 import Toast from 'react-native-toast-message';
 import { registrarse } from '@/conexiones/gestion_usuarios';
-import { User } from '@/components/types';
+import { Alumno, User } from '@/components/types';
 
 export default function Signup() {
   
@@ -32,7 +32,6 @@ export default function Signup() {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
-  const [usuario,setUsuario] = useState<User>();
 
   const validatePasswordConfirm = (password1:String, password2:String) => {
         if (password1 !== password2) {
@@ -65,11 +64,6 @@ export default function Signup() {
         validatePasswordConfirm(password1, text);
     };
 
-    const handleInstitutionChange = (text:any) =>{
-      setInstitucion(text);
-      setErrorI(text ? '' : 'El nombre de la institución no puede estar vacío');
-    }
-
 
   async function signup() {
     const isEmailValid = validateEmail(mail).status;
@@ -78,7 +72,8 @@ export default function Signup() {
     const isPasswordConfirmValid = password1==password2;
 
     if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid ) {
-      registrarse({username:name,hashed_password:password1,mail:mail});      
+      const user = new Alumno(mail,name,password1)
+      registrarse(user);      
     }
     else {
       error_alert("Complete todos los campos para continuar");  
