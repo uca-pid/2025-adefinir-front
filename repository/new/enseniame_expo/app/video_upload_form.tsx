@@ -34,15 +34,22 @@ export default function VideoUploadForm() {
         <ThemedText type="title">Comparte tus videos de LSA con la comunidad</ThemedText>
       </ThemedView>
 
+      <View style={[styles.stepContainer, styles.centrado]}>
+        <TextInput
+          placeholder="Agrega una descripción breve de la seña"
+          style={{ borderWidth: 1, borderColor: '#ccc', borderRadius: 5, padding: 10 }}
+        />
       <VideoUpload onVideoUpload={handleVideoUpload} />
 
       <ThemedView style={[styles.stepContainer, styles.centrado]}>
-        <ThemedText>
+        <ThemedText type="subtitle">¿Por qué subir tus videos?</ThemedText>
+        <ThemedText style={{textAlign: 'center', maxWidth: 400}}>
           Sube videos de tus prácticas en Lengua de Señas Argentina (LSA) y contribuye a una comunidad de aprendizaje colaborativo. 
           Tus videos ayudarán a otros usuarios a mejorar sus habilidades y a compartir conocimientos.
         </ThemedText>
       </ThemedView>
-
+      
+      </View>
       </ParallaxScrollView>
   );
 }

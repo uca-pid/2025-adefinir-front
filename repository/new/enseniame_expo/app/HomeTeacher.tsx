@@ -1,6 +1,7 @@
 import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { Link , router} from 'expo-router';
 
 export default function HomeTeacher() {
   // Simulación de nombre docente
@@ -22,7 +23,7 @@ export default function HomeTeacher() {
 
         {/* Gestión rápida */}
         <View style={styles.quickActionsRow}>
-          <Pressable style={styles.quickActionCard}>
+          <Pressable onPress={()=>{router.push('/video_upload_form');}} style={styles.quickActionCard}>
             <Ionicons name="videocam-outline" size={26} color="#560bad" />
             <Text style={styles.quickActionText}>Subir video de seña</Text>
           </Pressable>
