@@ -87,7 +87,7 @@ export default function Login() {
 
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
               <ThemedText style={{fontSize: 16}}>¿No tienes un usuario? </ThemedText>
-              <Link href="/signup" >
+              <Link href="/signup_alumno" >
                 <ThemedText style={{fontSize: 16}} type='link' >Regístrate aquí</ThemedText>
               </Link>
             </View>

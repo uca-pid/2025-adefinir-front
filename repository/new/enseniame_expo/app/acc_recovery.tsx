@@ -8,7 +8,8 @@ import {
   Platform,
   ScrollView,
   Modal,
-  Animated
+  Animated,
+  TouchableOpacity
 } from 'react-native';
 import { useEffect, useState } from "react";
 import { Link, router } from 'expo-router';
@@ -19,6 +20,7 @@ import { estilos } from '@/components/estilos';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { cuenta_existe } from '@/conexiones/gestion_usuarios';
+import { enviar_mail_recuperacion } from '@/components/mails';
 
 export default function Login() {
   const [mail, setMail] = useState('');
@@ -36,6 +38,7 @@ export default function Login() {
   async function enviar_codigo() {
      //verificar que la cuenta exista en la db
     if (validateEmail(mail).status && await cuenta_existe(mail)){
+      enviar_mail_recuperacion(mail,codigo);
       setModalVisible(true);
     } else{
       error_alert("Ingrese un mail válido");
@@ -133,9 +136,9 @@ export default function Login() {
             
               <View style={[estilos.centrado,{marginTop: 30,width:"100%"}]}>
                 <ThemedText> ¿No lo recibiste?</ThemedText>
-                <Pressable style={[styles.loginButton, {backgroundColor: '#F72585',width:"80%"}]}>
+                <TouchableOpacity onPress={enviar_codigo} style={[styles.loginButton, {backgroundColor: '#F72585',width:"80%"}]}>
                   <ThemedText type="subtitle" lightColor='white'>Reenviar</ThemedText>
-                </Pressable>
+                </TouchableOpacity>
               </View>
               </View>
               </ScrollView>

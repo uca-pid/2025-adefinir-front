@@ -63,7 +63,7 @@ const cuenta_existe = async (mail:string)=>{
     if (user && user.length >0) {
       return true 
     }
-
+    return false
   } catch (error:any) {
     console.error('Error insertando:', error.message);
     error_alert("Error al recuperar usuario")
