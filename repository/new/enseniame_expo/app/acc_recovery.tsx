@@ -18,6 +18,7 @@ import { validateEmail } from '@/components/validaciones';
 import { estilos } from '@/components/estilos';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
+import { cuenta_existe } from '@/conexiones/gestion_usuarios';
 
 export default function Login() {
   const [mail, setMail] = useState('');
@@ -26,13 +27,15 @@ export default function Login() {
   const [inputCode,setInputCode]= useState('');
   const [showPassword, setShowPassword] = useState(false);
   const codigo ="1234";
+
   const handleEmailChange = (text:any) => {
       setMail(text);
       setErrorEmail(validateEmail(text).msj);
-    };
+  };
+
   async function enviar_codigo() {
-    if (validateEmail(mail).status){
-      //verificar que la cuenta exista en la db
+     //verificar que la cuenta exista en la db
+    if (validateEmail(mail).status && await cuenta_existe(mail)){
       setModalVisible(true);
     } else{
       error_alert("Ingrese un mail válido");
@@ -94,7 +97,7 @@ export default function Login() {
         
               <View style={[styles.formContainer,{backgroundColor:"white"}]}>
                <ThemedText type='title'>Ingresar código</ThemedText>
-               <ThemedText style={[estilos.centrado,{marginTop:20}]}> Se envió un correo a tu casilla </ThemedText>
+               <ThemedText style={[estilos.centrado,{marginTop:20}]}> Se envió un correo a su casilla </ThemedText>
                <ThemedText>con una contraseña temporal.</ThemedText>
                <ThemedText>Recuerde restaurarla luego de ingresar.</ThemedText>
 
