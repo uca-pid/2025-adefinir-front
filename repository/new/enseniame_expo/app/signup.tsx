@@ -1,5 +1,6 @@
 import { Pressable,  Text,  TextInput,  View,
-  StyleSheet,  Platform,  ScrollView, KeyboardAvoidingView
+  StyleSheet,  Platform,  ScrollView, KeyboardAvoidingView,
+  TouchableOpacity
 } from 'react-native';
 import { useEffect, useState } from "react";
 import { Link, router, useLocalSearchParams } from 'expo-router';
@@ -11,6 +12,8 @@ import { Checkbox } from 'expo-checkbox';
 import { error_alert,success_alert } from '@/components/alert';
 import { validateEmail, validatePassword, validateInstitution } from '@/components/validaciones';
 import Toast from 'react-native-toast-message';
+import { registrarse } from '@/conexiones/gestion_usuarios';
+import { User } from '@/components/types';
 
 export default function Signup() {
   const { soyProfe = 0} = useLocalSearchParams();
@@ -34,6 +37,8 @@ export default function Signup() {
 
   const [esProfe, setProfe] = useState(flag);
 
+  const [usuario,setUsuario] = useState<User>();
+
   const validatePasswordConfirm = (password1:String, password2:String) => {
         if (password1 !== password2) {
             setErrorPasswordConfirm('Las contraseñas deben coincidir');
@@ -45,8 +50,8 @@ export default function Signup() {
     };
 
     const handleEmailChange = (text:any) => {
-        setMail(text);
-        setErrorEmail(validateEmail(text).msj);
+      setMail(text);
+      setErrorEmail(validateEmail(text).msj);
     };
 
     const handleNameChange = (text:any) => {
@@ -79,23 +84,7 @@ export default function Signup() {
     const isInstitutionValid = validateInstitution(institucion);
 
     if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid && (!esProfe || (esProfe && isInstitutionValid))) {
-      try {
-        const rsp = await fetch(`${process.env.EXPO_PUBLIC_DATABASE_URL}/`, {
-          method: "GET",
-          headers: { "Content-Type": "application/json" },
-          
-        });
-
-        if (!rsp.ok) {
-          console.log(rsp.status)
-            if (rsp.status == 400) throw new Error("Usuario o contraseña incorrectos");
-            throw new Error();
-        }
-      } catch (error) {
-        error_alert(String(error));
-      }
-
-      router.replace('/tabs');
+      registrarse({username:name,hashed_password:password1,mail:mail});      
     }
     else {
       error_alert("Complete todos los campos para continuar");  
@@ -202,9 +191,9 @@ export default function Signup() {
     ):null}
       {esProfe && errorI ? <ThemedText type='error'>{errorI}</ThemedText> : null}
 
-      <Pressable onPress={signup} style={styles.loginButton} >
+      <TouchableOpacity onPress={signup} style={styles.loginButton} >
         <ThemedText type="subtitle" lightColor='white'>Registrarse</ThemedText>
-      </Pressable>
+      </TouchableOpacity>
       <View style={[estilos.centrado,{marginBottom:10}]}>
         <ThemedText style={{fontSize: 16}}>¿Ya tienes un usuario? </ThemedText>
         <Link href="/login" >

@@ -1,21 +1,15 @@
-import { 
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-  AppState 
+import { Pressable,  Text,  TextInput,  View,
+  StyleSheet,  ScrollView,  AppState, 
+  TouchableOpacity
 } from 'react-native';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link , router} from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedText } from '@/components/ThemedText';
 import { validateEmail, validatePassword } from '@/components/validaciones';
 import { error_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
+import {ingresar} from "../conexiones/gestion_usuarios"
 
 import { supabase } from '../lib/supabase'
 
@@ -41,29 +35,7 @@ export default function Login() {
     const isPasswordValid = validatePassword(password).status;
     if (isPasswordValid && isEmailValid) {
       //acceder a db
-      try {
-        const { data: todos, error } = await supabase.from('Users').select('*').eq('mail', mail);
-
-        if (error) {
-          console.error('Error:', error.message);
-          error_alert("Error de autenticación. Verifique sus credenciales y vuelva a intentar");
-          return;
-        }
-       
-        if (todos && todos.length > 0) {
-          console.log(todos);
-          if (password!= todos[0].hashed_password || mail!= todos[0].mail) {
-            error_alert("Usuario o contraseña incorrectos");
-            console.log
-          } else{
-            router.push('/tabs');
-          }
-        }
-        
-      } catch (error: any) {
-        console.error('Error fetching todos:', error.message);
-      }
-      
+      ingresar(mail,password);
     } else {
       error_alert("Complete todos los campos para continuar");  
     }
@@ -109,10 +81,10 @@ export default function Login() {
               </Pressable>
             </View>
 
-            <Pressable onPress={login} style={styles.loginButton} >
+            <TouchableOpacity onPress={login} style={styles.loginButton} >
               <ThemedText type="subtitle" lightColor='white'>Ingresar</ThemedText>
-              
-            </Pressable>
+            </TouchableOpacity>
+
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
               <ThemedText style={{fontSize: 16}}>¿No tienes un usuario? </ThemedText>
               <Link href="/signup" >
@@ -197,3 +169,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 })
+
