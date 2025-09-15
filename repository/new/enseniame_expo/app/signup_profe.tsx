@@ -13,12 +13,9 @@ import { error_alert,success_alert } from '@/components/alert';
 import { validateEmail, validatePassword, validateInstitution } from '@/components/validaciones';
 import Toast from 'react-native-toast-message';
 import { registrarse } from '@/conexiones/gestion_usuarios';
-import { User } from '@/components/types';
+import { User, Profesor } from '@/components/types';
 
 export default function Signup() {
-  const { soyProfe = 0} = useLocalSearchParams();
-  var flag=true;
-  if (soyProfe==0) flag= false;
   
   const [mail, setMail] = useState('');
   const [name, setName] = useState('');
@@ -35,9 +32,7 @@ export default function Signup() {
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
 
-  const [esProfe, setProfe] = useState(flag);
-
-  const [usuario,setUsuario] = useState<User>();
+  const [usuario,setUsuario] = useState<Profesor>();
 
   const validatePasswordConfirm = (password1:String, password2:String) => {
         if (password1 !== password2) {
@@ -83,8 +78,8 @@ export default function Signup() {
     const isPasswordConfirmValid = password1==password2;
     const isInstitutionValid = validateInstitution(institucion);
 
-    if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid && (!esProfe || (esProfe && isInstitutionValid))) {
-      registrarse({username:name,hashed_password:password1,mail:mail});      
+    if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid && isInstitutionValid) {
+      registrarse({username:name,hashed_password:password1,mail:mail, institution:institucion});      
     }
     else {
       error_alert("Complete todos los campos para continuar");  
@@ -198,6 +193,13 @@ export default function Signup() {
         <ThemedText style={{fontSize: 16}}>¿Ya tienes un usuario? </ThemedText>
         <Link href="/login" >
           <ThemedText style={{fontSize: 16}} type='link' >Inicia sesión aquí</ThemedText>
+        </Link>
+      </View>
+
+      <View style={[estilos.centrado,{marginBottom:10}]}>
+        <ThemedText style={{fontSize: 16}}>¿Eres alumno? </ThemedText>
+        <Link href="/signup_alumno" >
+          <ThemedText style={{fontSize: 16}} type='link' >Crear cuenta de alumno</ThemedText>
         </Link>
       </View>
       
