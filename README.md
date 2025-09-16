@@ -18,3 +18,5 @@ Metacello new
 * npx expo install expo-checkbox
 * npm install --save react-native-toast-message
 * npm i @emailjs/react-native
+* npm i react-native-sha256
+* npx expo install @supabase/supabase-js @react-native-async-storage/async-storage @rneui/themed
