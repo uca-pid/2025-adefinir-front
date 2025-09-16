@@ -7,6 +7,7 @@ export default function RootLayout() {
     <Stack.Screen name='login' options={{title:"Login",headerShown: false}}/>
     <Stack.Screen name='signup' options={{title:"Crear cuenta",headerShown: false}}/>
     <Stack.Screen name='acc_recovery' options={{title:"Recuperar cuenta",headerShown: false}}/>
+    <Stack.Screen name='video_upload_form' options={{title:"Subir video",headerShown: false}}/>
     <Stack.Screen name='tabs' options={{headerShown: false}}/>
     </Stack>);
 }
