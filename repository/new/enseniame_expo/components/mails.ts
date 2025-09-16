@@ -1,5 +1,3 @@
-import { supabase } from "@/lib/supabase";
-import { EmailOtpType } from "@supabase/supabase-js";
 import { error_alert, success_alert } from "./alert";
 import { send, EmailJSResponseStatus } from '@emailjs/react-native';
 
@@ -25,7 +23,14 @@ const enviar_mail_recuperacion = async (mail:string, pass: string)=>{
 
       console.log('ERROR', err);
     }
-    
 }
 
-export {enviar_mail_recuperacion}
+const generar_otp = ()=>{
+  let max= 99999999;
+  let min= 10000000;
+  const otp =Math.round( Math.random() * (max - min) + min);
+  console.log(otp)
+  return String(otp)
+}
+
+export {enviar_mail_recuperacion, generar_otp}

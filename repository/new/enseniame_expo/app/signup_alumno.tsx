@@ -10,7 +10,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { estilos } from '@/components/estilos';
 import { Checkbox } from 'expo-checkbox';
 import { error_alert,success_alert } from '@/components/alert';
-import { validateEmail, validatePassword, validateInstitution } from '@/components/validaciones';
+import { validateEmail, validatePassword, } from '@/components/validaciones';
 import Toast from 'react-native-toast-message';
 import { registrarse } from '@/conexiones/gestion_usuarios';
 import { Alumno, User } from '@/components/types';
@@ -21,13 +21,11 @@ export default function Signup() {
   const [name, setName] = useState('');
   const [password1, setPassword1] = useState('');
   const [password2, setPassword2] = useState('');
-  const [institucion, setInstitucion]= useState('');
 
   const [errorEmail, setErrorEmail] = useState('');
   const [errorName, setErrorName] = useState('');
   const [errorPassword, setErrorPassword] = useState('');
   const [errorPasswordConfirm, setErrorPasswordConfirm] = useState('');
-  const [errorI, setErrorI] = useState('');
 
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
@@ -66,6 +64,7 @@ export default function Signup() {
 
 
   async function signup() {
+    setMail(mail.toLowerCase())
     const isEmailValid = validateEmail(mail).status;
     const isNameValid = name !== '';
     const isPasswordValid = validatePassword(password1).status;

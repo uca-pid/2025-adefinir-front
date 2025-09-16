@@ -70,6 +70,7 @@ export default function Signup() {
 
 
   async function signup() {
+    setMail(mail.toLowerCase())
     const isEmailValid = validateEmail(mail).status;
     const isNameValid = name !== '';
     const isPasswordValid = validatePassword(password1).status;

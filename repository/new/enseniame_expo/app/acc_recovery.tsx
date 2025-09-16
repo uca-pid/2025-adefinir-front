@@ -37,6 +37,7 @@ export default function Login() {
 
   async function enviar_codigo() {
      //verificar que la cuenta exista en la db
+    setMail(mail.toLowerCase())
     if (validateEmail(mail).status && await cuenta_existe(mail)){
       enviar_mail_recuperacion(mail,codigo);
       setModalVisible(true);
@@ -216,3 +217,10 @@ const styles = StyleSheet.create({
       marginRight: 10,
     },
 })
+const generar_otp = ()=>{
+  let max= 99999999;
+  let min= 10000000;
+  const otp =Math.round( Math.random() * (max - min) + min);
+  console.log(otp)
+  return String(otp)
+}

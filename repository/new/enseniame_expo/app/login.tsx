@@ -31,6 +31,7 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   async function login  (){
+    setMail(mail.toLowerCase())
     const isEmailValid = validateEmail(mail).status;
     const isPasswordValid = validatePassword(password).status;
     if (isPasswordValid && isEmailValid) {
