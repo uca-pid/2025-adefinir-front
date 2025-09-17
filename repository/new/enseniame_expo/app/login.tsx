@@ -82,6 +82,7 @@ export default function Login() {
               </Pressable>
             </View>
 
+
             <TouchableOpacity onPress={login} style={styles.loginButton} >
               <ThemedText type="subtitle" lightColor='white'>Ingresar</ThemedText>
             </TouchableOpacity>
