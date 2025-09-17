@@ -1,20 +1,46 @@
-import { 
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
+import { Pressable,  Text,  TextInput,  View,
+  StyleSheet,  ScrollView,  AppState, 
+  TouchableOpacity
 } from 'react-native';
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { Link , router} from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { ThemedText } from '@/components/ThemedText';
+import { validateEmail, validatePassword } from '@/components/validaciones';
+import { error_alert } from '@/components/alert';
+import Toast from 'react-native-toast-message';
+import {ingresar} from "../conexiones/gestion_usuarios"
+
+import { supabase } from '../lib/supabase'
+
+// Tells Supabase Auth to continuously refresh the session automatically if
+// the app is in the foreground. When this is added, you will continue to receive
+// `onAuthStateChange` events with the `TOKEN_REFRESHED` or `SIGNED_OUT` event
+// if the user's session is terminated. This should only be registered once.
+AppState.addEventListener('change', (state) => {
+  if (state === 'active') {
+    supabase.auth.startAutoRefresh()
+  } else {
+    supabase.auth.stopAutoRefresh()
+  }
+})
 
 export default function Login() {
   const [mail, setMail] = useState('');
   const [password, setPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+
+  async function login  (){
+    setMail(mail.toLowerCase())
+    const isEmailValid = validateEmail(mail).status;
+    const isPasswordValid = validatePassword(password).status;
+    if (isPasswordValid && isEmailValid) {
+      //acceder a db
+      ingresar(mail,password);
+    } else {
+      error_alert("Complete todos los campos para continuar");  
+    }
+  }
   return (
     <View
       style={styles.mainView}
@@ -40,40 +66,42 @@ export default function Login() {
               <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
               <TextInput
                 style={styles.textInput}
-                secureTextEntry={true}
+                secureTextEntry={!showPassword}
                 textContentType="password"
                 onChangeText={setPassword}
                 value={password}
                 placeholder="Contraseña"
                 placeholderTextColor="#999"
               />
-              {/* <Pressable onPress={()=> {}} >
+              <Pressable style={{zIndex:999,position:"relative"}} onPress={()=> {setShowPassword(!showPassword)}} >
                 <Ionicons
-                  name= "eye-outline" 
+                  name= {showPassword ? "eye-outline" : "eye-off-outline"}
                   size={24}
                   color="#666"
                 />
-              </Pressable> */}
+              </Pressable>
             </View>
 
-            <Pressable onPress={()=>{router.push('/HomeTeacher');}} style={styles.loginButton} >
-  <Text style={{fontWeight: "bold",color:"white", fontSize: 18,}}>Ingresar</Text>
-</Pressable>
+
+            <TouchableOpacity onPress={login} style={styles.loginButton} >
+              <ThemedText type="subtitle" lightColor='white'>Ingresar</ThemedText>
+            </TouchableOpacity>
+
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
-              <Text style={{fontSize: 16}}>¿No tienes un usuario? </Text>
-              <Link href="/signup" >
-                <Text style={{fontSize: 16,color:"blue"}}>Regístrate aquí</Text>
+              <ThemedText style={{fontSize: 16}}>¿No tienes un usuario? </ThemedText>
+              <Link href="/signup_alumno" >
+                <ThemedText style={{fontSize: 16}} type='link' >Regístrate aquí</ThemedText>
               </Link>
             </View>
 
             <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}}>
               <Link href="/acc_recovery" >
-                <Text style={{fontSize: 16,color:"blue"}}>Olvidé mi contraseña</Text>
+                <ThemedText style={{fontSize: 16}} type='link' >Olvidé mi contraseña</ThemedText>
               </Link>
             </View>
           </View>
         </ScrollView>
-      
+      <Toast/>
     </View>
   );
 }
@@ -85,12 +113,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "#7209B7"},
+    backgroundColor: "#560bad"},
   textInput:{
         padding:8,
         backgroundColor: "white",
         fontSize:18,
-        
+        elevation: 1,
+        zIndex: 1,
         minWidth: "60%",
         maxHeight: 60,
         minHeight: 40,
@@ -98,6 +127,7 @@ const styles = StyleSheet.create({
         borderRadius: 5,
         borderWidth: 2,
         flex: 1,
+        position: "relative"
     },
     inputContainer: {
       flexDirection: 'row',
@@ -129,6 +159,9 @@ const styles = StyleSheet.create({
       justifyContent: 'center',
       alignItems: 'center',
       margin: 30,
+      shadowColor: "#000",
+      shadowOpacity: 0.2,
+      shadowRadius: 6,
   },
    title : {
     fontSize: 28,
@@ -138,3 +171,4 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
 })
+
