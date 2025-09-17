@@ -11,9 +11,9 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from "react";
-import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import VideoUpload from '@/components/VideoUpload';
+import VideoPlayer from '@/components/VideoPlayer';
 import { supabase } from '../utils/supabase';
 
 
@@ -85,6 +85,13 @@ export default function VideoUploadForm() {
         />
 
         <View style={styles.card}>
+          {videoFile && (
+            <VideoPlayer 
+              uri={videoFile.uri}
+              style={styles.previewVideo}
+            />
+          )}
+          
           <Text style={styles.label}>¿Qué significa la seña?</Text>
           <TextInput
             placeholder="Ej: Hola, Gracias, etc."
@@ -250,5 +257,9 @@ const styles = StyleSheet.create({
   removeFileBtn: {
     marginLeft: 8,
     padding: 2,
+  },
+  previewVideo: {
+    marginBottom: 20,
+    width: '100%',
   },
 });
