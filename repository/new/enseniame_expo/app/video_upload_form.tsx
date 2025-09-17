@@ -14,13 +14,61 @@ import { useState } from "react";
 import { router } from 'expo-router';
 import { Image } from 'expo-image';
 import VideoUpload from '@/components/VideoUpload';
+import { supabase } from '../utils/supabase';
 
 
 export default function VideoUploadForm() {
   
   const [meaning, setMeaning] = useState('');
-  const handleVideoUpload = (videoUri: string) => {
-    console.log('Video subido:', videoUri);
+  const [videoFile, setVideoFile] = useState<{ uri: string; name: string; type: string } | null>(null);
+  const [subiendo, setSubiendo] = useState(false);
+
+  const handleVideoUpload = (video: { uri: string; name: string; type: string }) => {
+    setVideoFile(video);
+  };
+
+  const handleRemoveVideo = () => {
+    setVideoFile(null);
+  };
+
+  const handleSubmit = async () => {
+    if (!meaning || !videoFile) {
+      alert('Completa el significado y sube un video.');
+      return;
+    }
+    setSubiendo(true);
+    try {
+      // 1. Subir video al bucket
+      const { data, error } = await supabase.storage
+        .from('videos')
+        .upload(`Senias/${Date.now()}_${videoFile.name}`, {
+          uri: videoFile.uri,
+          name: videoFile.name,
+          type: videoFile.type,
+        } as any, { upsert: true });
+
+      if (error) throw error;
+
+      // 2. Obtener URL pública
+      const videoPath = data.path;
+      const { data: publicUrlData } = supabase.storage.from('videos').getPublicUrl(videoPath);
+      const videoUrl = publicUrlData.publicUrl;
+
+      // 3. Guardar en la tabla
+      const { error: insertError } = await supabase
+        .from('Senias')
+        .insert([{ significado: meaning, video_url: videoUrl }]);
+
+      if (insertError) throw insertError;
+
+      alert('¡Seña subida con éxito!');
+      setMeaning('');
+      setVideoFile(null);
+    } catch (e: any) {
+      alert('Error al subir: ' + e.message);
+    } finally {
+      setSubiendo(false);
+    }
   };
 
   return (
@@ -46,8 +94,23 @@ export default function VideoUploadForm() {
             style={styles.input}
           />
 
-          <VideoUpload onVideoUpload={handleVideoUpload} />
+          {videoFile ? (
+            <View style={styles.fileInfoContainer}>
+              <Ionicons name="videocam" size={22} color="#560bad" />
+              <Text style={styles.fileName}>{videoFile.name}</Text>
+              <Pressable onPress={handleRemoveVideo} style={styles.removeFileBtn}>
+                <Ionicons name="close-circle" size={20} color="#F72585" />
+              </Pressable>
+            </View>
+          ) : (
+            <VideoUpload onVideoUpload={handleVideoUpload} />
+          )}
 
+          {meaning.trim() !== '' && videoFile && (
+            <Pressable style={styles.ctaButton} onPress={handleSubmit} disabled={subiendo}>
+              <Text style={styles.ctaButtonText}>{subiendo ? 'Subiendo...' : 'Guardar Seña'}</Text>
+            </Pressable>
+          )}
         </View>
 
         <View style={styles.infoCard}>
@@ -167,5 +230,25 @@ const styles = StyleSheet.create({
     color: '#22223b',
     fontSize: 14,
     textAlign: 'center',
+  },
+  fileInfoContainer: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#f3e8ff',
+    borderRadius: 8,
+    padding: 10,
+    marginBottom: 12,
+    marginTop: 4,
+    width: '100%',
+  },
+  fileName: {
+    color: '#560bad',
+    fontWeight: '600',
+    marginLeft: 8,
+    flex: 1,
+  },
+  removeFileBtn: {
+    marginLeft: 8,
+    padding: 2,
   },
 });

@@ -13,7 +13,7 @@ import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
 
 interface VideoUploadProps {
-  onVideoUpload: (videoUri: string) => void;
+  onVideoUpload: (video: { uri: string; name: string; type: string }) => void;
 }
 
 const VideoUpload: React.FC<VideoUploadProps> = ({ onVideoUpload }) => {
@@ -36,18 +36,22 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onVideoUpload }) => {
     });
 
     if (!result.canceled) {
-      await uploadVideo(result.assets[0].uri);
+      const asset = result.assets[0];
+      const file = {
+        uri: asset.uri,
+        name: asset.fileName ?? 'video.mp4',
+        type: asset.mimeType ?? 'video/mp4',
+      };
+      await uploadVideo(file);
     }
   };
 
-  const uploadVideo = async (videoUri: string) => {
+  const uploadVideo = async (video: { uri: string; name: string; type: string }) => {
     setUploading(true);
     try {
-
       await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      onVideoUpload(videoUri);
-      Alert.alert('Éxito', '¡Video subido correctamente!');
+      onVideoUpload(video);
+      // Alert.alert('Éxito', '¡Video subido correctamente!');
     } catch (error) {
       Alert.alert('Error', 'No se pudo subir el video. Intenta nuevamente.');
     } finally {
