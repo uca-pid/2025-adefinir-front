@@ -1,6 +1,6 @@
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
-import { User } from '@/components/types'
+import { Profesor, User } from '@/components/types'
 import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 import { validateEmail } from '@/components/validaciones';
@@ -20,8 +20,9 @@ const ingresar = async  (mail:string, contraseña: string) =>{
         error_alert("Usuario o contraseña incorrectos");
       } else{
         //inicializar entorno
-
-        router.push('/tabs');
+        if (user[0].is_prof) router.push('/HomeTeacher');
+        else router.push('/HomeStudent');
+        
       }
     } else{
       error_alert("Usuario o contraseña incorrectos");
@@ -42,8 +43,24 @@ const registrarse = async (user:User )=>{
       console.error('Error:', error.message);
       return;
     }
-    //inicializar entorno
-    router.push('/tabs');
+    const mail= user.mail;
+
+    try {
+      const { data: user, error } = await supabase.from('Users').select('*').eq('mail', mail);
+
+      if (error) {
+        console.error('Error:', error.message);
+        return;
+      }
+      
+      if (user && user.length > 0) {
+        if (user[0].is_prof) router.push('/HomeTeacher');
+        else router.push('/HomeStudent');
+      }
+    } catch (error) {
+      console.error(error);
+    }
+   
 
   } catch (error: any) {
     console.error('Error insertando:', error.message);
