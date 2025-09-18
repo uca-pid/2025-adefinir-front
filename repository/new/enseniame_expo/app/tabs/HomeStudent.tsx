@@ -7,7 +7,9 @@ import { useUserContext } from '@/context/UserContext';
 export default function HomeStudent() {
   const contexto = useUserContext();
 
-  const [user] = useState({ nombre: contexto.user.username, racha: 5, nivel: 2, xp: 120, xpMax: 200 });
+  const [user,setUser] = useState({ nombre: contexto.user.username, racha: 5, nivel: 2, xp: 120, xpMax: 200 });
+
+
 
   return (
     <SafeAreaView style={styles.safeArea}>
@@ -15,7 +17,7 @@ export default function HomeStudent() {
         <ScrollView contentContainerStyle={styles.scrollContent}>
           {/* Saludo */}
           <View style={styles.headerContainer}>
-            <Text style={styles.greeting}>Hola, {user.nombre} 👋</Text>
+            <Text style={styles.greeting}>Hola, {contexto.user.username} 👋</Text>
           </View>
 
           {/* Racha */}

@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, TextInput, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Link , router} from 'expo-router';
+import { Link , router, useFocusEffect} from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
@@ -22,6 +22,7 @@ export default function Perfil (){
     const [showPassword, setShowPassword] = useState(false);
 
     const contexto = useUserContext();
+
 
     const handleEmailChange = (text:any) => {
       setMail(text);
@@ -82,11 +83,12 @@ export default function Perfil (){
                 contexto.cambiar_institucion(institucion);
             } else error_alert("La institución no puede estar vacía");
         }
-
-        setTimeout( ()=> contexto.actualizar_info(contexto.user.id),200);
+        
+        setTimeout( ()=> contexto.actualizar_info(contexto.user.id),400);
         if (exito) {
             setTimeout(()=>success_alert("Cambios aplicados"),200)
             borrar_cambios();
+            console.log("perfil",contexto.user)
         }
         
     }

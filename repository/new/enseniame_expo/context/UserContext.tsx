@@ -124,7 +124,7 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
             if (user && user.length > 0) {
                 if (user[0].is_prof) setUser(new Logged_Profesor(user[0].mail,user[0].username,user[0].hashed_password,user[0].institution,id));
                 else setUser(new Logged_Alumno(user[0].mail,user[0].username,user[0].hashed_password,id))
-                
+                console.log(user)
             }
         }
         catch (error){
