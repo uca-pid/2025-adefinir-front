@@ -8,7 +8,6 @@ import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { estilos } from '@/components/estilos';
-import { Checkbox } from 'expo-checkbox';
 import { error_alert,success_alert } from '@/components/alert';
 import { validateEmail, validatePassword, } from '@/components/validaciones';
 import Toast from 'react-native-toast-message';
@@ -32,14 +31,14 @@ export default function Signup() {
 
 
   const validatePasswordConfirm = (password1:String, password2:String) => {
-        if (password1 !== password2) {
-            setErrorPasswordConfirm('Las contraseñas deben coincidir');
-            return false;
-        } else {
-            setErrorPasswordConfirm('');
-            return true;
-        }
-    };
+    if (password1 !== password2) {
+        setErrorPasswordConfirm('Las contraseñas deben coincidir');
+        return false;
+    } else {
+        setErrorPasswordConfirm('');
+        return true;
+    }
+  };
 
     const handleEmailChange = (text:any) => {
       setMail(text);
@@ -64,14 +63,14 @@ export default function Signup() {
 
 
   async function signup() {
-    setMail(mail.toLowerCase())
-    const isEmailValid = validateEmail(mail).status;
+    const lower_case_mail =mail.toLowerCase();
+    const isEmailValid = validateEmail(lower_case_mail).status;
     const isNameValid = name !== '';
     const isPasswordValid = validatePassword(password1).status;
     const isPasswordConfirmValid = password1==password2;
 
     if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid ) {
-      const user = new Alumno(mail,name,password1)
+      const user = new Alumno(lower_case_mail,name,password1)
       registrarse(user);      
     }
     else {
