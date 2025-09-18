@@ -53,32 +53,22 @@ const ingresar = async  (mail:string, contraseña: string) =>{
 
 const registrarse = async (user:User )=>{
   try {
-    const { error } = await supabase
+    const {data, error } = await supabase
           .from('Users')
-          .insert(user);
+          .insert(user)
+          .select("*")
+          ;
 
     if (error) {
       console.error('Error:', error.message);
       return;
     }
-    const mail= user.mail;
-
-    try {
-      const { data: user, error } = await supabase.from('Users').select('*').eq('mail', mail);
-
-      if (error) {
-        console.error('Error:', error.message);
-        return;
-      }
-      
-      if (user && user.length > 0) {
-        if (user[0].is_prof) router.push('/tabs/HomeTeacher');
-        else router.push('/tabs/HomeStudent');
-      }
-    } catch (error) {
-      console.error(error);
+    if (data && data.length!=0) {
+        const usuario = data[0].is_prof ? new Logged_Profesor(data[0].mail,data[0].username,data[0].hashed_password,data[0].institution,data[0].id) :
+                                         new Logged_Alumno(data[0].mail,data[0].username,data[0].hashed_password,data[0].id);
+                
+       return usuario
     }
-   
 
   } catch (error: any) {
     console.error('Error insertando:', error.message);

@@ -13,6 +13,7 @@ import { validateEmail, validatePassword, validateInstitution } from '@/componen
 import Toast from 'react-native-toast-message';
 import { registrarse } from '@/conexiones/gestion_usuarios';
 import { User, Profesor } from '@/components/types';
+import { useUserContext } from '@/context/UserContext';
 
 export default function Signup() {
   
@@ -30,6 +31,8 @@ export default function Signup() {
 
   const [showPassword1, setShowPassword1] = useState(false);
   const [showPassword2, setShowPassword2] = useState(false);
+
+  const {login_app} = useUserContext()
 
   const validatePasswordConfirm = (password1:String, password2:String) => {
       if (password1 !== password2) {
@@ -78,8 +81,10 @@ export default function Signup() {
     const isInstitutionValid = validateInstitution(institucion);
 
     if (isEmailValid && isNameValid && isPasswordValid && isPasswordConfirmValid && isInstitutionValid) {
-      const user = new Profesor(lower_case_mail,name,password1,institucion)
-      registrarse(user);      
+      const user = new Profesor(lower_case_mail,name,password1,institucion);
+      const usuario_log = await registrarse(user);
+      if (usuario_log) login_app(usuario_log);
+           
     }
     else {
       error_alert("Complete todos los campos para continuar");  

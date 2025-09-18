@@ -88,7 +88,6 @@ export default function Perfil (){
         if (exito) {
             setTimeout(()=>success_alert("Cambios aplicados"),200)
             borrar_cambios();
-            console.log("perfil",contexto.user)
         }
         
     }
