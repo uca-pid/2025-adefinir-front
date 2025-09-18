@@ -43,13 +43,14 @@ export default function Perfil (){
     const handleInstitutionChange = (text:any) =>{
       setI(text);
       setErrorI(text ? '' : 'El nombre de la institución no puede estar vacío');
+      console.log("escribir algo")
     }
 
     const borrar_cambios = ()=>{
         setName(undefined);
         setMail(undefined);
         setPass(undefined);
-        setI(undefined)
+        setI(undefined);
         setErrorEmail("");
         setErrorPassword("");
         setErrorName("");
@@ -81,6 +82,7 @@ export default function Perfil (){
         if (institucion!=undefined){
             if (institucion !== '') {
                 contexto.cambiar_institucion(institucion);
+                setI(undefined);
             } else error_alert("La institución no puede estar vacía");
         }
         
@@ -153,7 +155,7 @@ export default function Perfil (){
                             style={styles.textInput}
                             onChangeText={handleInstitutionChange}
                             value={institucion}
-                            placeholder="Institución"
+                            placeholder={contexto.user.institution}
                             placeholderTextColor="#999"
                         />
                     </View>:null}

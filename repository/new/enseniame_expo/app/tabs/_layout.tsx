@@ -43,7 +43,7 @@ export default function RootLayout() {
         ),
       })}
       />
-      {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"VideoUploadForm", 
+      {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"Subir video", 
           tabBarButton: ((props) => 
             <TouchableOpacity onPress={() => navigation.navigate('video_upload_form')}  style={styles.fabButton}>
               <Ionicons name="add" size={32} color="#fff" />

@@ -43,7 +43,8 @@ abstract class Logged_User {
     username: string;
     hashed_password: string;
     id:number;
-    is_prof: boolean
+    is_prof: boolean;
+    institution: string;
 
     constructor(mail:string,name: string,pass:string,id:number){
         this.mail=mail;
@@ -51,6 +52,7 @@ abstract class Logged_User {
         this.hashed_password=pass;
         this.id=id;
         this.is_prof=false;
+        this.institution=""
     }
     abstract goHome():void;
 
