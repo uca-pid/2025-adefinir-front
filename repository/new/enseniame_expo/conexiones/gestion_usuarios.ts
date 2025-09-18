@@ -95,4 +95,17 @@ const cuenta_existe = async (mail:string)=>{
   }
 }
 
-export {ingresar, registrarse, cuenta_existe , entrar}
+const eliminar_usuario = async (id:number)=>{
+  try {
+    
+    const { error } = await supabase
+      .from('Users')
+      .delete()
+      .eq('id', id);
+          
+  } catch (error) {
+    console.error(error)
+  }
+}
+
+export {ingresar, registrarse, cuenta_existe , entrar, eliminar_usuario}

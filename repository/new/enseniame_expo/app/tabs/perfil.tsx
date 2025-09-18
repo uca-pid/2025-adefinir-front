@@ -7,6 +7,7 @@ import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { useUserContext } from '@/context/UserContext';
 import { validateEmail, validatePassword } from '@/components/validaciones';
+import { eliminar_usuario } from '@/conexiones/gestion_usuarios';
 
 export default function Perfil (){
     const [name,setName]= useState<string>();
@@ -23,6 +24,10 @@ export default function Perfil (){
 
     const contexto = useUserContext();
 
+    const eliminar_cuenta = ()=>{
+      eliminar_usuario(contexto.user.id);
+      salir();
+    }
 
     const handleEmailChange = (text:any) => {
       setMail(text);
@@ -44,6 +49,12 @@ export default function Perfil (){
       setI(text);
       setErrorI(text ? '' : 'El nombre de la institución no puede estar vacío');
       console.log("escribir algo")
+    }
+
+    const salir = ()=>{
+      contexto.logout();
+      router.push("/login");
+      router.dismissAll();
     }
 
     const borrar_cambios = ()=>{
@@ -167,6 +178,16 @@ export default function Perfil (){
 
                     <TouchableOpacity style={[styles.loginButton,styles.cancelButton]} onPress={borrar_cambios}   >
                         <ThemedText type="subtitle" lightColor='#7209B7'>Cancelar</ThemedText>
+                    </TouchableOpacity>
+
+                    
+                    <TouchableOpacity style={[styles.loginButton,styles.cancelButton]} onPress={salir}   >
+                        <ThemedText type="subtitle" lightColor='#7209B7'>Salir</ThemedText>
+                    </TouchableOpacity>
+
+
+                    <TouchableOpacity style={[styles.loginButton,{backgroundColor:"red"}]} onPress={eliminar_cuenta}   >
+                        <ThemedText type="subtitle" lightColor='white'>Eliminar cuenta</ThemedText>
                     </TouchableOpacity>
 
                 </View>
@@ -326,7 +347,7 @@ const styles = StyleSheet.create({
         padding: 20,
         justifyContent: "center",
         alignItems: 'center',
-        height: 500
+        height: 600
     },
    loginButton: {
       backgroundColor: '#B5179E',
