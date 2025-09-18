@@ -45,7 +45,7 @@ export default function HomeStudent() {
           {/* Atajos */}
           <View style={styles.shortcutsRow}>
             <Pressable style={styles.shortcutCard} onPress={() => router.push('/tabs/Cursos')}>
-              <Ionicons name="book-outline" size={26} color="#560bad" />
+              <Ionicons name="book" size={26} color="#560bad" />
               <Text style={styles.shortcutText}>Cursos</Text>
             </Pressable>
             <Pressable style={styles.shortcutCard} onPress={() => router.push('/tabs/Diccionario')}>

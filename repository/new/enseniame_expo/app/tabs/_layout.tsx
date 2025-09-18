@@ -37,7 +37,7 @@ export default function RootLayout() {
       <Tabs.Screen name='cursos'   options={({ navigation }) =>({title:"Cursos", 
         tabBarButton: ((props) => 
           <TouchableOpacity onPress={() => navigation.navigate('Cursos')}  style={styles.navItem}>
-            <Ionicons name="book-outline" size={22} color="#fff" />
+            <Ionicons name="book" size={22} color="#fff" />
             <Text style={styles.navText}>Cursos</Text>
           </TouchableOpacity>
         ),
