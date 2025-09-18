@@ -3,6 +3,7 @@ import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useState } from 'react';
 import { supabase } from '../lib/supabase'
 import { error_alert } from '@/components/alert';
+import { cuenta_existe } from '@/conexiones/gestion_usuarios';
 export  const UserContext = createContext({
     
     user: new Logged_Alumno("","","",0),
@@ -44,16 +45,18 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
                 .from('Users')
                 .update({ mail: mail_nuevo })
                 .eq('id', user.id)
-                .select();
+                .select("*");
 
             if (error) error_alert("Error al actualizar perfil");
             //lidiar con error de repeticion de mails
 
-            if (data && data.length>0) console.log(data)
+            if (data && data.length>0) console.log(data);
+            
         } catch (error) {
             console.error(error);
         }
     }
+
 
     const cambiar_password = async (password_nuevo: string) => {
         //conectar a db, update

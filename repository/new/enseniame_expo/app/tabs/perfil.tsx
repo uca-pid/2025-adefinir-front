@@ -65,7 +65,7 @@ export default function Perfil (){
             else  error_alert("El nombre no puede estar vacío");
         } 
         if (mail!= undefined) {
-            const lower_case_mail=mail;
+            const lower_case_mail=mail.toLowerCase();
             if (validateEmail(lower_case_mail).status) {
                 contexto.cambiar_mail(lower_case_mail);
                 exito=true;
@@ -107,7 +107,7 @@ export default function Perfil (){
                             keyboardType="email-address"
                             onChangeText={handleEmailChange}
                             value={mail}
-                            placeholder="Correo electrónico"
+                            placeholder={contexto.user.mail}
                             placeholderTextColor="#999"
                         />
                     </View>
@@ -119,7 +119,7 @@ export default function Perfil (){
                             style={styles.textInput}
                             onChangeText={handleNameChange}
                             value={name}
-                            placeholder="Nombre"
+                            placeholder={contexto.user.username}
                             placeholderTextColor="#999"
                         />
                     </View>
