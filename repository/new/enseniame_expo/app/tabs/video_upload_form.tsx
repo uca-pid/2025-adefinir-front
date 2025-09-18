@@ -31,6 +31,26 @@ export default function VideoUploadForm() {
     setVideoFile(null);
   };
 
+  const getSignedUrl = async (bucketName: string, filePath: string): Promise<string> => {
+  try {
+    // Calcular expiración en segundos (1 año = 365 días * 24 horas * 60 minutos * 60 segundos)
+    const expiresIn = 365 * 24 * 60 * 60;
+    
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(filePath, expiresIn);
+    
+    if (error) {
+      throw new Error(`Error creating signed URL: ${error.message}`);
+    }
+    
+    return data.signedUrl;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};
+
   const handleSubmit = async () => {
     if (!meaning || !videoFile) {
       alert('Completa el significado y sube un video.');
@@ -57,12 +77,9 @@ export default function VideoUploadForm() {
 
       if (error) throw error;
 
-      // 3. Obtener URL pública
+      // 3. Obtener URL privada
       const videoPath = data.path;
-      const { data: publicUrlData } = supabase.storage
-        .from('videos')
-        .getPublicUrl(videoPath);
-      const videoUrl = publicUrlData.publicUrl;
+      const videoUrl = await getSignedUrl('videos', videoPath);
 
       // 4. Guardar en la tabla
       const { error: insertError } = await supabase
