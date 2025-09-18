@@ -26,7 +26,6 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onVideoUpload }) => {
       Alert.alert('Permisos necesarios', 'Necesitamos acceso a tu galería para subir videos');
       return;
     }
-
     
     let result = await ImagePicker.launchImageLibraryAsync({
       mediaTypes: ImagePicker.MediaTypeOptions.Videos,
@@ -40,7 +39,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onVideoUpload }) => {
       const file = {
         uri: asset.uri,
         name: asset.fileName ?? 'video.mp4',
-        type: asset.mimeType ?? 'video/mp4',
+        type: 'video/mp4',
       };
       await uploadVideo(file);
     }

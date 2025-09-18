@@ -38,24 +38,33 @@ export default function VideoUploadForm() {
     }
     setSubiendo(true);
     try {
-      // 1. Subir video al bucket
+      // 1. Crear FormData para subir el archivo
+      const formData = new FormData();
+      formData.append('file', {
+        uri: videoFile.uri,
+        name: videoFile.name,
+        type: 'video/mp4'
+      } as any);
+
+      // 2. Subir video al bucket usando FormData
+      const filename = `Senias/${videoFile.name}`;
       const { data, error } = await supabase.storage
         .from('videos')
-        //.upload(`Senias/${Date.now()}_${videoFile.name}`, {
-        .upload(`Senias/${videoFile.name}`, {
-          uri: videoFile.uri,
-          name: videoFile.name,
-          type: videoFile.type,
-        } as any, { upsert: true });
-      console.log("aca")
+        .upload(filename, formData, {
+          contentType: 'video/mp4',
+          upsert: true
+        });
+
       if (error) throw error;
 
-      // 2. Obtener URL pública
+      // 3. Obtener URL pública
       const videoPath = data.path;
-      const { data: publicUrlData } = supabase.storage.from('videos').getPublicUrl(videoPath);
+      const { data: publicUrlData } = supabase.storage
+        .from('videos')
+        .getPublicUrl(videoPath);
       const videoUrl = publicUrlData.publicUrl;
 
-      // 3. Guardar en la tabla
+      // 4. Guardar en la tabla
       const { error: insertError } = await supabase
         .from('Senias')
         .insert([{ significado: meaning, video_url: videoUrl }]);
