@@ -19,7 +19,7 @@ import { validateEmail } from '@/components/validaciones';
 import { estilos } from '@/components/estilos';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
-import { cuenta_existe } from '@/conexiones/gestion_usuarios';
+import { cuenta_existe, entrar, ingresar } from '@/conexiones/gestion_usuarios';
 import { enviar_mail_recuperacion } from '@/components/mails';
 
 export default function Login() {
@@ -37,9 +37,9 @@ export default function Login() {
 
   async function enviar_codigo() {
      //verificar que la cuenta exista en la db
-    setMail(mail.toLowerCase())
-    if (validateEmail(mail).status && await cuenta_existe(mail)){
-      enviar_mail_recuperacion(mail,codigo);
+    const lower_case_mail =mail.toLowerCase()
+    if (validateEmail(lower_case_mail).status && await cuenta_existe(mail)){
+      enviar_mail_recuperacion(lower_case_mail,codigo);
       setModalVisible(true);
     } else{
       error_alert("Ingrese un mail válido");
@@ -50,6 +50,7 @@ export default function Login() {
     
     if (inputCode===codigo){
       success_alert("Código correcto");
+      entrar(mail);
       router.replace('/tabs');
     } else {
       error_alert("Contraseña incorrecta");

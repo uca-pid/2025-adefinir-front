@@ -41,12 +41,13 @@ export default function VideoUploadForm() {
       // 1. Subir video al bucket
       const { data, error } = await supabase.storage
         .from('videos')
-        .upload(`Senias/${Date.now()}_${videoFile.name}`, {
+        //.upload(`Senias/${Date.now()}_${videoFile.name}`, {
+        .upload(`Senias/${videoFile.name}`, {
           uri: videoFile.uri,
           name: videoFile.name,
           type: videoFile.type,
         } as any, { upsert: true });
-
+      console.log("aca")
       if (error) throw error;
 
       // 2. Obtener URL pública

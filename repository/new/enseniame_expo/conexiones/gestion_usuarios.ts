@@ -5,6 +5,20 @@ import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 import { validateEmail } from '@/components/validaciones';
 
+const entrar = async (mail: string)=>{
+  const { data: user, error } = await supabase.from('Users').select('*').eq('mail', mail);
+
+    if (error) {
+      console.error('Error:', error.message);
+      return;
+    }
+    if (user && user.length > 0) {
+      
+        //inicializar entorno
+        if (user[0].is_prof) router.push('/HomeTeacher');
+        else router.push('/HomeStudent');              
+    }
+}
 
 const ingresar = async  (mail:string, contraseña: string) =>{
   try {
@@ -87,4 +101,4 @@ const cuenta_existe = async (mail:string)=>{
   }
 }
 
-export {ingresar, registrarse, cuenta_existe }
+export {ingresar, registrarse, cuenta_existe , entrar}
