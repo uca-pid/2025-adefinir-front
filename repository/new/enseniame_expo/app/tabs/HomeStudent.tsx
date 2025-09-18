@@ -2,9 +2,12 @@ import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView, Dimensions } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
+import { useUserContext } from '@/context/UserContext';
 
 export default function HomeStudent() {
-  const [user] = useState({ nombre: 'Juan', racha: 5, nivel: 2, xp: 120, xpMax: 200 });
+  const contexto = useUserContext();
+
+  const [user] = useState({ nombre: contexto.user.username, racha: 5, nivel: 2, xp: 120, xpMax: 200 });
 
   return (
     <SafeAreaView style={styles.safeArea}>

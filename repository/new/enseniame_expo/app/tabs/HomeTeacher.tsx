@@ -2,10 +2,12 @@ import React from 'react';
 import { View, Text, StyleSheet, SafeAreaView, Pressable } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Link , router} from 'expo-router';
+import { useUserContext } from '@/context/UserContext';
 
 export default function HomeTeacher() {
+  const contexto = useUserContext();
   // Simulación de nombre docente
-  const teacherName = 'Prof. Martínez';
+  const teacherName = 'Prof. '+ contexto.user.username;
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.mainView}>

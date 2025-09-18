@@ -35,10 +35,10 @@ const ingresar = async  (mail:string, contraseña: string) =>{
         error_alert("Usuario o contraseña incorrectos");
       } else{
         //devolver usuario hallado
-       console.log("lo encontre")
+       
        const usuario = user[0].is_prof ? new Logged_Profesor(user[0].mail,user[0].username,user[0].hashed_password,user[0].institution,user[0].id) :
-                new Logged_Alumno(user[0].mail,user[0].username,user[0].hashed_password,user[0].id);
-                console.log(usuario)
+                                         new Logged_Alumno(user[0].mail,user[0].username,user[0].hashed_password,user[0].id);
+                
        return usuario
         
       }

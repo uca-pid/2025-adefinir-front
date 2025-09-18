@@ -2,6 +2,7 @@ import { Alumno, Logged_Alumno, Logged_Profesor, Logged_User, User } from '@/com
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import { createContext, useContext, useState } from 'react';
 import { supabase } from '../lib/supabase'
+import { error_alert } from '@/components/alert';
 export  const UserContext = createContext({
     
     user: new Logged_Alumno("","","",0),
@@ -9,6 +10,7 @@ export  const UserContext = createContext({
     cambiarNombre: (nombre_nuevo: string) => { },
     cambiar_mail: (mail_nuevo: string) => { },
     cambiar_password: (password_nuevo: string) => { },
+    cambiar_institucion: (i_nueva:string)=> { },
     login_app: (user: Logged_User) => {},
     logout: () => { },
     actualizar_info: (id:number)=>{}
@@ -21,14 +23,68 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
 
     const cambiarNombre = async (nombre_nuevo: string) => {
         //conectar a db, update
+        try {
+            const { data, error } = await supabase
+                .from('Users')
+                .update({ username: nombre_nuevo })
+                .eq('id', user.id)
+                .select();
+
+            if (error) error_alert("Error al actualizar perfil");
+            if (data && data.length>0) console.log(data)
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const cambiar_mail = async (mail_nuevo: string) => {
         //conectar a db, update
+        try {
+            const { data, error } = await supabase
+                .from('Users')
+                .update({ mail: mail_nuevo })
+                .eq('id', user.id)
+                .select();
+
+            if (error) error_alert("Error al actualizar perfil");
+            //lidiar con error de repeticion de mails
+
+            if (data && data.length>0) console.log(data)
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const cambiar_password = async (password_nuevo: string) => {
         //conectar a db, update
+        try {
+            const { data, error } = await supabase
+                .from('Users')
+                .update({ hashed_password: password_nuevo })
+                .eq('id', user.id)
+                .select();
+
+            if (error) error_alert("Error al actualizar perfil");
+            if (data && data.length>0) console.log(data)
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    const cambiar_institucion = async (i_nueva: string) => {
+        //conectar a db, update
+        try {
+            const { data, error } = await supabase
+                .from('Users')
+                .update({ institution: i_nueva })
+                .eq('id', user.id)
+                .select();
+
+            if (error) error_alert("Error al actualizar perfil");
+            if (data && data.length>0) console.log(data)
+        } catch (error) {
+            console.error(error);
+        }
     }
 
     const login_app = async (user:Logged_User) => {
@@ -74,7 +130,7 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
     }
 
     return (
-      <UserContext.Provider value={{user,isLoggedIn , cambiarNombre,
+      <UserContext.Provider value={{user,isLoggedIn , cambiarNombre,cambiar_institucion,
                                   login_app, logout, cambiar_mail,cambiar_password,actualizar_info}}>
           {children}
       </UserContext.Provider>
