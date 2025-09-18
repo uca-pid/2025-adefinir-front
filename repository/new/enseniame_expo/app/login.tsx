@@ -42,7 +42,9 @@ export default function Login() {
       const usuario = await ingresar(lower_case_mail,password);
       console.log(usuario)
       if (usuario) login_app(usuario);
-
+      setMail("");
+      setPassword("");
+      setShowPassword(false);
     } else {
       error_alert("Complete todos los campos para continuar");  
     }
