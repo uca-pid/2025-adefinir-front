@@ -1,4 +1,5 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useCallback } from 'react';
+import { useFocusEffect } from '@react-navigation/native';
 import { 
   View, 
   Text, 
@@ -29,9 +30,14 @@ export default function Diccionario() {
   const [selectedSenia, setSelectedSenia] = useState<Senia | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  useEffect(() => {
-    fetchSenias();
-  }, []);
+  useFocusEffect(
+    useCallback(() => {
+      console.log('Tab Diccionario enfocada - Recargando señas...');
+      fetchSenias();
+      return () => {
+      };
+    }, [])
+  );
 
   useEffect(() => {
     filterSenias();
