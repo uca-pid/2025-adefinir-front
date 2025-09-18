@@ -31,6 +31,26 @@ export default function VideoUploadForm() {
     setVideoFile(null);
   };
 
+  const getSignedUrl = async (bucketName: string, filePath: string): Promise<string> => {
+  try {
+    // Calcular expiración en segundos (1 año = 365 días * 24 horas * 60 minutos * 60 segundos)
+    const expiresIn = 365 * 24 * 60 * 60;
+    
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(filePath, expiresIn);
+    
+    if (error) {
+      throw new Error(`Error creating signed URL: ${error.message}`);
+    }
+    
+    return data.signedUrl;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};
+
   const handleSubmit = async () => {
     if (!meaning || !videoFile) {
       alert('Completa el significado y sube un video.');
@@ -38,24 +58,30 @@ export default function VideoUploadForm() {
     }
     setSubiendo(true);
     try {
-      // 1. Subir video al bucket
+      // 1. Crear FormData para subir el archivo
+      const formData = new FormData();
+      formData.append('file', {
+        uri: videoFile.uri,
+        name: videoFile.name,
+        type: 'video/mp4'
+      } as any);
+
+      // 2. Subir video al bucket usando FormData
+      const filename = `Senias/${videoFile.name}`;
       const { data, error } = await supabase.storage
         .from('videos')
-        //.upload(`Senias/${Date.now()}_${videoFile.name}`, {
-        .upload(`Senias/${videoFile.name}`, {
-          uri: videoFile.uri,
-          name: videoFile.name,
-          type: videoFile.type,
-        } as any, { upsert: true });
-      console.log("aca")
+        .upload(filename, formData, {
+          contentType: 'video/mp4',
+          upsert: true
+        });
+
       if (error) throw error;
 
-      // 2. Obtener URL pública
+      // 3. Obtener URL privada
       const videoPath = data.path;
-      const { data: publicUrlData } = supabase.storage.from('videos').getPublicUrl(videoPath);
-      const videoUrl = publicUrlData.publicUrl;
+      const videoUrl = await getSignedUrl('videos', videoPath);
 
-      // 3. Guardar en la tabla
+      // 4. Guardar en la tabla
       const { error: insertError } = await supabase
         .from('Senias')
         .insert([{ significado: meaning, video_url: videoUrl }]);
