@@ -39,11 +39,11 @@ export default function HomeStudent() {
 
           {/* Atajos */}
           <View style={styles.shortcutsRow}>
-            <Pressable style={styles.shortcutCard} onPress={() => router.push('/Cursos')}>
+            <Pressable style={styles.shortcutCard} onPress={() => router.push('/tabs/Cursos')}>
               <Ionicons name="book" size={26} color="#560bad" />
               <Text style={styles.shortcutText}>Cursos</Text>
             </Pressable>
-            <Pressable style={styles.shortcutCard} onPress={() => router.push('/Diccionario')}>
+            <Pressable style={styles.shortcutCard} onPress={() => router.push('/tabs/Diccionario')}>
               <Ionicons name="search" size={26} color="#560bad" />
               <Text style={styles.shortcutText}>Diccionario</Text>
             </Pressable>
@@ -51,7 +51,7 @@ export default function HomeStudent() {
         </ScrollView>
 
         {/* NavBar Fija en la parte inferior */}
-        <View style={styles.navBar}>
+        {/* <View style={styles.navBar}>
           <View style={styles.navItem}>
             <Ionicons name="home" size={22} color="#fff" />
             <Text style={styles.navText}>Inicio</Text>
@@ -68,7 +68,7 @@ export default function HomeStudent() {
             <Ionicons name="person-circle-outline" size={22} color="#fff" />
             <Text style={styles.navText}>Perfil</Text>
           </View>
-        </View>
+        </View> */}
       </View>
     </SafeAreaView>
   );

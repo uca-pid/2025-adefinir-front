@@ -23,7 +23,7 @@ export default function HomeTeacher() {
 
         {/* Gestión rápida */}
         <View style={styles.quickActionsRow}>
-          <Pressable onPress={()=>{router.push('/video_upload_form');}} style={styles.quickActionCard}>
+          <Pressable onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCard}>
             <Ionicons name="videocam-outline" size={26} color="#560bad" />
             <Text style={styles.quickActionText}>Subir video de seña</Text>
           </Pressable>
@@ -35,7 +35,7 @@ export default function HomeTeacher() {
 
 
         {/* Barra de navegación inferior con botón flotante */}
-        <View style={styles.navBar}>
+        {/* <View style={styles.navBar}>
           <View style={styles.navItem}>
             <Ionicons name="home" size={22} color="#fff" />
             <Text style={styles.navText}>Inicio</Text>
@@ -53,11 +53,11 @@ export default function HomeTeacher() {
             <Ionicons name="person-circle-outline" size={22} color="#fff" />
             <Text style={styles.navText}>Perfil</Text>
           </View>
-        </View>
+        </View> */}
         {/* Botón flotante central sobre la barra */}
-        <Pressable style={styles.fabButton}>
+        {/* <Pressable style={styles.fabButton}>
           <Ionicons name="add" size={32} color="#fff" />
-        </Pressable>
+        </Pressable> */}
       </View>
     </SafeAreaView>
   );

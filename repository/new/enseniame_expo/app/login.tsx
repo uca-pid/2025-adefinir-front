@@ -10,8 +10,9 @@ import { validateEmail, validatePassword } from '@/components/validaciones';
 import { error_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import {ingresar} from "../conexiones/gestion_usuarios"
-
+import { useUserContext } from '@/context/UserContext';
 import { supabase } from '../lib/supabase'
+import { Logged_User } from '@/components/types';
 
 // Tells Supabase Auth to continuously refresh the session automatically if
 // the app is in the foreground. When this is added, you will continue to receive
@@ -30,13 +31,18 @@ export default function Login() {
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
 
+  const {login_app} = useUserContext();
+
   async function login  (){
-    setMail(mail.toLowerCase())
-    const isEmailValid = validateEmail(mail).status;
+    const lower_case_mail = mail.toLowerCase();
+    const isEmailValid = validateEmail(lower_case_mail).status;
     const isPasswordValid = validatePassword(password).status;
     if (isPasswordValid && isEmailValid) {
       //acceder a db
-      ingresar(mail,password);
+      const usuario = await ingresar(lower_case_mail,password);
+      console.log(usuario)
+      if (usuario) login_app(usuario);
+
     } else {
       error_alert("Complete todos los campos para continuar");  
     }

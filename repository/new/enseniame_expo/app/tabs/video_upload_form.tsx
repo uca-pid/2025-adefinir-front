@@ -14,7 +14,7 @@ import { useState } from "react";
 import { Image } from 'expo-image';
 import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
-import { supabase } from '../utils/supabase';
+import { supabase } from '../../utils/supabase';
 
 
 export default function VideoUploadForm() {

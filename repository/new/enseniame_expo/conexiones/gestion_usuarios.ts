@@ -1,9 +1,10 @@
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
-import { Profesor, User } from '@/components/types'
+import { Logged_Alumno, Logged_Profesor, Profesor, User } from '@/components/types'
 import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 import { validateEmail } from '@/components/validaciones';
+import { useUserContext } from '@/context/UserContext';
 
 const entrar = async (mail: string)=>{
   const { data: user, error } = await supabase.from('Users').select('*').eq('mail', mail);
@@ -15,8 +16,8 @@ const entrar = async (mail: string)=>{
     if (user && user.length > 0) {
       
         //inicializar entorno
-        if (user[0].is_prof) router.push('/HomeTeacher');
-        else router.push('/HomeStudent');              
+        if (user[0].is_prof) router.push('/tabs/HomeTeacher');
+        else router.push('/tabs/HomeStudent');              
     }
 }
 
@@ -33,9 +34,12 @@ const ingresar = async  (mail:string, contraseña: string) =>{
       if (contraseña!= user[0].hashed_password || mail!= user[0].mail) {
         error_alert("Usuario o contraseña incorrectos");
       } else{
-        //inicializar entorno
-        if (user[0].is_prof) router.push('/HomeTeacher');
-        else router.push('/HomeStudent');
+        //devolver usuario hallado
+       console.log("lo encontre")
+       const usuario = user[0].is_prof ? new Logged_Profesor(user[0].mail,user[0].username,user[0].hashed_password,user[0].institution,user[0].id) :
+                new Logged_Alumno(user[0].mail,user[0].username,user[0].hashed_password,user[0].id);
+                console.log(usuario)
+       return usuario
         
       }
     } else{
@@ -68,8 +72,8 @@ const registrarse = async (user:User )=>{
       }
       
       if (user && user.length > 0) {
-        if (user[0].is_prof) router.push('/HomeTeacher');
-        else router.push('/HomeStudent');
+        if (user[0].is_prof) router.push('/tabs/HomeTeacher');
+        else router.push('/tabs/HomeStudent');
       }
     } catch (error) {
       console.error(error);
