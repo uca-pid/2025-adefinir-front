@@ -59,17 +59,17 @@ export default function Login() {
       </ThemedView>
 
       <View style={{flexDirection:"row", alignContent:"center",justifyContent:"center"}}>
-        <Pressable onPress={()=>{router.replace('/signup_alumno');}} style={styles.loginButton} >
+        <Pressable onPress={()=>{router.navigate('/signup_alumno');}} style={styles.loginButton} >
           <ThemedText type="subtitle" lightColor='white'>Soy alumno</ThemedText>
         </Pressable>
-        <Pressable onPress={()=>{router.replace('/signup_profe');}} style={styles.loginButton} >
+        <Pressable onPress={()=>{router.navigate('/signup_profe');}} style={styles.loginButton} >
             <ThemedText type="subtitle" lightColor='white'>Soy profesor</ThemedText>
         </Pressable>
       </View>
         
       <View style={estilos.centrado} >
         <ThemedText >¿Ya tienes un usuario? </ThemedText>
-        <Pressable onPress={()=>{router.replace('/login');}} style={styles.loginButton2} >
+        <Pressable onPress={()=>{router.navigate('/login');}} style={styles.loginButton2} >
           <ThemedText type="subtitle" lightColor='white'>Inicia sesión aquí</ThemedText>
         </Pressable>
       </View>

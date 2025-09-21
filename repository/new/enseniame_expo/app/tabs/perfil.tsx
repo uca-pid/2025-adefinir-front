@@ -53,8 +53,8 @@ export default function Perfil (){
 
     const salir = ()=>{
       contexto.logout();
-      router.push("/login");
-      router.dismissAll();
+      router.dismissTo("/")
+      
     }
 
     const borrar_cambios = ()=>{
