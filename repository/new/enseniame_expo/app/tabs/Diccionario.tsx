@@ -1,26 +1,14 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { 
-  View, 
-  Text, 
-  StyleSheet, 
-  FlatList, 
-  Pressable, 
-  SafeAreaView,
-  ActivityIndicator,
-  Modal,
-  TextInput,
-  Dimensions
+  View, Text, StyleSheet, FlatList, Pressable, 
+  SafeAreaView, ActivityIndicator, Modal, TextInput,
 } from 'react-native';
 import { supabase } from '../../utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import VideoPlayer from '@/components/VideoPlayer';
-
-interface Senia {
-  id: number;
-  significado: string;
-  video_url: string;
-}
+import { Senia } from '@/components/types';
+import { success_alert,error_alert } from '@/components/alert';
 
 export default function Diccionario() {
   const [senias, setSenias] = useState<Senia[]>([]);
@@ -55,7 +43,7 @@ export default function Diccionario() {
       setFilteredSenias(data || []);
     } catch (error) {
       console.error('Error fetching señas:', error);
-      alert('No se pudieron cargar las señas');
+      error_alert('No se pudieron cargar las señas');
     } finally {
       setLoading(false);
     }
@@ -198,6 +186,7 @@ const styles = StyleSheet.create({
   },
   listContent: {
     paddingHorizontal: 16,
+    paddingBottom: 80,
   },
   listItem: {
     backgroundColor: 'white',

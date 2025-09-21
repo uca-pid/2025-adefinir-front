@@ -1,12 +1,5 @@
 import { 
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  StyleSheet,
-  SafeAreaView,
-  KeyboardAvoidingView,
-  Platform,
+  Pressable, Text, TextInput, View, StyleSheet,  SafeAreaView,
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -15,6 +8,7 @@ import { Image } from 'expo-image';
 import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
 import { supabase } from '../../utils/supabase';
+import { error_alert, success_alert } from '@/components/alert';
 
 
 export default function VideoUploadForm() {
@@ -53,7 +47,7 @@ export default function VideoUploadForm() {
 
   const handleSubmit = async () => {
     if (!meaning || !videoFile) {
-      alert('Completa el significado y sube un video.');
+      error_alert('Completa el significado y sube un video.');
       return;
     }
     setSubiendo(true);
@@ -88,11 +82,11 @@ export default function VideoUploadForm() {
 
       if (insertError) throw insertError;
 
-      alert('¡Seña subida con éxito!');
+      success_alert('¡Seña subida con éxito!');
       setMeaning('');
       setVideoFile(null);
     } catch (e: any) {
-      alert('Error al subir: ' + e.message);
+      error_alert('Error al subir: ' + e.message);
     } finally {
       setSubiendo(false);
     }
