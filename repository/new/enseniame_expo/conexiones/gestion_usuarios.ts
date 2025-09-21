@@ -24,8 +24,10 @@ const entrar = async (mail: string)=>{
     if (user && user.length > 0) {
       
         //inicializar entorno
-        if (user[0].is_prof) router.push('/tabs/HomeTeacher');
-        else router.push('/tabs/HomeStudent');              
+        const usuario = user[0].is_prof ? new Logged_Profesor(user[0].mail,user[0].username,user[0].hashed_password,user[0].institution,user[0].id) :
+                                         new Logged_Alumno(user[0].mail,user[0].username,user[0].hashed_password,user[0].id);
+                
+       return usuario      
     }
 }
 

@@ -11,8 +11,8 @@ import {
   Animated,
   TouchableOpacity
 } from 'react-native';
-import { useEffect, useState } from "react";
-import { Link, router } from 'expo-router';
+import { useCallback, useEffect, useState } from "react";
+import { Link, router, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { validateEmail } from '@/components/validaciones';
@@ -20,25 +20,39 @@ import { estilos } from '@/components/estilos';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { cuenta_existe, entrar, ingresar } from '@/conexiones/gestion_usuarios';
-import { enviar_mail_recuperacion } from '@/components/mails';
+import { enviar_mail_recuperacion, generar_otp } from '@/components/mails';
+import { useUserContext } from '@/context/UserContext';
 
-export default function Login() {
+export default function Acc_recovery() {
   const [mail, setMail] = useState('');
   const [errorEmail, setErrorEmail] = useState('');
   const [modalVisible, setModalVisible] = useState(false);
   const [inputCode,setInputCode]= useState('');
   const [showPassword, setShowPassword] = useState(false);
-  const codigo ="1234";
+  //const codigo ="1234";
+  const [codigo,setCodigo] = useState("1234");
+  const contexto=useUserContext();
 
   const handleEmailChange = (text:any) => {
       setMail(text);
       setErrorEmail(validateEmail(text).msj);
   };
 
+  useFocusEffect(
+      useCallback(() => {
+        const nuevo_codigo= generar_otp();
+        setCodigo(nuevo_codigo);
+        return () => {
+        };
+      }, [])
+    );
+  
+
   async function enviar_codigo() {
      //verificar que la cuenta exista en la db
-    const lower_case_mail =mail.toLowerCase()
-    if (validateEmail(lower_case_mail).status && await cuenta_existe(mail)){
+    
+    const lower_case_mail =mail.toLowerCase();
+    if (validateEmail(lower_case_mail).status && await cuenta_existe(lower_case_mail)){
       enviar_mail_recuperacion(lower_case_mail,codigo);
       setModalVisible(true);
     } else{
@@ -48,10 +62,15 @@ export default function Login() {
 
   async function recuperar() {
     
+    const lower_case_mail =mail.toLowerCase();
     if (inputCode===codigo){
       success_alert("Código correcto");
-      entrar(mail);
-      router.replace('/tabs');
+      const usuario=await entrar(lower_case_mail);
+      
+      if (usuario) {
+        router.back();
+        contexto.login_app(usuario);}
+      
     } else {
       error_alert("Contraseña incorrecta");
     }
@@ -110,7 +129,7 @@ export default function Login() {
                 <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
                 <TextInput
                   style={styles.textInput}
-                  keyboardType="default"
+                  keyboardType="numeric"
                   secureTextEntry={!showPassword}
                   textContentType="newPassword"
                   onChangeText={setInputCode}
@@ -218,10 +237,3 @@ const styles = StyleSheet.create({
       marginRight: 10,
     },
 })
-const generar_otp = ()=>{
-  let max= 99999999;
-  let min= 10000000;
-  const otp =Math.round( Math.random() * (max - min) + min);
-  console.log(otp)
-  return String(otp)
-}

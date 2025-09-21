@@ -29,7 +29,6 @@ const generar_otp = ()=>{
   let max= 99999999;
   let min= 10000000;
   const otp =Math.round( Math.random() * (max - min) + min);
-  console.log(otp)
   return String(otp)
 }
 
