@@ -65,6 +65,10 @@ const ingresar = async  (mail:string, contraseña: string) =>{
 
 const registrarse = async (user:User )=>{
   user.hashed_password= await hash(user.hashed_password);
+  if (await cuenta_existe(user.mail)) {
+    error_alert("Ya existe un usuario con ese mail.");
+    return;
+  }
   try {
     const {data, error } = await supabase
           .from('Users')
