@@ -1,6 +1,8 @@
 import { Pressable,  Text,  TextInput,  View,
   StyleSheet,  ScrollView,  AppState, 
-  TouchableOpacity
+  TouchableOpacity,
+  KeyboardAvoidingView,
+  Platform
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useState } from "react";
@@ -57,7 +59,8 @@ export default function Login() {
     <View
       style={styles.mainView}
     >
-      <View style={styles.titleContainer}>
+      
+      <View style={[styles.titleContainer,estilos.centrado]}>
             <ThemedText>
               <ThemedText type='title' lightColor='white' >En</ThemedText>{''}
               <ThemedText type='title' lightColor='#F72585'>seña</ThemedText>{''}
@@ -95,7 +98,7 @@ export default function Login() {
                   textContentType="password"
                   onChangeText={setPassword}
                   value={password}
-                  placeholder="Contraseña"
+                  placeholder="            Contraseña"
                   placeholderTextColor="#999"
                 />
                 <Pressable style={{zIndex:999,position:"relative"}} onPress={()=> {setShowPassword(!showPassword)}} >
@@ -129,8 +132,10 @@ export default function Login() {
 
               
             </View>
+            
           </View>
         </ScrollView>
+        
       <Toast/>
     </View>
   );
@@ -174,7 +179,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0
   },
-    scrollViewContent: {
+  scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'center',
     minWidth: "80%",
@@ -191,8 +196,9 @@ const styles = StyleSheet.create({
   formContainer: {
     position: "relative",
     top: -80,
-    width: "100%"
-
+    width: "100%",
+    zIndex: 999,
+    marginBottom: 20
   },
     
   loginButton: {
@@ -208,10 +214,10 @@ const styles = StyleSheet.create({
     shadowRadius: 6,
   },
   titleContainer : {
-  textAlign: 'center',
-  position: "absolute",
-  top: 80,
-  flex: 1
+    textAlign: 'center',
+    position: "absolute",
+    top: 80,
+    flex: 1
   },
   image: {
     flex: 1,
