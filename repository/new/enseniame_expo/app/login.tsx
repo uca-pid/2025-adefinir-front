@@ -81,7 +81,7 @@ export default function Login() {
               <View style={styles.inputContainer}>
                 <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
                 <TextInput
-                style={[styles.textInput,styles.shadow]}
+                style={styles.textInput}
                 textContentType="emailAddress"
                 keyboardType="email-address"
                 onChangeText={setMail}
@@ -93,15 +93,15 @@ export default function Login() {
               <View style={styles.inputContainer}>
                 <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
                 <TextInput
-                  style={[styles.textInput,styles.shadow]}
+                  style={styles.textInput}
                   secureTextEntry={!showPassword}
                   textContentType="password"
                   onChangeText={setPassword}
                   value={password}
-                  placeholder="            Contraseña"
+                  placeholder="Contraseña"
                   placeholderTextColor="#999"
                 />
-                <Pressable style={{zIndex:999,position:"relative"}} onPress={()=> {setShowPassword(!showPassword)}} >
+                <Pressable style={{position: "relative", left: -20}}  onPress={()=> {setShowPassword(!showPassword)}} >
                   <Ionicons
                     name= {showPassword ? "eye-outline" : "eye-off-outline"}
                     size={24}
@@ -155,29 +155,28 @@ const styles = StyleSheet.create({
     backgroundColor: "white",
     fontSize:18,
     elevation: 1,
-    zIndex: -1,
     minWidth: "80%",
     maxHeight: 60,
     minHeight: 40,
-    borderColor: "lightgray",
-    borderRadius: 5,
-    borderWidth: 1,
+    
     flex: 1,
-    position: "relative",
-    left: 0,
-    right: 0
+    
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 15
+    marginTop: 15,
+    flex: 1,
+    borderColor: "lightgray",
+    borderRadius: 9,
+    borderWidth: 1,
+    justifyContent: 'center',
+    backgroundColor: 'white',
+    
   },
   inputIcon: {
     marginRight: 10,
-    zIndex: 999,
-    position: "relative",
-    left: 0,
-    right: 0
+    marginLeft: 10
   },
   scrollViewContent: {
     flexGrow: 1,
