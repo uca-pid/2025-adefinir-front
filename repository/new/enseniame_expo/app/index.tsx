@@ -16,7 +16,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { estilos } from '@/components/estilos';
 
-export default function Login() {
+export default function Index() {
   return (
     <ParallaxScrollView
           headerBackgroundColor={{ light: '#4CC9F0', dark: '#1D3D47' }}
