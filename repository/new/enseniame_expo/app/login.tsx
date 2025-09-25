@@ -2,6 +2,7 @@ import { Pressable,  Text,  TextInput,  View,
   StyleSheet,  ScrollView,  AppState, 
   TouchableOpacity
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useState } from "react";
 import { Link , router} from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -33,6 +34,8 @@ export default function Login() {
 
   const {login_app} = useUserContext();
 
+  const img = require("../assets/images/lsa-lila.png");
+
   async function login  (){
     const lower_case_mail = mail.toLowerCase();
     const isEmailValid = validateEmail(lower_case_mail).status;
@@ -53,11 +56,23 @@ export default function Login() {
     <View
       style={styles.mainView}
     >
-      
+      <View style={styles.titleContainer}>
+            <ThemedText>
+              <ThemedText type='title' lightColor='white'>en</ThemedText>{''}
+              <ThemedText type='title' lightColor='#F72585'>seña</ThemedText>{''}
+              <ThemedText type='title' lightColor='white'>me</ThemedText>{''}
+            </ThemedText>
+          </View>
         <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
           <View style={styles.formContainer}>
-            
-            <Text style={styles.title}>Iniciar Sesión</Text>
+          
+            <Image
+        style={styles.image}
+        source={img}
+        
+        contentFit="cover"
+        transition={1000}
+      />
             <View style={styles.inputContainer}>
               <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
               <TextInput
@@ -121,7 +136,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "#560bad"},
+    backgroundColor: "#c7a6edff"
+  },
   textInput:{
         padding:8,
         backgroundColor: "white",
@@ -152,7 +168,7 @@ const styles = StyleSheet.create({
     },
     formContainer: {
         width: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
+        //backgroundColor: 'rgba(255, 255, 255, 0.8)',
         borderRadius: 10,
         padding: 20,
         justifyContent: "center",
@@ -171,12 +187,15 @@ const styles = StyleSheet.create({
       shadowOpacity: 0.2,
       shadowRadius: 6,
   },
-   title : {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 40,
+   titleContainer : {
     textAlign: 'center',
+    position: "absolute",
+    top: 80
+  },
+  image: {
+    flex: 1,
+    width: '200%',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
   },
 })
 
