@@ -5,6 +5,9 @@ const paleta_colores = StyleSheet.create({
         backgroundColor: "#8bcac0",
         color: "#8bcac0",
     },
+    dark_aqua:{
+        backgroundColor: "#65b8aeff"
+    },
     yellow: {
         backgroundColor: "#ffbb51"
     },
@@ -18,3 +21,5 @@ const paleta_colores = StyleSheet.create({
         backgroundColor: "#f6f6f6"
     }
 })
+
+export {paleta_colores}

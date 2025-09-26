@@ -17,6 +17,7 @@ import { useUserContext } from '@/context/UserContext';
 import { supabase } from '../lib/supabase'
 import { Logged_User } from '@/components/types';
 import { estilos } from '@/components/estilos';
+import { paleta_colores } from '@/components/colores';
 
 // Tells Supabase Auth to continuously refresh the session automatically if
 // the app is in the foreground. When this is added, you will continue to receive
@@ -37,7 +38,7 @@ export default function Login() {
 
   const {login_app} = useUserContext();
 
-  const img = require("../assets/images/lsa-lila.png");
+  const img = require("../assets/images/lsa-aqua.png");
 
   async function login  (){
     const lower_case_mail = mail.toLowerCase();
@@ -59,29 +60,36 @@ export default function Login() {
     <View
       style={styles.mainView}
     >
-      
-      <View style={[styles.titleContainer,estilos.centrado]}>
-            <ThemedText>
-              <ThemedText type='title' lightColor='white' >En</ThemedText>{''}
-              <ThemedText type='title' lightColor='#F72585'>seña</ThemedText>{''}
-              <ThemedText type='title' lightColor='white'>me</ThemedText>{''}
-            </ThemedText>
-          </View>
+       <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{flex: 1}}
+      >
       <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
           <View style={styles.formAndImg}>
-          
+
             <Image
               style={styles.image}
               source={img}
               contentFit="cover"
               transition={1000}
             />
+          
+           <View style={{alignSelf:"flex-start"}}>
+              <ThemedText type='title'>Ingresa a tu cuenta</ThemedText>
+
+              <View style={{marginVertical:15}}>
+                <Link href="/acc_recovery" >
+                  <ThemedText lightColor='gray'>¿No tienes un usuario? / </ThemedText> {''}
+                  <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Regístrate aquí</ThemedText>
+                </Link>
+              </View>
+           </View>
 
             <View style={styles.formContainer}>
-              <View style={styles.inputContainer}>
+              <View style={[styles.inputContainer,paleta_colores.soft_yellow]}>
                 <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
                 <TextInput
-                style={styles.textInput}
+                style={[styles.textInput,paleta_colores.soft_yellow]}
                 textContentType="emailAddress"
                 keyboardType="email-address"
                 onChangeText={setMail}
@@ -90,10 +98,10 @@ export default function Login() {
                 placeholderTextColor="#999"
                 />
               </View>
-              <View style={styles.inputContainer}>
+              <View style={[styles.inputContainer,paleta_colores.softgray]}>
                 <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
                 <TextInput
-                  style={styles.textInput}
+                  style={[styles.textInput,paleta_colores.softgray]}
                   secureTextEntry={!showPassword}
                   textContentType="password"
                   onChangeText={setPassword}
@@ -109,33 +117,23 @@ export default function Login() {
                   />
                 </Pressable>
               </View>
-              <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}}>
+              <View style={{marginVertical:15}}>
                 <Link href="/acc_recovery" >
-                  <ThemedText style={{fontSize: 16}} type='link' >Olvidé mi contraseña</ThemedText>
+                  <ThemedText lightColor='gray'>¿Olvidaste tu contraseña? / </ThemedText> {''}
+                  <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Recuperar</ThemedText>
                 </Link>
               </View>
 
               <TouchableOpacity onPress={login} style={styles.loginButton} >
-                <ThemedText type="subtitle" lightColor='white'>Ingresar</ThemedText>
+                <ThemedText type="subtitle" lightColor='black'>Ingresar</ThemedText>
               </TouchableOpacity>
-
-              <ThemedText lightColor='gray' style={estilos.centrado}>--o--</ThemedText>
-
-              <View style={estilos.centrado} >
-                <ThemedText style={{fontSize: 16}}>¿No tienes un usuario? </ThemedText>
-                <Link href="/signup_alumno" asChild>
-                  <TouchableOpacity style={styles.loginButton} >
-                    <ThemedText type="subtitle" lightColor='white'>Regístrate aquí</ThemedText>
-                  </TouchableOpacity>
-                </Link>
-              </View>
 
               
             </View>
             
           </View>
         </ScrollView>
-        
+        </KeyboardAvoidingView>
       <Toast/>
     </View>
   );
@@ -144,11 +142,11 @@ export default function Login() {
 const styles = StyleSheet.create({
   mainView:{
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "#e5b3fe"
+    backgroundColor: "white"
   },
   textInput:{
     padding:8,
@@ -158,14 +156,14 @@ const styles = StyleSheet.create({
     minWidth: "80%",
     maxHeight: 60,
     minHeight: 40,
-    
+    borderRadius: 9,
     flex: 1,
     
   },
   inputContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    marginTop: 15,
+    marginTop: 20,
     flex: 1,
     borderColor: "lightgray",
     borderRadius: 9,
@@ -180,7 +178,7 @@ const styles = StyleSheet.create({
   },
   scrollViewContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     minWidth: "80%",
     
   },
@@ -193,34 +191,28 @@ const styles = StyleSheet.create({
     height: "100%"
   },
   formContainer: {
-    position: "relative",
-    top: -80,
     width: "100%",
     zIndex: 999,
-    marginBottom: 20
+    marginBottom: 20,
+    marginTop: 15
   },
     
   loginButton: {
-    backgroundColor: '#560BAD',
+    backgroundColor: '#73d3c8ff',
     borderRadius: 10,
     height: 50,
     minWidth: 300,
     justifyContent: 'center',
     alignItems: 'center',
-    margin: 10,
+    marginTop: 40,
+    marginBottom: 15,
     shadowColor: "#000",
     shadowOpacity: 0.2,
     shadowRadius: 6,
   },
-  titleContainer : {
-    textAlign: 'center',
-    position: "absolute",
-    top: 80,
-    flex: 1
-  },
   image: {
     flex: 1,
-    width: '300%',
+    width: '100%',
     backgroundColor: 'rgba(255, 255, 255, 0)',
   },
   shadow:{
