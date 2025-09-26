@@ -37,7 +37,7 @@ function PasswordInput(props:
 
     return (
         <View style={[styles.inputContainer,{backgroundColor:props.bck_color}]}>
-            <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
+            <Ionicons name="lock-closed-outline" size={24} color="#666" style={[styles.inputIcon,{marginLeft:20}]} />
             <TextInput
                 style={[styles.textInput,{backgroundColor:props.bck_color}]}
                 secureTextEntry={!props.showPassword}

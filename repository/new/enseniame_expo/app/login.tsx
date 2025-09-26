@@ -16,6 +16,7 @@ import { supabase } from '../lib/supabase'
 import { estilos } from '@/components/estilos';
 import { paleta, paleta_colores } from '@/components/colores';
 import { IconTextInput, PasswordInput } from '@/components/inputs';
+import { BotonLogin } from '@/components/botones';
 
 // Tells Supabase Auth to continuously refresh the session automatically if
 // the app is in the foreground. When this is added, you will continue to receive
@@ -103,7 +104,7 @@ export default function Login() {
                 onChange={setPassword} 
                 showPassword={showPassword} 
                 setShowPassword={setShowPassword}  />
-                
+
               <View style={{marginVertical:15}}>
                 <Link href="/acc_recovery" >
                   <ThemedText lightColor='gray'>¿Olvidaste tu contraseña? / </ThemedText> {''}
@@ -111,11 +112,8 @@ export default function Login() {
                 </Link>
               </View>
 
-              <TouchableOpacity onPress={login} style={styles.loginButton} >
-                <ThemedText type="subtitle" lightColor='black'>Ingresar</ThemedText>
-              </TouchableOpacity>
+              <BotonLogin callback={login} textColor='black' bckColor='#73d3c8ff' text='Ingresar'  />
 
-              
             </View>
             
           </View>
@@ -135,34 +133,7 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: "white"
   },
-  textInput:{
-    padding:8,
-    backgroundColor: "white",
-    fontSize:18,
-    elevation: 1,
-    minWidth: "80%",
-    maxHeight: 60,
-    minHeight: 40,
-    borderRadius: 9,
-    flex: 1,
-    
-  },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 20,
-    flex: 1,
-    borderColor: "lightgray",
-    borderRadius: 9,
-    borderWidth: 1,
-    justifyContent: 'center',
-    backgroundColor: 'white',
-    
-  },
-  inputIcon: {
-    marginRight: 10,
-    marginLeft: 10
-  },
+  
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'space-between',
@@ -183,29 +154,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     marginTop: 15
   },
-    
-  loginButton: {
-    backgroundColor: '#73d3c8ff',
-    borderRadius: 10,
-    height: 50,
-    minWidth: 300,
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 40,
-    marginBottom: 15,
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-  },
+
   image: {
     flex: 1,
     width: '100%',
     backgroundColor: 'rgba(255, 255, 255, 0)',
   },
-  shadow:{
-    shadowColor: "#000",
-    shadowOpacity: 0.2,
-    shadowRadius: 6,
-  }
+  
 })
 
