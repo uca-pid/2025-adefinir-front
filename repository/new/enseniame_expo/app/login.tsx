@@ -1,8 +1,6 @@
-import { Pressable,  Text,  TextInput,  View,
+import { Pressable,  TextInput,  View,
   StyleSheet,  ScrollView,  AppState, 
-  TouchableOpacity,
-  KeyboardAvoidingView,
-  Platform
+  TouchableOpacity, KeyboardAvoidingView,  Platform
 } from 'react-native';
 import { Image } from 'expo-image';
 import { useState } from "react";
@@ -15,9 +13,9 @@ import Toast from 'react-native-toast-message';
 import {ingresar} from "../conexiones/gestion_usuarios"
 import { useUserContext } from '@/context/UserContext';
 import { supabase } from '../lib/supabase'
-import { Logged_User } from '@/components/types';
 import { estilos } from '@/components/estilos';
-import { paleta_colores } from '@/components/colores';
+import { paleta, paleta_colores } from '@/components/colores';
+import { IconTextInput, PasswordInput } from '@/components/inputs';
 
 // Tells Supabase Auth to continuously refresh the session automatically if
 // the app is in the foreground. When this is added, you will continue to receive
@@ -30,6 +28,10 @@ AppState.addEventListener('change', (state) => {
     supabase.auth.stopAutoRefresh()
   }
 })
+
+type Icon = {
+    Ionicon_name : keyof typeof Ionicons.glyphMap
+}
 
 export default function Login() {
   const [mail, setMail] = useState('');
@@ -86,37 +88,22 @@ export default function Login() {
            </View>
 
             <View style={styles.formContainer}>
-              <View style={[styles.inputContainer,paleta_colores.soft_yellow]}>
-                <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
-                <TextInput
-                style={[styles.textInput,paleta_colores.soft_yellow]}
-                textContentType="emailAddress"
-                keyboardType="email-address"
-                onChangeText={setMail}
-                value={mail}
-                placeholder="Correo electrónico"
-                placeholderTextColor="#999"
-                />
-              </View>
-              <View style={[styles.inputContainer,paleta_colores.softgray]}>
-                <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-                <TextInput
-                  style={[styles.textInput,paleta_colores.softgray]}
-                  secureTextEntry={!showPassword}
-                  textContentType="password"
-                  onChangeText={setPassword}
-                  value={password}
-                  placeholder="Contraseña"
-                  placeholderTextColor="#999"
-                />
-                <Pressable style={{position: "relative", left: -20}}  onPress={()=> {setShowPassword(!showPassword)}} >
-                  <Ionicons
-                    name= {showPassword ? "eye-outline" : "eye-off-outline"}
-                    size={24}
-                    color="#666"
-                  />
-                </Pressable>
-              </View>
+             
+              <IconTextInput 
+                icon={{Ionicon_name:"mail-outline"}} 
+                value={mail} 
+                bck_color={paleta.soft_yellow} 
+                onChange={setMail} 
+                placeholder='Correo electrónico' 
+                keyboardType='email-address' />
+
+              <PasswordInput 
+                value={password} 
+                bck_color={paleta.softgray} 
+                onChange={setPassword} 
+                showPassword={showPassword} 
+                setShowPassword={setShowPassword}  />
+                
               <View style={{marginVertical:15}}>
                 <Link href="/acc_recovery" >
                   <ThemedText lightColor='gray'>¿Olvidaste tu contraseña? / </ThemedText> {''}
