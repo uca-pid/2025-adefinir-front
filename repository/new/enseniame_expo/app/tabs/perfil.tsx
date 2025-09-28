@@ -40,14 +40,15 @@ export default function Perfil (){
     const eliminar_cuenta = ()=>{
       Alert.alert('Eliminar cuenta', '¿Estás seguro de que querés eliminar la cuenta?', [
       {
-        text: 'Cancel',
-        onPress: () => console.log('Cancel Pressed'),
+        text: 'Cancelar',
         style: 'cancel',
       },
-      {text: 'OK', onPress: () => console.log('OK Pressed')},
+      {text: 'Confirmar', onPress: () => {
+        eliminar_usuario(contexto.user.id);
+        salir();
+        }},
     ])
-      //eliminar_usuario(contexto.user.id);
-      salir();
+      
     }
 
     const handleEmailChange = (text:any) => {
@@ -124,6 +125,7 @@ export default function Perfil (){
             setMailModalVisible(false);
             setPassModalVisible(false);
             setDeleteModalVisible(false);
+            setInstModalVisible(false);
             setTimeout(()=>success_alert("Cambios aplicados"),200)
             borrar_cambios();
         }
@@ -271,7 +273,7 @@ export default function Perfil (){
             <View style={[styles.mainView,{backgroundColor:paleta.aqua_bck,marginBottom:0}]}>
               <View style={[styles.formAndImg,{justifyContent:"flex-start",marginTop:60}]}>
                 <View style={[{flexDirection:"row",justifyContent:"flex-start",width:"100%"}]}>
-                  <Pressable onPress={() => {setInstModalVisible(false);;borrar_cambios()}}>
+                  <Pressable onPress={() => {setInstModalVisible(false);borrar_cambios()}}>
                     <MaterialIcons name="keyboard-arrow-left" size={40} color="blue"  />
                   </Pressable>
                   
@@ -280,12 +282,12 @@ export default function Perfil (){
 
                 <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Institución </ThemedText>
                 <IconTextInput 
-                        icon={{Ionicon_name: "business-outline"}} 
-                        value={institucion} 
-                        bck_color="white"
-                        onChange={handleInstitutionChange}
-                        keyboardType='default'
-                        placeholder='Institución' />
+                  icon={{Ionicon_name: "business-outline"}} 
+                  value={institucion} 
+                  bck_color="white"
+                  onChange={handleInstitutionChange}
+                  keyboardType='default'
+                  placeholder={contexto.user.institution} />
                   { errorI ? <ThemedText type='error'>{errorI}</ThemedText>:null}
 
                   <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
