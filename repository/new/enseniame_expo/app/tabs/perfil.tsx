@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, TextInput, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons, MaterialIcons  } from '@expo/vector-icons';
 import { Link , router, useFocusEffect} from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
@@ -10,8 +10,8 @@ import { validateEmail, validatePassword } from '@/components/validaciones';
 import { eliminar_usuario } from '@/conexiones/gestion_usuarios';
 import { paleta, paleta_colores } from '@/components/colores';
 import { IconTextInput, PasswordInput } from '@/components/inputs';
-import { BotonLogin } from '@/components/botones';
 import { estilos } from '@/components/estilos';
+import { Image } from 'expo-image';
 
 export default function Perfil (){
     const [name,setName]= useState<string>();
@@ -27,6 +27,8 @@ export default function Perfil (){
     const [showPassword, setShowPassword] = useState(false);
 
     const contexto = useUserContext();
+
+    const img = require("../../assets/images/LSA.png");
 
     const eliminar_cuenta = ()=>{
       eliminar_usuario(contexto.user.id);
@@ -113,19 +115,26 @@ export default function Perfil (){
         <View style={[styles.safeArea,paleta_colores.softgray]}>
             <View style={[styles.mainView,paleta_colores.softgray]}>
             <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+
+              <View style={styles.formAndImg}>
               <View style={styles.headerContainer}>
                 <ThemedText type='error'> implementar foto perfil</ThemedText>
+               {/*  <Image
+                  style={styles.image}
+                  source={img}
+                  contentFit="contain"
+                  transition={1000}
+                /> */}
                 <ThemedText type='title'>{contexto.user.username}</ThemedText>
               </View>
               <View style={[styles.formContainer]}>
-
+                <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Actualizar datos</ThemedText>
                 <TouchableOpacity style={[styles.infoContainer,estilos.shadow,{borderTopRightRadius:15, borderTopLeftRadius:15,}]}>
                   <ThemedText >Nombre</ThemedText>
                   <View style={{flexDirection:"row"}}>
                     <ThemedText lightColor='gray'>{contexto.user.username}</ThemedText>
                     <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
                   </View>
-                  
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.infoContainer]}>
@@ -134,13 +143,17 @@ export default function Perfil (){
                     <ThemedText lightColor='gray'>{contexto.user.mail}</ThemedText>
                     <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
                   </View>
-                  
                 </TouchableOpacity>
 
                 <TouchableOpacity style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
                   <ThemedText >Cambiar contraseña</ThemedText>
                     <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
-                  
+                </TouchableOpacity>
+
+                <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Cuenta</ThemedText>
+                <TouchableOpacity style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
+                  <ThemedText >Eliminar cuenta</ThemedText>
+                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
                 </TouchableOpacity>
 
                    {/*  
@@ -208,6 +221,7 @@ export default function Perfil (){
                     </TouchableOpacity> */}
 
                 </View>
+              </View>
             </ScrollView>
             </View>
             <Toast/>
@@ -237,6 +251,14 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     minWidth: "80%",
     marginBottom: 50
+  },
+  formAndImg: {
+    width: '100%',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: 'center',
+    height: "100%"
   },
   formContainer: {
       width: '100%',
@@ -287,4 +309,9 @@ const styles = StyleSheet.create({
         marginRight: 10,
         marginLeft: 10
     },
+  image: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
+  },
 });
