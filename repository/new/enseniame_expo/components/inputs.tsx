@@ -7,7 +7,7 @@ type Icon = {
 
 
 function IconTextInput (props: 
-        {icon: Icon, value: string, bck_color: string,
+        {icon: Icon, value: string | undefined, bck_color: string,
         onChange: (text: string) => void, keyboardType:  KeyboardTypeOptions, 
         placeholder: string ,
     }){
@@ -29,7 +29,7 @@ function IconTextInput (props:
 }
 
 function PasswordInput(props:
-    { value: string, bck_color: string,
+    { value: string | undefined, bck_color: string,
         onChange: (text: string) => void, 
         showPassword: boolean,
         setShowPassword: Function,

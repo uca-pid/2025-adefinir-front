@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import { Ionicons, MaterialIcons  } from '@expo/vector-icons';
 import { Link , router, useFocusEffect} from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
@@ -8,6 +8,10 @@ import Toast from 'react-native-toast-message';
 import { useUserContext } from '@/context/UserContext';
 import { validateEmail, validatePassword } from '@/components/validaciones';
 import { eliminar_usuario } from '@/conexiones/gestion_usuarios';
+import { paleta, paleta_colores } from '@/components/colores';
+import { IconTextInput, PasswordInput } from '@/components/inputs';
+import { BotonLogin } from '@/components/botones';
+import { estilos } from '@/components/estilos';
 
 export default function Perfil (){
     const [name,setName]= useState<string>();
@@ -106,89 +110,102 @@ export default function Perfil (){
     }
 
     return(
-        <View style={styles.safeArea}>
-            <View style={styles.mainView}>
+        <View style={[styles.safeArea,paleta_colores.softgray]}>
+            <View style={[styles.mainView,paleta_colores.softgray]}>
             <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
-                <View style={styles.formContainer}>
-                    <View style={styles.headerContainer}>
-                        <Text style={styles.panelTitle}>Perfil </Text>
-                    </View>
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.textInput}
-                            textContentType="emailAddress"
-                            keyboardType="email-address"
-                            onChangeText={handleEmailChange}
-                            value={mail}
-                            placeholder={contexto.user.mail}
-                            placeholderTextColor="#999"
-                        />
-                    </View>
+              <View style={styles.headerContainer}>
+                <ThemedText type='error'> implementar foto perfil</ThemedText>
+                <ThemedText type='title'>{contexto.user.username}</ThemedText>
+              </View>
+              <View style={[styles.formContainer]}>
+
+                <TouchableOpacity style={[styles.infoContainer,estilos.shadow,{borderTopRightRadius:15, borderTopLeftRadius:15,}]}>
+                  <ThemedText >Nombre</ThemedText>
+                  <View style={{flexDirection:"row"}}>
+                    <ThemedText lightColor='gray'>{contexto.user.username}</ThemedText>
+                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                  </View>
+                  
+                </TouchableOpacity>
+
+                <TouchableOpacity style={[styles.infoContainer]}>
+                  <ThemedText >Mail</ThemedText>
+                  <View style={{flexDirection:"row"}}>
+                    <ThemedText lightColor='gray'>{contexto.user.mail}</ThemedText>
+                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                  </View>
+                  
+                </TouchableOpacity>
+
+                <TouchableOpacity style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
+                  <ThemedText >Cambiar contraseña</ThemedText>
+                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                  
+                </TouchableOpacity>
+
+                   {/*  
+                    <IconTextInput 
+                      icon={{Ionicon_name: "mail-outline"}} 
+                      value={mail} 
+                      bck_color={paleta.softgray}
+                      onChange={handleEmailChange}
+                      keyboardType='email-address'
+                      placeholder={contexto.user.mail}
+                    />
                     {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
+ */}
+                   
+                  {/*   <IconTextInput 
+                      icon={{Ionicon_name: "person-outline"}} 
+                      value={name} 
+                      bck_color={paleta.softgray}
+                      onChange={handleNameChange}
+                      keyboardType='default'
+                      placeholder={contexto.user.username} />
+                    {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null} */}
+{/* 
+                    <PasswordInput 
+                      value={pass}
+                      bck_color={paleta.soft_yellow}
+                      onChange={handlePasswordChange}
+                      showPassword={showPassword}
+                      setShowPassword={()=> setShowPassword(!showPassword)}
+                      placeholder='Nueva contraseña'
+                    />
+                    {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null} */}
 
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="person-outline" size={24} color="#666" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.textInput}
-                            onChangeText={handleNameChange}
-                            value={name}
-                            placeholder={contexto.user.username}
-                            placeholderTextColor="#999"
-                        />
-                    </View>
-                    {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null}
-
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.textInput}
-                            value={pass}
-                            onChangeText={ handlePasswordChange}
-                            placeholder="Nueva contraseña"
-                            placeholderTextColor="#999"
-                            secureTextEntry={!showPassword}
-                        />
-                        <Pressable onPress={() => setShowPassword(!showPassword)}>
-                            <Ionicons
-                            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                            size={24}
-                            color="#666"
-                            />
-                        </Pressable>
-                    </View>
-                    {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
-
-                    {contexto.user.is_prof ? 
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="business-outline" size={24} color="#666" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.textInput}
-                            onChangeText={handleInstitutionChange}
-                            value={institucion}
-                            placeholder={contexto.user.institution}
-                            placeholderTextColor="#999"
-                        />
-                    </View>:null}
+                  {/*   {contexto.user.is_prof ? 
+                     <IconTextInput 
+                        icon={{Ionicon_name: "business-outline"}} 
+                        value={institucion} 
+                        bck_color={paleta.softgray}
+                        onChange={handleInstitutionChange}
+                        keyboardType='default'
+                        placeholder='Institución' />:null}
                     {contexto.user.is_prof && errorI ? <ThemedText type='error'>{errorI}</ThemedText> : null}
 
-                    <TouchableOpacity onPress={confirmar} style={styles.loginButton} >
-                        <ThemedText type="subtitle" lightColor='white'>Guardar cambios</ThemedText>
+                    <BotonLogin 
+                      callback={confirmar}
+                      textColor='black'
+                      bckColor={paleta.dark_aqua}
+                      text='Guardar cambios'
+                    /> */}
+
+                   {/*  <BotonLogin 
+                      callback={borrar_cambios}
+                      textColor='black'
+                      bckColor={paleta.yellow}
+                      text='Cancelar'
+                    /> */}
+
+                    <TouchableOpacity style={[styles.iconButton]} onPress={salir}   >  
+                      <ThemedText type="subtitle" lightColor='red'>Salir</ThemedText>
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.loginButton,styles.cancelButton]} onPress={borrar_cambios}   >
-                        <ThemedText type="subtitle" lightColor='#7209B7'>Cancelar</ThemedText>
-                    </TouchableOpacity>
-
-                    
-                    <TouchableOpacity style={[styles.loginButton,styles.cancelButton]} onPress={salir}   >
-                        <ThemedText type="subtitle" lightColor='#7209B7'>Salir</ThemedText>
-                    </TouchableOpacity>
-
-
+{/* 
                     <TouchableOpacity style={[styles.loginButton,{backgroundColor:"red"}]} onPress={eliminar_cuenta}   >
                         <ThemedText type="subtitle" lightColor='white'>Eliminar cuenta</ThemedText>
-                    </TouchableOpacity>
+                    </TouchableOpacity> */}
 
                 </View>
             </ScrollView>
@@ -202,163 +219,55 @@ export default function Perfil (){
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f3e8ff', // violeta claro
   },
   mainView: {
     flex: 1,
-    backgroundColor: '#f3e8ff',
+    
     justifyContent: 'flex-start',
     alignItems: 'center',
     
   },
   headerContainer: {
-    marginBottom: 24,
+    margin: 24,
     alignItems: 'center',
-  },
-  panelTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#560bad',
-    marginBottom: 4,
-  },
-  teacherName: {
-    fontSize: 18,
-    color: '#560bad',
-    fontWeight: '500',
-    marginBottom: 18,
-  },
-  ctaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F72585',
-    borderRadius: 14,
-    height: 60,
-    marginBottom: 28,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-    paddingHorizontal: 24,
-  },
-  ctaIcon: {
-    marginRight: 10,
-  },
-  ctaButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  quickActionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 22,
-    width: '100%',
-    paddingHorizontal: 16,
-  },
-  quickActionCard: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    paddingVertical: 20,
-    marginHorizontal: 6,
-  },
-  quickActionText: {
-    color: '#560bad',
-    fontWeight: 'bold',
-    fontSize: 14,
-    marginTop: 6,
-    textAlign: 'center',
-  },
-  // summaryCard y summaryText eliminados
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    backgroundColor: '#560bad',
-    paddingVertical: 12,
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 10,
-    zIndex: 1,
-  },
-  fabPlaceholder: {
-    width: 80,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 60,
-  },
-  navText: {
-    color: '#fff',
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '500',
-  },
-  fabButton: {
-    position: 'absolute',
-    left: '50%',
-    bottom: 1,
-    transform: [{ translateX: -32 }, { translateY: -32 }],
-    backgroundColor: '#7209B7',
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 4,
-    borderColor: '#f3e8ff',
-    zIndex: 2,
   },
 
-  inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 15
-    },
-    inputIcon: {
-      marginRight: 10,
-    },
-     scrollViewContent: {
-      flexGrow: 1,
-      justifyContent: 'center',
-      minWidth: "80%",
-      marginBottom: 50
-    },
-    formContainer: {
-        width: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        borderRadius: 10,
-        padding: 20,
-        justifyContent: "center",
-        alignItems: 'center',
-        height: 600
-    },
-   loginButton: {
-      backgroundColor: '#B5179E',
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    minWidth: "80%",
+    marginBottom: 50
+  },
+  formContainer: {
+      width: '100%',
       borderRadius: 10,
-      height: 50,
-      minWidth: "60%",
-      justifyContent: 'center',
+      padding: 20,
+      justifyContent: "center",
       alignItems: 'center',
-      marginTop: 25,
-      marginHorizontal: 30,
-      width:"80%",
+      height: 600
+  },
+  infoContainer: {
+    flexDirection: "row",
+    backgroundColor:"white",
+    justifyContent: "space-between",
+    width:"100%",
+    height: 50,
+    alignContent:"center",
+    alignItems:"center",
+    
+    borderBottomColor:"lightgray",
+    borderBottomWidth:1,
+    padding: 10
+  },
+  iconButton: {
+    borderRadius: 10,
+    height: 50,
+    minWidth: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 25,
+    width:"100%",
+    backgroundColor: "white"
   },
    title : {
     fontSize: 28,
@@ -367,25 +276,15 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     textAlign: 'center',
   },
-  textInput:{
-        padding:8,
-        backgroundColor: "white",
-        fontSize:18,
-        elevation: 1,
-        zIndex: 1,
-        minWidth: "60%",
-        maxHeight: 60,
-        minHeight: 40,
-        borderColor: "#0538cf",
-        borderRadius: 5,
-        borderWidth: 2,
-        flex: 1,
-        position: "relative"
-    },
+  
     cancelButton:{
         width:"80%",
         borderWidth: 1, 
         borderColor: '#7209B7',
         backgroundColor: '#fff',
-    }
+    },
+    icon: {
+        marginRight: 10,
+        marginLeft: 10
+    },
 });
