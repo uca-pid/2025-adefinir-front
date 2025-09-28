@@ -83,22 +83,17 @@ class Logged_Alumno extends Logged_User {
     }
 }
 
-class info_video {
-    id: number
-    significado: string
-    video_url: string
-    constructor(id:number,significado: string, video_url: string){
-        this.id=id;
-        this.significado=significado;
-        this.video_url=video_url
-    }
-
+interface Categoria {
+    id: number;
+    nombre: string;
 }
 
 interface Senia {
   id: number;
   significado: string;
   video_url: string;
+  id_autor: number;
+  categoria: number | undefined
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia}
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia, Categoria}

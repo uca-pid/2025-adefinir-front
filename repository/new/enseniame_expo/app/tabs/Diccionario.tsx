@@ -7,8 +7,12 @@ import {
 import { supabase } from '../../utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import VideoPlayer from '@/components/VideoPlayer';
-import { Senia } from '@/components/types';
+import { Categoria, Senia, User } from '@/components/types';
 import { success_alert,error_alert } from '@/components/alert';
+import { paleta,paleta_colores } from '@/components/colores';
+import { estilos } from '@/components/estilos';
+import { buscarAutor, buscarCategoria, buscarSenias } from '@/conexiones/videos';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function Diccionario() {
   const [senias, setSenias] = useState<Senia[]>([]);
@@ -18,9 +22,12 @@ export default function Diccionario() {
   const [selectedSenia, setSelectedSenia] = useState<Senia | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
+  const [autor,setAutor] = useState<User>();
+  const [categoria,setCategoria] = useState<Categoria>();
+
   useFocusEffect(
     useCallback(() => {
-      console.log('Tab Diccionario enfocada - Recargando señas...');
+      //console.log('Tab Diccionario enfocada - Recargando señas...');
       fetchSenias();
       return () => {
       };
@@ -33,14 +40,10 @@ export default function Diccionario() {
 
   const fetchSenias = async () => {
     try {
-      const { data, error } = await supabase
-        .from('Senias')
-        .select('*')
-        .order('significado', { ascending: true });
-
-      if (error) throw error;
+      const data = await buscarSenias();
       setSenias(data || []);
       setFilteredSenias(data || []);
+      
     } catch (error) {
       console.error('Error fetching señas:', error);
       error_alert('No se pudieron cargar las señas');
@@ -59,14 +62,26 @@ export default function Diccionario() {
   const renderSenia = ({ item }: { item: Senia }) => (
     <Pressable 
       style={styles.listItem}
-      onPress={() => {
+      onPress={async () => {
         setSelectedSenia(item);
         setModalVisible(true);
-      }}
+        console.log(item);
+        if (item.id_autor){
+          const autor = await buscarAutor(item.id_autor);
+          setAutor(autor);
+        }
+        if (item.categoria){
+          console.log("tiene cate")
+          const cate = await buscarCategoria(item.categoria);
+          setCategoria(cate);
+        }
+        
+      }
+      }
     >
       <View style={styles.listItemContent}>
         <Text style={styles.significadoText}>{item.significado}</Text>
-        <Ionicons name="chevron-forward" size={24} color="#560bad" />
+        <Ionicons name="chevron-forward" size={24} color="#34a0a4" />
       </View>
     </Pressable>
   );
@@ -74,7 +89,7 @@ export default function Diccionario() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#560bad" />
+        <ActivityIndicator size="large" color="#34a0a4" />
       </View>
     );
   }
@@ -90,13 +105,13 @@ export default function Diccionario() {
         </View>
 
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#560bad" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color="#34a0a4" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar seña..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor="#560bad80"
+            placeholderTextColor="#34a0a499"
           />
         </View>
 
@@ -122,7 +137,7 @@ export default function Diccionario() {
                   onPress={() => setModalVisible(false)}
                   style={styles.closeButton}
                 >
-                  <Ionicons name="close" size={24} color="#560bad" />
+                  <Ionicons name="close" size={24} color="#014f86" />
                 </Pressable>
               </View>
               
@@ -132,6 +147,20 @@ export default function Diccionario() {
                   style={styles.video}
                 />
               )}
+              {selectedSenia && selectedSenia.categoria && categoria ?
+              <ThemedText style={{margin:10}}>
+                <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
+                <ThemedText>{categoria.nombre}</ThemedText>
+              </ThemedText>
+                :null
+              }
+              {selectedSenia && selectedSenia.id_autor && autor ?
+              <ThemedText style={{margin:10}}>
+                <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
+                <ThemedText>{autor.username}</ThemedText>
+              </ThemedText>
+                :null
+              }
             </View>
           </View>
         </Modal>
@@ -143,11 +172,11 @@ export default function Diccionario() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: paleta.aqua_bck,
   },
   mainView: {
     flex: 1,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: paleta.aqua_bck,
     paddingTop: 60,
   },
   headerContainer: {
@@ -157,12 +186,12 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#560bad',
+    color: "#34a0a4",
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 18,
-    color: '#560bad',
+    color: '#34a0a4',
     fontWeight: '500',
     marginBottom: 18,
   },
@@ -182,7 +211,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#560bad',
+    color: '#34a0a4',
   },
   listContent: {
     paddingHorizontal: 16,
@@ -201,7 +230,7 @@ const styles = StyleSheet.create({
   },
   significadoText: {
     fontSize: 16,
-    color: '#560bad',
+    color: '#34a0a4',
     fontWeight: '500',
   },
   separator: {
@@ -228,7 +257,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#560bad',
+    color: '#34a0a4',
   },
   closeButton: {
     padding: 8,

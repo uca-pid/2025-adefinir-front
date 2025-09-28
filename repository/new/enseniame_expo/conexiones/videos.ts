@@ -21,4 +21,45 @@ const traer_tabla_videos = async () => {
     
 }
 
-export {traer_tabla_videos}
+const buscarSenias = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('Senias')
+        .select('*')
+        .order('significado', { ascending: true });
+
+      if (error) throw error;
+      return data
+    } catch (error) {
+      console.error('Error fetching señas:', error);
+      error_alert('No se pudieron cargar las señas');
+    } 
+};
+const buscarAutor = async (id:number) =>{
+    try {
+        const { data: user, error } = await supabase.from('Users').select('*').eq('id', id);
+        if (error) throw error;
+        if (user && user.length >0) {
+            return user[0]
+        }
+    } catch (error) {
+        console.error('Error buscando al autor:', error);
+    }
+}
+
+const buscarCategoria = async (id:number) =>{
+    try {
+       
+        let { data: cate, error } = await supabase.from('Categorias').select('*').eq('id',id);
+            
+        if (error) throw error;
+        if (cate && cate.length>0) {
+            console.log(cate);
+            return cate[0]
+        }
+    } catch (error) {
+        console.error('Error buscando la categoria:', error);
+    }
+}
+
+export {traer_tabla_videos,buscarSenias,buscarAutor, buscarCategoria}
