@@ -1,20 +1,12 @@
-import { 
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import {   StyleSheet} from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { Link, router } from 'expo-router';
 import { Image } from 'expo-image';
 import { HelloWave } from '@/components/HelloWave';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { estilos } from '@/components/estilos';
+import { BotonLogin } from '@/components/botones';
+import { paleta } from '@/components/colores';
 
 export default function Index() {
   return (
@@ -58,22 +50,7 @@ export default function Index() {
         </ThemedText>
       </ThemedView>
 
-      <View style={{flexDirection:"row", alignContent:"center",justifyContent:"center"}}>
-        <Pressable onPress={()=>{router.navigate('/signup_alumno');}} style={styles.loginButton} >
-          <ThemedText type="subtitle" lightColor='white'>Soy alumno</ThemedText>
-        </Pressable>
-        <Pressable onPress={()=>{router.navigate('/signup_profe');}} style={styles.loginButton} >
-            <ThemedText type="subtitle" lightColor='white'>Soy profesor</ThemedText>
-        </Pressable>
-      </View>
-        
-      <View style={estilos.centrado} >
-        <ThemedText >¿Ya tienes un usuario? </ThemedText>
-        <Pressable onPress={()=>{router.navigate('/login');}} style={styles.loginButton2} >
-          <ThemedText type="subtitle" lightColor='white'>Inicia sesión aquí</ThemedText>
-        </Pressable>
-      </View>
-    
+      <BotonLogin callback={()=>{router.navigate('/signup_alumno');}} textColor={'black'} bckColor={paleta.dark_aqua} text={'Empezar'} />
     </ParallaxScrollView>
   );
 }
@@ -95,24 +72,5 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 8,
   },
-  loginButton: {
-      backgroundColor: '#F72585',
-      borderRadius: 10,
-      height: 50,
-      padding: 10,
-      paddingHorizontal: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 5,
-  },
-  loginButton2: {
-      backgroundColor: '#7209B7',
-      borderRadius: 10,
-      height: 50,
-      padding: 10,
-      paddingHorizontal: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 5,
-  },
+  
 })

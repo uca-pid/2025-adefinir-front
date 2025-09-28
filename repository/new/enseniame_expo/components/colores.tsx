@@ -24,7 +24,7 @@ const paleta_colores = StyleSheet.create({
 
 const paleta = {
     aqua : "#8bcac0",
-    dark_aqua: "#65b8aeff",
+    dark_aqua: "#73d3c8ff",
     yellow:  "#ffbb51",
     soft_yellow: "#fdce85",
     strong_yellow: "#fcb64c",

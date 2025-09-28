@@ -9,7 +9,7 @@ type Icon = {
 function IconTextInput (props: 
         {icon: Icon, value: string, bck_color: string,
         onChange: (text: string) => void, keyboardType:  KeyboardTypeOptions, 
-        placeholder: string,
+        placeholder: string ,
     }){
 
     return (
@@ -32,7 +32,8 @@ function PasswordInput(props:
     { value: string, bck_color: string,
         onChange: (text: string) => void, 
         showPassword: boolean,
-        setShowPassword: Function
+        setShowPassword: Function,
+        placeholder: string
     }){
 
     return (
@@ -44,7 +45,7 @@ function PasswordInput(props:
                 textContentType="password"
                 onChangeText={props.onChange}
                 value={props.value}
-                placeholder="Contraseña"
+                placeholder={props.placeholder}
                 placeholderTextColor="#999"
             />
             <Pressable style={{position: "relative", left: -20}}  onPress={()=> {props.setShowPassword(!props.showPassword)}} >
@@ -68,21 +69,24 @@ const styles = StyleSheet.create({
         borderRadius: 9,
         borderWidth: 1,
         justifyContent: 'center',
-    
+        maxHeight: 42,
+        minHeight: 40,
+        width: "100%"
   },
     inputIcon: {
         marginRight: 10,
         marginLeft: 10
     },
     textInput:{
-    padding:8,
-    fontSize:18,
-    elevation: 1,
-    minWidth: "80%",
-    maxHeight: 60,
-    minHeight: 40,
-    borderRadius: 9,
-    flex: 1,
+        padding:8,
+        fontSize:18,
+        elevation: 1,
+        minWidth: "80%",
+        maxHeight: 40,
+        minHeight: 40,
+        borderRadius: 9,
+        flex: 1,
+        width: "80%"
   },
 })
 

@@ -81,7 +81,7 @@ export default function Login() {
               <ThemedText type='title'>Ingresa a tu cuenta</ThemedText>
 
               <View style={{marginVertical:15}}>
-                <Link href="/acc_recovery" >
+                <Link href="/signup_alumno" >
                   <ThemedText lightColor='gray'>¿No tienes un usuario? / </ThemedText> {''}
                   <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Regístrate aquí</ThemedText>
                 </Link>
@@ -103,7 +103,8 @@ export default function Login() {
                 bck_color={paleta.softgray} 
                 onChange={setPassword} 
                 showPassword={showPassword} 
-                setShowPassword={setShowPassword}  />
+                setShowPassword={setShowPassword} 
+                placeholder='Contraseña' />
 
               <View style={{marginVertical:15}}>
                 <Link href="/acc_recovery" >
