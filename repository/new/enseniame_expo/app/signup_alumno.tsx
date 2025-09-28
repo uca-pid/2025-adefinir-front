@@ -2,7 +2,6 @@ import { View,  StyleSheet,  Platform,  ScrollView, KeyboardAvoidingView} from '
 import { useState } from "react";
 import { Link,} from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
-import { Image } from 'expo-image';
 import { error_alert,success_alert } from '@/components/alert';
 import { validateEmail, validatePassword, } from '@/components/validaciones';
 import Toast from 'react-native-toast-message';
@@ -179,10 +178,5 @@ const styles=StyleSheet.create({
     justifyContent: "center",
     alignItems: 'center',
     height: "100%"
-  },
-  image: {
-    flex: 1,
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0)',
   },
 })

@@ -30,10 +30,6 @@ AppState.addEventListener('change', (state) => {
   }
 })
 
-type Icon = {
-    Ionicon_name : keyof typeof Ionicons.glyphMap
-}
-
 export default function Login() {
   const [mail, setMail] = useState('');
   const [password, setPassword] = useState('');
