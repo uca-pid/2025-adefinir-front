@@ -1,10 +1,6 @@
-import { Pressable,  Text,  TextInput,  View,
-  StyleSheet,  Platform,  ScrollView, KeyboardAvoidingView,
-  TouchableOpacity
-} from 'react-native';
-import { useEffect, useState } from "react";
-import { Link, router, useLocalSearchParams } from 'expo-router';
-import { ThemedView } from '@/components/ThemedView';
+import { View,  StyleSheet,  Platform,  ScrollView, KeyboardAvoidingView} from 'react-native';
+import { useState } from "react";
+import { Link,} from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { Image } from 'expo-image';
 import { error_alert,success_alert } from '@/components/alert';
@@ -93,13 +89,6 @@ export default function Signup() {
       >
       <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
 
-         <Image
-            style={styles.image}
-            source={img}
-            contentFit="cover"
-            transition={1000}
-          />
-       
         <View style={styles.formContainer}>
 
           <View style={{alignSelf:"flex-start"}}>
@@ -184,12 +173,12 @@ const styles=StyleSheet.create({
     minWidth: "80%",
   },
   formContainer: {
-      width: '100%',
-      borderRadius: 10,
-      padding: 20,
-      justifyContent: "center",
-      alignItems: 'center',
-      height: "100%"
+    width: '100%',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: 'center',
+    height: "100%"
   },
   image: {
     flex: 1,

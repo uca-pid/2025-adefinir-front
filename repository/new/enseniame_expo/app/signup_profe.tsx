@@ -4,7 +4,6 @@ import { Pressable,  Text,  TextInput,  View,
 } from 'react-native';
 import { useEffect, useState } from "react";
 import { Link, router, useLocalSearchParams } from 'expo-router';
-import { ThemedView } from '@/components/ThemedView';
 import { ThemedText } from '@/components/ThemedText';
 import { Ionicons } from '@expo/vector-icons';
 import { estilos } from '@/components/estilos';
@@ -12,8 +11,12 @@ import { error_alert,success_alert } from '@/components/alert';
 import { validateEmail, validatePassword, validateInstitution } from '@/components/validaciones';
 import Toast from 'react-native-toast-message';
 import { registrarse } from '@/conexiones/gestion_usuarios';
-import { User, Profesor } from '@/components/types';
+import { Profesor } from '@/components/types';
 import { useUserContext } from '@/context/UserContext';
+import { BotonLogin } from '@/components/botones';
+import { IconTextInput, PasswordInput } from '@/components/inputs';
+import { paleta } from '@/components/colores';
+
 
 export default function Signup() {
   
@@ -101,107 +104,73 @@ export default function Signup() {
        
         <View style={styles.formContainer}>
        
-        <ThemedText type="title" style={{margin:40}}>Crear cuenta</ThemedText>
+        <View style={{alignSelf:"flex-start"}}>
+          <ThemedText type='title'>Crear cuenta como profesor</ThemedText>
+
+          <View style={{marginVertical:15}}>
+            <Link href="/login" >
+              <ThemedText lightColor='gray'>¿Ya tienes un usuario? / </ThemedText> {''}
+              <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Inicia sesión aquí</ThemedText>
+            </Link>
+          </View>
+        </View>
       
       
-      <View style={styles.inputContainer}>
-        <Ionicons name="person-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          onChangeText={handleNameChange}
-          value={name}
-          placeholder="Nombre"
-          placeholderTextColor="#999"
-        />
-      </View>
+      <IconTextInput 
+        icon={{Ionicon_name: "person-outline"}} 
+        value={name} 
+        bck_color={paleta.softgray}
+        onChange={handleNameChange}
+        keyboardType='default'
+        placeholder='Nombre' />
       {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null}
 
-      <View style={styles.inputContainer}>
-        <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          textContentType="emailAddress"
-          keyboardType="email-address"
-          onChangeText={handleEmailChange}
-          value={mail}
-          placeholder="Correo electrónico"
-          placeholderTextColor="#999"
-        />
-      </View>
+      <IconTextInput 
+        icon={{Ionicon_name: "mail-outline"}} 
+        value={mail} 
+        bck_color={paleta.softgray}
+        onChange={handleEmailChange}
+        keyboardType='email-address'
+        placeholder='Correo electrónico' />
       {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          secureTextEntry={!showPassword1}
-          textContentType="newPassword"
-          onChangeText={handlePasswordChange}
-          value={password1}
-          placeholder="Contraseña"
-          placeholderTextColor="#999"
-        />
-        <Pressable onPress={()=> setShowPassword1(!showPassword1)} >
-          <Ionicons
-            name={showPassword1 ? "eye-outline" : "eye-off-outline"}
-            size={24}
-            color="#666"
-          />
-        </Pressable>
-      </View>
+      <PasswordInput 
+        value={password1}
+        bck_color={paleta.soft_yellow}
+        onChange={handlePasswordChange}
+        showPassword={showPassword1}
+        setShowPassword={()=> setShowPassword1(!showPassword1)}
+        placeholder='Contraseña'
+      />
       {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
 
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          secureTextEntry={!showPassword2}
-          textContentType="newPassword"
-          onChangeText={handlePasswordConfirmChange}
-          value={password2}
-          placeholder="Confirmar contraseña"
-          placeholderTextColor="#999"
-        />
-        <Pressable onPress={()=> setShowPassword2(!showPassword2)} >
-          <Ionicons
-            name={showPassword2 ? "eye-outline" : "eye-off-outline"}
-            size={24}
-            color="#666"
-          />
-        </Pressable>
-      </View>
+      <PasswordInput 
+        value={password2}
+        bck_color={paleta.soft_yellow}
+        onChange={handlePasswordConfirmChange}
+        showPassword={showPassword2}
+        setShowPassword={()=> setShowPassword2(!showPassword2)}
+        placeholder='Confirmar contraseña'
+      />
       {errorPasswordConfirm ? <ThemedText type='error'>{errorPasswordConfirm}</ThemedText> : null}
 
-      
-        <View style={styles.inputContainer}>
-        <Ionicons name="business-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          onChangeText={handleInstitutionChange}
-          value={institucion}
-          placeholder="Institución"
-          placeholderTextColor="#999"
-        />
-      </View>
-    
+      <IconTextInput 
+        icon={{Ionicon_name: "business-outline"}} 
+        value={institucion} 
+        bck_color={paleta.softgray}
+        onChange={handleInstitutionChange}
+        keyboardType='default'
+        placeholder='Institución' />
       {errorI ? <ThemedText type='error'>{errorI}</ThemedText> : null}
 
-      <TouchableOpacity onPress={signup} style={styles.loginButton} >
-        <ThemedText type="subtitle" lightColor='white'>Registrarse</ThemedText>
-      </TouchableOpacity>
-      <View style={[estilos.centrado,{marginBottom:10}]}>
-        <ThemedText style={{fontSize: 16}}>¿Ya tienes un usuario? </ThemedText>
-        <Link href="/login" >
-          <ThemedText style={{fontSize: 16}} type='link' >Inicia sesión aquí</ThemedText>
+      <View style={{marginVertical:15}}>
+        <Link href="/signup_alumno" >
+          <ThemedText lightColor='gray'>¿Eres alumno? / </ThemedText> {''}
+          <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Crear cuenta de alumno</ThemedText>
         </Link>
       </View>
 
-      <View style={[estilos.centrado,{marginBottom:10}]}>
-        <ThemedText style={{fontSize: 16}}>¿Eres alumno? </ThemedText>
-        <Link href="/signup_alumno" >
-          <ThemedText style={{fontSize: 16}} type='link' >Crear cuenta de alumno</ThemedText>
-        </Link>
-      </View>
+      <BotonLogin callback={signup} textColor={'black'} bckColor={paleta.dark_aqua} text={'Registrarse'} />
       
       </View>
       </ScrollView>
@@ -218,22 +187,21 @@ const styles=StyleSheet.create({
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "#560bad"
+    backgroundColor: "white"
   },
   
   scrollViewContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    minWidth: "85%"
+    justifyContent: 'space-between',
+    minWidth: "80%",
   },
   formContainer: {
-      width: '100%',
-      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: 10,
-      padding: 20,
-      justifyContent: "center",
-      alignItems: 'center',
-      height: 650
+    width: '100%',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: 'center',
+    height: "100%"
   },
   loginButton: {
       backgroundColor: '#F72585',
