@@ -24,9 +24,16 @@ export default function Index() {
       </ThemedView>
       
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">¿Qué es enSEÑAme?</ThemedText>
         <ThemedText>
-          <ThemedText type="defaultSemiBold">enSEÑAme</ThemedText>{' '}
+          <ThemedText type="subtitle">¿Qué es </ThemedText>{''}
+          <ThemedText type="subtitle">En</ThemedText>{''}
+          <ThemedText type="subtitle" lightColor="#03a793">seña</ThemedText>{''}
+          <ThemedText type="subtitle">me?</ThemedText>
+        </ThemedText>
+        <ThemedText>
+          <ThemedText type="defaultSemiBold">En</ThemedText>{''}
+          <ThemedText type="defaultSemiBold" lightColor="#03a793">seña</ThemedText>{''}
+          <ThemedText type="defaultSemiBold">me</ThemedText>{' '}
            es una aplicación de aprendizaje de 
           <ThemedText type="defaultSemiBold"> Lengua de Señas Argentina (LSA)</ThemedText>.
         </ThemedText>

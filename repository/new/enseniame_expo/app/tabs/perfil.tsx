@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, ScrollView, TouchableOpacity } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView, TouchableOpacity, Modal } from 'react-native';
 import { Ionicons, MaterialIcons  } from '@expo/vector-icons';
-import { Link , router, useFocusEffect} from 'expo-router';
+import { Link , router} from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
@@ -19,6 +19,8 @@ export default function Perfil (){
     const [pass,setPass]=useState<string>();
     const [institucion,setI]=useState<string>();
 
+    const [modalVisible, setModalVisible] = useState(false);
+
     const [errorEmail, setErrorEmail] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
     const [errorName,setErrorName] = useState('');
@@ -28,7 +30,7 @@ export default function Perfil (){
 
     const contexto = useUserContext();
 
-    const img = require("../../assets/images/LSA.png");
+    const img = require("../../assets/images/pfp.jpg");
 
     const eliminar_cuenta = ()=>{
       eliminar_usuario(contexto.user.id);
@@ -112,23 +114,26 @@ export default function Perfil (){
     }
 
     return(
-        <View style={[styles.safeArea,paleta_colores.softgray]}>
-            <View style={[styles.mainView,paleta_colores.softgray]}>
-            <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+        <View
+      style={[styles.mainView,{backgroundColor:"#ebfbfbff"}]}
+    >
+       
+      <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+        <View style={styles.formAndImg}>
 
-              <View style={styles.formAndImg}>
-              <View style={styles.headerContainer}>
-                <ThemedText type='error'> implementar foto perfil</ThemedText>
-               {/*  <Image
-                  style={styles.image}
-                  source={img}
-                  contentFit="contain"
-                  transition={1000}
-                /> */}
-                <ThemedText type='title'>{contexto.user.username}</ThemedText>
-              </View>
-              <View style={[styles.formContainer]}>
-                <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Actualizar datos</ThemedText>
+          <Image
+            style={[styles.image,{borderColor:paleta.aqua}]}
+            source={img}
+            contentFit="contain"
+            transition={1000}
+          />
+          
+            <View style={{marginTop:25}}>
+              <ThemedText type='title'>{contexto.user.username}</ThemedText>
+            </View>
+         
+            <View style={styles.formContainer}>
+             <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Actualizar datos</ThemedText>
                 <TouchableOpacity style={[styles.infoContainer,estilos.shadow,{borderTopRightRadius:15, borderTopLeftRadius:15,}]}>
                   <ThemedText >Nombre</ThemedText>
                   <View style={{flexDirection:"row"}}>
@@ -151,81 +156,32 @@ export default function Perfil (){
                 </TouchableOpacity>
 
                 <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Cuenta</ThemedText>
-                <TouchableOpacity style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
+                <TouchableOpacity style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
                   <ThemedText >Eliminar cuenta</ThemedText>
                     <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
                 </TouchableOpacity>
 
-                   {/*  
-                    <IconTextInput 
-                      icon={{Ionicon_name: "mail-outline"}} 
-                      value={mail} 
-                      bck_color={paleta.softgray}
-                      onChange={handleEmailChange}
-                      keyboardType='email-address'
-                      placeholder={contexto.user.mail}
-                    />
-                    {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
- */}
-                   
-                  {/*   <IconTextInput 
-                      icon={{Ionicon_name: "person-outline"}} 
-                      value={name} 
-                      bck_color={paleta.softgray}
-                      onChange={handleNameChange}
-                      keyboardType='default'
-                      placeholder={contexto.user.username} />
-                    {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null} */}
-{/* 
-                    <PasswordInput 
-                      value={pass}
-                      bck_color={paleta.soft_yellow}
-                      onChange={handlePasswordChange}
-                      showPassword={showPassword}
-                      setShowPassword={()=> setShowPassword(!showPassword)}
-                      placeholder='Nueva contraseña'
-                    />
-                    {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null} */}
+                <TouchableOpacity style={[styles.iconButton,estilos.shadow]} onPress={salir}   >  
+                  <ThemedText type="subtitle" lightColor='red'>Salir</ThemedText>
+                </TouchableOpacity>
 
-                  {/*   {contexto.user.is_prof ? 
-                     <IconTextInput 
-                        icon={{Ionicon_name: "business-outline"}} 
-                        value={institucion} 
-                        bck_color={paleta.softgray}
-                        onChange={handleInstitutionChange}
-                        keyboardType='default'
-                        placeholder='Institución' />:null}
-                    {contexto.user.is_prof && errorI ? <ThemedText type='error'>{errorI}</ThemedText> : null}
 
-                    <BotonLogin 
-                      callback={confirmar}
-                      textColor='black'
-                      bckColor={paleta.dark_aqua}
-                      text='Guardar cambios'
-                    /> */}
-
-                   {/*  <BotonLogin 
-                      callback={borrar_cambios}
-                      textColor='black'
-                      bckColor={paleta.yellow}
-                      text='Cancelar'
-                    /> */}
-
-                    <TouchableOpacity style={[styles.iconButton]} onPress={salir}   >  
-                      <ThemedText type="subtitle" lightColor='red'>Salir</ThemedText>
-                    </TouchableOpacity>
-
-{/* 
-                    <TouchableOpacity style={[styles.loginButton,{backgroundColor:"red"}]} onPress={eliminar_cuenta}   >
-                        <ThemedText type="subtitle" lightColor='white'>Eliminar cuenta</ThemedText>
-                    </TouchableOpacity> */}
-
-                </View>
-              </View>
-            </ScrollView>
             </View>
-            <Toast/>
-        </View>
+            
+          </View>
+        </ScrollView>
+
+        <Modal animationType="slide" 
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => {
+            setModalVisible(!modalVisible);
+          }}>
+
+        </Modal>
+        
+      <Toast/>
+    </View>
     )
 }
 
@@ -234,23 +190,24 @@ const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
   },
-  mainView: {
+   mainView:{
     flex: 1,
-    
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: '100%',
+    height: '100%',
+    marginBottom: 60
   },
   headerContainer: {
-    margin: 24,
+    flex:1,
+    margin: 70,
     alignItems: 'center',
   },
 
   scrollViewContent: {
     flexGrow: 1,
-    justifyContent: 'center',
+    justifyContent: 'space-between',
     minWidth: "80%",
-    marginBottom: 50
   },
   formAndImg: {
     width: '100%',
@@ -261,12 +218,11 @@ const styles = StyleSheet.create({
     height: "100%"
   },
   formContainer: {
-      width: '100%',
-      borderRadius: 10,
-      padding: 20,
-      justifyContent: "center",
-      alignItems: 'center',
-      height: 600
+    width: "100%",
+    zIndex: 999,
+    marginBottom: 20,
+    marginTop: 15,
+    flex: 1
   },
   infoContainer: {
     flexDirection: "row",
@@ -276,7 +232,6 @@ const styles = StyleSheet.create({
     height: 50,
     alignContent:"center",
     alignItems:"center",
-    
     borderBottomColor:"lightgray",
     borderBottomWidth:1,
     padding: 10
@@ -299,19 +254,20 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   
-    cancelButton:{
-        width:"80%",
-        borderWidth: 1, 
-        borderColor: '#7209B7',
-        backgroundColor: '#fff',
-    },
-    icon: {
-        marginRight: 10,
-        marginLeft: 10
-    },
+  cancelButton:{
+      width:"80%",
+      borderWidth: 1, 
+      borderColor: '#7209B7',
+      backgroundColor: '#fff',
+  },
+  icon: {
+      marginRight: 10,
+      marginLeft: 10
+  },
   image: {
     flex: 1,
-    width: '100%',
-    backgroundColor: 'rgba(255, 255, 255, 0)',
+    width: '28%',
+    borderRadius: 20,
+    borderWidth: 1,
   },
 });
