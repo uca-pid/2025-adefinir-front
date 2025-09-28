@@ -8,4 +8,9 @@ export const estilos = StyleSheet.create({
     alignSelf: "center",
     justifyContent: "center"
   },
+  shadow:{
+    shadowColor: "#000",
+    shadowOpacity: 0.2,
+    shadowRadius: 6,
+  }
 })

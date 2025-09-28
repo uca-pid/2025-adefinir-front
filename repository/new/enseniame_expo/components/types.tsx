@@ -95,4 +95,10 @@ class info_video {
 
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, info_video}
+interface Senia {
+  id: number;
+  significado: string;
+  video_url: string;
+}
+
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia}

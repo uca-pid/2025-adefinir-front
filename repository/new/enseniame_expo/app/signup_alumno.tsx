@@ -1,19 +1,16 @@
-import { Pressable,  Text,  TextInput,  View,
-  StyleSheet,  Platform,  ScrollView, KeyboardAvoidingView,
-  TouchableOpacity
-} from 'react-native';
-import { useEffect, useState } from "react";
-import { Link, router, useLocalSearchParams } from 'expo-router';
-import { ThemedView } from '@/components/ThemedView';
+import { View,  StyleSheet,  Platform,  ScrollView, KeyboardAvoidingView} from 'react-native';
+import { useState } from "react";
+import { Link,} from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
-import { Ionicons } from '@expo/vector-icons';
-import { estilos } from '@/components/estilos';
 import { error_alert,success_alert } from '@/components/alert';
 import { validateEmail, validatePassword, } from '@/components/validaciones';
 import Toast from 'react-native-toast-message';
 import { registrarse } from '@/conexiones/gestion_usuarios';
-import { Alumno, User } from '@/components/types';
+import { Alumno } from '@/components/types';
 import { useUserContext } from '@/context/UserContext';
+import { BotonLogin } from '@/components/botones';
+import { IconTextInput, PasswordInput } from '@/components/inputs';
+import { paleta } from '@/components/colores';
 
 export default function Signup() {
   
@@ -31,6 +28,8 @@ export default function Signup() {
   const [showPassword2, setShowPassword2] = useState(false);
 
   const {login_app} = useUserContext();
+
+  const img = require("../assets/images/lsa-aqua.png");
 
   const validatePasswordConfirm = (password1:String, password2:String) => {
     if (password1 !== password2) {
@@ -87,97 +86,67 @@ export default function Signup() {
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         style={{flex: 1}}
       >
-      <ScrollView contentContainerStyle={[styles.scrollViewContent,estilos.centrado]}>
-       
-        <View style={styles.formContainer}>
-       
-        <ThemedText type="title" style={{margin:40}}>Crear cuenta</ThemedText>
-      
-      
-      <View style={styles.inputContainer}>
-        <Ionicons name="person-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          onChangeText={handleNameChange}
-          value={name}
-          placeholder="Nombre"
-          placeholderTextColor="#999"
-        />
-      </View>
-      {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null}
+      <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
 
-      <View style={styles.inputContainer}>
-        <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          textContentType="emailAddress"
-          keyboardType="email-address"
-          onChangeText={handleEmailChange}
-          value={mail}
-          placeholder="Correo electrónico"
-          placeholderTextColor="#999"
-        />
-      </View>
+        <View style={styles.formContainer}>
+
+          <View style={{alignSelf:"flex-start"}}>
+            <ThemedText type='title'>Crear cuenta</ThemedText>
+
+            <View style={{marginVertical:15}}>
+              <Link href="/login" >
+                <ThemedText lightColor='gray'>¿Ya tienes un usuario? / </ThemedText> {''}
+                <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Inicia sesión aquí</ThemedText>
+              </Link>
+            </View>
+          </View>
+       
+      <IconTextInput 
+        icon={{Ionicon_name: "person-outline"}} 
+        value={name} 
+        bck_color={paleta.softgray}
+        onChange={handleNameChange}
+        keyboardType='default'
+        placeholder='Nombre' />
+      {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null}    
+
+      <IconTextInput 
+        icon={{Ionicon_name: "mail-outline"}} 
+        value={mail} 
+        bck_color={paleta.softgray}
+        onChange={handleEmailChange}
+        keyboardType='email-address'
+        placeholder='Correo electrónico' />
       {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          secureTextEntry={!showPassword1}
-          textContentType="newPassword"
-          onChangeText={handlePasswordChange}
-          value={password1}
-          placeholder="Contraseña"
-          placeholderTextColor="#999"
-        />
-        <Pressable onPress={()=> setShowPassword1(!showPassword1)} >
-          <Ionicons
-            name={showPassword1 ? "eye-outline" : "eye-off-outline"}
-            size={24}
-            color="#666"
-          />
-        </Pressable>
-      </View>
+      <PasswordInput 
+        value={password1}
+        bck_color={paleta.soft_yellow}
+        onChange={handlePasswordChange}
+        showPassword={showPassword1}
+        setShowPassword={()=> setShowPassword1(!showPassword1)}
+        placeholder='Contraseña'
+      />
       {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
 
-      <View style={styles.inputContainer}>
-        <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-        <TextInput
-          style={styles.textInput}
-          secureTextEntry={!showPassword2}
-          textContentType="newPassword"
-          onChangeText={handlePasswordConfirmChange}
-          value={password2}
-          placeholder="Confirmar contraseña"
-          placeholderTextColor="#999"
-        />
-        <Pressable onPress={()=> setShowPassword2(!showPassword2)} >
-          <Ionicons
-            name={showPassword2 ? "eye-outline" : "eye-off-outline"}
-            size={24}
-            color="#666"
-          />
-        </Pressable>
-      </View>
+      <PasswordInput 
+        value={password2}
+        bck_color={paleta.soft_yellow}
+        onChange={handlePasswordConfirmChange}
+        showPassword={showPassword2}
+        setShowPassword={()=> setShowPassword2(!showPassword2)}
+        placeholder='Confirmar contraseña'
+      />
       {errorPasswordConfirm ? <ThemedText type='error'>{errorPasswordConfirm}</ThemedText> : null}
 
-      <TouchableOpacity onPress={signup} style={styles.loginButton} >
-        <ThemedText type="subtitle" lightColor='white'>Registrarse</ThemedText>
-      </TouchableOpacity>
-      <View style={[estilos.centrado,{marginBottom:10}]}>
-        <ThemedText style={{fontSize: 16}}>¿Ya tienes un usuario? </ThemedText>
-        <Link href="/login" >
-          <ThemedText style={{fontSize: 16}} type='link' >Inicia sesión aquí</ThemedText>
-        </Link>
-      </View>
-
-      <View style={[estilos.centrado,{marginBottom:10}]}>
-        <ThemedText style={{fontSize: 16}}>¿Eres profesor? </ThemedText>
+      <View style={{marginVertical:15}}>
         <Link href="/signup_profe" >
-          <ThemedText style={{fontSize: 16}} type='link' >Crear cuenta de profesor</ThemedText>
+          <ThemedText lightColor='gray'>¿Eres profesor? / </ThemedText> {''}
+          <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Crear cuenta de profesor</ThemedText>
         </Link>
       </View>
+     
+     <BotonLogin callback={signup} textColor={'black'} bckColor={paleta.dark_aqua} text={'Registrarse'} />
       
       </View>
       </ScrollView>
@@ -194,64 +163,20 @@ const styles=StyleSheet.create({
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "#560bad"
+    backgroundColor: "white"
   },
   
   scrollViewContent: {
     flexGrow: 1,
-    justifyContent: 'center',
-    minWidth: "85%"
+    justifyContent: 'space-between',
+    minWidth: "80%",
   },
   formContainer: {
-      width: '100%',
-      backgroundColor: 'rgba(255, 255, 255, 0.8)',
-      borderRadius: 10,
-      padding: 20,
-      justifyContent: "center",
-      alignItems: 'center',
-      height: 600
-  },
-  loginButton: {
-      backgroundColor: '#F72585',
-      borderRadius: 10,
-      height: 50,
-      minWidth: "60%",
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 30,
-      shadowColor: "#000",
-      shadowOpacity: 0.15,
-      shadowRadius: 6,
-  },
-  textInput:{
-        padding:8,
-        backgroundColor: "white",
-        fontSize:18,
-        
-        minWidth: "60%",
-        maxHeight: 60,
-        minHeight: 40,
-        borderColor: "#0538cf",
-        borderRadius: 5,
-        borderWidth: 2,
-        flex: 1,
-    },
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 15
-    },
-    inputIcon: {
-      marginRight: 10,
-    },
-     title : {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 50,
-    textAlign: 'center',
-  },
-  checkbox: {
-    margin: 8,
+    width: '100%',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: 'center',
+    height: "100%"
   },
 })
