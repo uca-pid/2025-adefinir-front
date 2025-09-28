@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, StyleSheet, Pressable, ScrollView, TouchableOpacity, Modal } from 'react-native';
+import { View, StyleSheet, Pressable, ScrollView, TouchableOpacity, Modal, Alert } from 'react-native';
 import { Ionicons, MaterialIcons  } from '@expo/vector-icons';
 import { Link , router} from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
@@ -12,6 +12,7 @@ import { paleta, paleta_colores } from '@/components/colores';
 import { IconTextInput, PasswordInput } from '@/components/inputs';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
+import { BotonLogin } from '@/components/botones';
 
 export default function Perfil (){
     const [name,setName]= useState<string>();
@@ -19,7 +20,11 @@ export default function Perfil (){
     const [pass,setPass]=useState<string>();
     const [institucion,setI]=useState<string>();
 
-    const [modalVisible, setModalVisible] = useState(false);
+    const [mailModalVisible, setMailModalVisible] = useState(false);
+    const [nameModalVisible, setNameModalVisible] = useState(false);
+    const [PassModalVisible, setPassModalVisible] = useState(false);
+    const [instModalVisible, setInstModalVisible] = useState(false);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
 
     const [errorEmail, setErrorEmail] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
@@ -33,7 +38,15 @@ export default function Perfil (){
     const img = require("../../assets/images/pfp.jpg");
 
     const eliminar_cuenta = ()=>{
-      eliminar_usuario(contexto.user.id);
+      Alert.alert('Eliminar cuenta', '¿Estás seguro de que querés eliminar la cuenta?', [
+      {
+        text: 'Cancel',
+        onPress: () => console.log('Cancel Pressed'),
+        style: 'cancel',
+      },
+      {text: 'OK', onPress: () => console.log('OK Pressed')},
+    ])
+      //eliminar_usuario(contexto.user.id);
       salir();
     }
 
@@ -107,6 +120,10 @@ export default function Perfil (){
         
         setTimeout( ()=> contexto.actualizar_info(contexto.user.id),400);
         if (exito) {
+            setNameModalVisible(false);
+            setMailModalVisible(false);
+            setPassModalVisible(false);
+            setDeleteModalVisible(false);
             setTimeout(()=>success_alert("Cambios aplicados"),200)
             borrar_cambios();
         }
@@ -134,7 +151,7 @@ export default function Perfil (){
          
             <View style={styles.formContainer}>
              <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Actualizar datos</ThemedText>
-                <TouchableOpacity style={[styles.infoContainer,estilos.shadow,{borderTopRightRadius:15, borderTopLeftRadius:15,}]}>
+                <TouchableOpacity onPress={()=>{setNameModalVisible(true)}} style={[styles.infoContainer,estilos.shadow,{borderTopRightRadius:15, borderTopLeftRadius:15,}]}>
                   <ThemedText >Nombre</ThemedText>
                   <View style={{flexDirection:"row"}}>
                     <ThemedText lightColor='gray'>{contexto.user.username}</ThemedText>
@@ -142,7 +159,7 @@ export default function Perfil (){
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.infoContainer]}>
+                <TouchableOpacity onPress={()=>{setMailModalVisible(true)}} style={[styles.infoContainer]}>
                   <ThemedText >Mail</ThemedText>
                   <View style={{flexDirection:"row"}}>
                     <ThemedText lightColor='gray'>{contexto.user.mail}</ThemedText>
@@ -150,13 +167,23 @@ export default function Perfil (){
                   </View>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
+                {contexto.user.is_prof ? 
+                <TouchableOpacity onPress={()=>{setInstModalVisible(true)}} style={[styles.infoContainer]}>
+                  <ThemedText >Institución</ThemedText>
+                  <View style={{flexDirection:"row"}}>
+                    <ThemedText lightColor='gray'>{contexto.user.institution}</ThemedText>
+                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                  </View>
+                </TouchableOpacity> : null
+              }
+
+                <TouchableOpacity onPress={()=>{setPassModalVisible(true)}} style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
                   <ThemedText >Cambiar contraseña</ThemedText>
                     <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
                 </TouchableOpacity>
 
                 <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Cuenta</ThemedText>
-                <TouchableOpacity style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
+                <TouchableOpacity onPress={eliminar_cuenta} style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
                   <ThemedText >Eliminar cuenta</ThemedText>
                     <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
                 </TouchableOpacity>
@@ -172,12 +199,132 @@ export default function Perfil (){
         </ScrollView>
 
         <Modal animationType="slide" 
-          transparent={true}
-          visible={modalVisible}
+          transparent={false}
+          visible={nameModalVisible}
           onRequestClose={() => {
-            setModalVisible(!modalVisible);
+            setNameModalVisible(!nameModalVisible);
           }}>
+            <View style={[styles.mainView,{backgroundColor:paleta.aqua_bck,marginBottom:0}]}>
+              <View style={[styles.formAndImg,{justifyContent:"flex-start",marginTop:60}]}>
+                <View style={[{flexDirection:"row",justifyContent:"flex-start",width:"100%"}]}>
+                  <Pressable onPress={() => {setNameModalVisible(false);borrar_cambios()}}>
+                    <MaterialIcons name="keyboard-arrow-left" size={40} color="blue"  />
+                  </Pressable>
+                  
+                  <ThemedText type='title' style={{alignSelf:"center",marginLeft:40}}>Editar nombre</ThemedText>
+                </View>
 
+                <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nombre </ThemedText>
+                <IconTextInput 
+                    icon={{Ionicon_name: "person-outline"}} 
+                    value={name} 
+                    bck_color="white"
+                    onChange={handleNameChange}
+                    keyboardType='default'
+                    placeholder={contexto.user.username} />
+                  {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null} 
+                  <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
+              </View>
+            </View>
+            
+        </Modal>
+
+        <Modal animationType="slide" 
+          transparent={false}
+          visible={mailModalVisible}
+          onRequestClose={() => {
+            setMailModalVisible(false);
+          }}>
+            <View style={[styles.mainView,{backgroundColor:paleta.aqua_bck,marginBottom:0}]}>
+              <View style={[styles.formAndImg,{justifyContent:"flex-start",marginTop:60}]}>
+                <View style={[{flexDirection:"row",justifyContent:"flex-start",width:"100%"}]}>
+                  <Pressable onPress={() => {setMailModalVisible(false);borrar_cambios()}}>
+                    <MaterialIcons name="keyboard-arrow-left" size={40} color="blue"  />
+                  </Pressable>
+                  
+                  <ThemedText type='title' style={{alignSelf:"center",marginLeft:60}}>Editar mail</ThemedText>
+                </View>
+
+                <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Mail </ThemedText>
+                <IconTextInput 
+                      icon={{Ionicon_name: "mail-outline"}} 
+                      value={mail} 
+                      bck_color="white"
+                      onChange={handleEmailChange}
+                      keyboardType='email-address'
+                      placeholder={contexto.user.mail}
+                    />
+                    {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
+
+                  <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
+              </View>
+            </View>
+            
+        </Modal>
+
+        <Modal animationType="slide" 
+          transparent={false}
+          visible={instModalVisible}
+          onRequestClose={() => {
+            setInstModalVisible(false);
+          }}>
+            <View style={[styles.mainView,{backgroundColor:paleta.aqua_bck,marginBottom:0}]}>
+              <View style={[styles.formAndImg,{justifyContent:"flex-start",marginTop:60}]}>
+                <View style={[{flexDirection:"row",justifyContent:"flex-start",width:"100%"}]}>
+                  <Pressable onPress={() => {setInstModalVisible(false);;borrar_cambios()}}>
+                    <MaterialIcons name="keyboard-arrow-left" size={40} color="blue"  />
+                  </Pressable>
+                  
+                  <ThemedText type='title' style={{alignSelf:"center",marginLeft:30}}>Editar institución</ThemedText>
+                </View>
+
+                <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Institución </ThemedText>
+                <IconTextInput 
+                        icon={{Ionicon_name: "business-outline"}} 
+                        value={institucion} 
+                        bck_color="white"
+                        onChange={handleInstitutionChange}
+                        keyboardType='default'
+                        placeholder='Institución' />
+                  { errorI ? <ThemedText type='error'>{errorI}</ThemedText>:null}
+
+                  <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
+              </View>
+            </View>
+            
+        </Modal>
+
+        <Modal animationType="slide" 
+          transparent={false}
+          visible={PassModalVisible}
+          onRequestClose={() => {
+            setPassModalVisible(false);
+          }}>
+            <View style={[styles.mainView,{backgroundColor:paleta.aqua_bck,marginBottom:0}]}>
+              <View style={[styles.formAndImg,{justifyContent:"flex-start",marginTop:60}]}>
+                <View style={[{flexDirection:"row",justifyContent:"flex-start",width:"100%"}]}>
+                  <Pressable onPress={() => {setPassModalVisible(false);borrar_cambios()}}>
+                    <MaterialIcons name="keyboard-arrow-left" size={40} color="blue"  />
+                  </Pressable>
+                  
+                  <ThemedText type='title' style={{alignSelf:"center",marginLeft:30}}>Editar contraseña</ThemedText>
+                </View>
+
+                <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nueva contraseña </ThemedText>
+                <PasswordInput 
+                  value={pass}
+                  bck_color={paleta.soft_yellow}
+                  onChange={handlePasswordChange}
+                  showPassword={showPassword}
+                  setShowPassword={()=> setShowPassword(!showPassword)}
+                  placeholder='Nueva contraseña'
+                />
+                {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
+
+                <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
+              </View>
+            </View>
+            
         </Modal>
         
       <Toast/>

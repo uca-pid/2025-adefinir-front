@@ -4,6 +4,16 @@ import { createContext, useContext, useState } from 'react';
 import { supabase } from '../lib/supabase'
 import { error_alert } from '@/components/alert';
 import { cuenta_existe } from '@/conexiones/gestion_usuarios';
+import * as Crypto from 'expo-crypto';
+
+const hash = async (text: string) =>{
+  const h = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256, text
+      );
+  
+  return h;
+}
+
 export  const UserContext = createContext({
     
     user: new Logged_Alumno("","","",0),
@@ -60,10 +70,11 @@ export const UserContextProvider = ({ children }: { children: React.ReactNode })
 
     const cambiar_password = async (password_nuevo: string) => {
         //conectar a db, update
+        const hashed_password = await hash(password_nuevo);
         try {
             const { data, error } = await supabase
                 .from('Users')
-                .update({ hashed_password: password_nuevo })
+                .update({ hashed_password: hashed_password })
                 .eq('id', user.id)
                 .select();
 
