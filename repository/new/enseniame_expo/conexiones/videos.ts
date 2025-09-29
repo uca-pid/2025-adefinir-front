@@ -26,10 +26,7 @@ const buscarSenias = async () => {
         let { data, error } = await supabase.from('Senias').select(`*,  Users (username),  Categorias (nombre) `);        
 
         if (error) throw error;
-        if (data && data.length>0)  {
-            // para probar hasta solucionar lo de buscar las categorias
-            data[4].Categorias = {nombre:"una cate"}
-            return data}
+        if (data && data.length>0)  return data
       
     } catch (error) {
       console.error('Error fetching señas:', error);
