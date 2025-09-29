@@ -6,11 +6,11 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import VideoPlayer from '@/components/VideoPlayer';
-import { Categoria, Senia, Senia_Info, User } from '@/components/types';
+import {  Senia_Info } from '@/components/types';
 import { success_alert,error_alert } from '@/components/alert';
 import { paleta,paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
-import { buscarAutor, buscarCategoria, buscarSenias } from '@/conexiones/videos';
+import {  buscarSenias } from '@/conexiones/videos';
 import { ThemedText } from '@/components/ThemedText';
 
 export default function Diccionario() {
@@ -26,7 +26,6 @@ export default function Diccionario() {
     useCallback(() => {
       //console.log('Tab Diccionario enfocada - Recargando señas...');
       fetchSenias();
-      console.log(senias)
       return () => {
       };
     }, [])
@@ -40,7 +39,6 @@ export default function Diccionario() {
     try {
       const data = await buscarSenias();
       
-      console.log("llego", data)
       setSenias(data || []);
       setFilteredSenias(data || []);
       
@@ -71,7 +69,12 @@ export default function Diccionario() {
       }
     >
       <View style={styles.listItemContent}>
-        <Text style={styles.significadoText}>{item.significado}</Text>
+        <View>
+          <Text style={styles.significadoText}>{item.significado}</Text>
+          {item.Categorias ? <Text style={[styles.significadoText,{fontSize:12,marginTop:5}]}>{item.Categorias?.nombre}</Text>:null }
+          
+        </View>
+        
         <Ionicons name="chevron-forward" size={24} color="#34a0a4" />
       </View>
     </Pressable>
@@ -203,6 +206,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     fontSize: 16,
     color: '#34a0a4',
+    
   },
   listContent: {
     paddingHorizontal: 16,
