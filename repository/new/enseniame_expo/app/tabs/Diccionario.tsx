@@ -4,10 +4,9 @@ import {
   View, Text, StyleSheet, FlatList, Pressable, 
   SafeAreaView, ActivityIndicator, Modal, TextInput,
 } from 'react-native';
-import { supabase } from '../../utils/supabase';
 import { Ionicons } from '@expo/vector-icons';
 import VideoPlayer from '@/components/VideoPlayer';
-import { Categoria, Senia, User } from '@/components/types';
+import { Categoria, Senia, Senia_Info, User } from '@/components/types';
 import { success_alert,error_alert } from '@/components/alert';
 import { paleta,paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
@@ -15,20 +14,19 @@ import { buscarAutor, buscarCategoria, buscarSenias } from '@/conexiones/videos'
 import { ThemedText } from '@/components/ThemedText';
 
 export default function Diccionario() {
-  const [senias, setSenias] = useState<Senia[]>([]);
-  const [filteredSenias, setFilteredSenias] = useState<Senia[]>([]);
+  const [senias, setSenias] = useState<Senia_Info[]>([]);
+  const [filteredSenias, setFilteredSenias] = useState<Senia_Info[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
+  
   const [loading, setLoading] = useState(true);
-  const [selectedSenia, setSelectedSenia] = useState<Senia | null>(null);
+  const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-
-  const [autor,setAutor] = useState<User>();
-  const [categoria,setCategoria] = useState<Categoria>();
 
   useFocusEffect(
     useCallback(() => {
       //console.log('Tab Diccionario enfocada - Recargando señas...');
       fetchSenias();
+      console.log(senias)
       return () => {
       };
     }, [])
@@ -41,6 +39,8 @@ export default function Diccionario() {
   const fetchSenias = async () => {
     try {
       const data = await buscarSenias();
+      
+      console.log("llego", data)
       setSenias(data || []);
       setFilteredSenias(data || []);
       
@@ -54,29 +54,20 @@ export default function Diccionario() {
 
   const filterSenias = () => {
     const filtered = senias.filter(senia => 
-      senia.significado.toLowerCase().includes(searchQuery.toLowerCase())
+      senia.significado.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      senia.Categorias?.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) 
     );
+   
     setFilteredSenias(filtered);
   };
 
-  const renderSenia = ({ item }: { item: Senia }) => (
+  const renderSenia = ({ item }: { item: Senia_Info }) => (
     <Pressable 
       style={styles.listItem}
       onPress={async () => {
         setSelectedSenia(item);
         setModalVisible(true);
-        console.log(item);
-        if (item.id_autor){
-          const autor = await buscarAutor(item.id_autor);
-          setAutor(autor);
         }
-        if (item.categoria){
-          console.log("tiene cate")
-          const cate = await buscarCategoria(item.categoria);
-          setCategoria(cate);
-        }
-        
-      }
       }
     >
       <View style={styles.listItemContent}>
@@ -108,7 +99,7 @@ export default function Diccionario() {
           <Ionicons name="search" size={20} color="#34a0a4" style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Buscar seña..."
+            placeholder="Buscar señas o categorías..."
             value={searchQuery}
             onChangeText={setSearchQuery}
             placeholderTextColor="#34a0a499"
@@ -147,17 +138,17 @@ export default function Diccionario() {
                   style={styles.video}
                 />
               )}
-              {selectedSenia && selectedSenia.categoria && categoria ?
+              {selectedSenia && selectedSenia.Categorias ?
               <ThemedText style={{margin:10}}>
                 <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
-                <ThemedText>{categoria.nombre}</ThemedText>
+                <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
               </ThemedText>
                 :null
               }
-              {selectedSenia && selectedSenia.id_autor && autor ?
+              {selectedSenia && selectedSenia.Users ?
               <ThemedText style={{margin:10}}>
                 <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
-                <ThemedText>{autor.username}</ThemedText>
+                <ThemedText>{selectedSenia.Users.username}</ThemedText>
               </ThemedText>
                 :null
               }

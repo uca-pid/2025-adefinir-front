@@ -92,8 +92,16 @@ interface Senia {
   id: number;
   significado: string;
   video_url: string;
-  id_autor: number;
+  id_autor: number | undefined;
   categoria: number | undefined
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia, Categoria}
+interface Senia_Info {
+    Categorias: {nombre:string} | null,
+    Users: {username: string} | null,
+    id: number;
+    significado: string;
+    video_url: string;
+}
+
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia, Categoria, Senia_Info}
