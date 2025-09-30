@@ -1,216 +1,243 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, SafeAreaView, Dimensions } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
-
-  const [user,setUser] = useState({ nombre: contexto.user.username, racha: 5, nivel: 2, xp: 120, xpMax: 200 });
-
-
-
+  const [user, setUser] = useState({ nombre: contexto.user.username, racha: 5, nivel: 2, xp: 120, xpMax: 200 });
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.mainView}>
-        <ScrollView contentContainerStyle={styles.scrollContent}>
-          {/* Saludo */}
-          <View style={styles.headerContainer}>
-            <Text style={styles.greeting}>Hola, {contexto.user.username} 👋</Text>
+    <View style={styles.container}>
+  {/* Barra de diseño eliminada para unificar estilo */}
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <Text style={styles.title}>Hola, {contexto.user.username} 👋</Text>
+        <View style={styles.rowCards}>
+          <View style={[styles.card, styles.cardLeft]}> 
+            <Ionicons name="flame" size={28} color="#20bfa9" style={{marginBottom: 8}} />
+            <Text style={styles.cardTitleCursos}>{user.racha} días de racha</Text>
           </View>
-
-          {/* Racha */}
-          <View style={styles.streakHighlight}>
-            <Ionicons name="flame" size={22} color="#F72585" />
-            <Text style={styles.streakHighlightText}>{user.racha} días de racha</Text>
-          </View>
-
-          {/* Progreso */}
-          <View style={styles.progressMiniCard}>
-            <Text style={styles.progressMiniText}>
-              Nivel {user.nivel} – {user.xp}/{user.xpMax} XP
-            </Text>
-            <View style={styles.progressMiniBarBg}>
-              <View style={[styles.progressMiniBarFill, { width: `${(user.xp / user.xpMax) * 100}%` }]} />
+          <View style={[styles.card, styles.cardRight]}> 
+            <Text style={styles.cardTitleCursos}>Nivel {user.nivel}</Text>
+            <Text style={styles.cardTextCursos}>{user.xp}/{user.xpMax} XP</Text>
+            <View style={styles.progressBarBgCursos}>
+              <View style={[styles.progressBarFillCursos, { width: `${(user.xp / user.xpMax) * 100}%` }]} />
             </View>
           </View>
-
-          {/* Botón central */}
-          <Pressable style={styles.ctaButton}>
-            <Ionicons name="flash" size={26} color="#fff" style={styles.buttonIcon} />
-            <Text style={styles.ctaButtonText}>Practicar ahora</Text>
+        </View>
+        <Pressable style={styles.ctaButtonCursos}>
+          <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
+          <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
+        </Pressable>
+        <View style={styles.shortcutsRow}>
+          <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/cursos')}>
+            <Ionicons name="book" size={22} color="#20bfa9" />
+            <Text style={styles.shortcutTextCursos}>Cursos</Text>
           </Pressable>
-
-          {/* Atajos */}
-          <View style={styles.shortcutsRow}>
-            <Pressable style={styles.shortcutCard} onPress={() => router.push('/tabs/cursos')}>
-              <Ionicons name="book" size={26} color="#560bad" />
-              <Text style={styles.shortcutText}>Cursos</Text>
-            </Pressable>
-            <Pressable style={styles.shortcutCard} onPress={() => router.push('/tabs/Diccionario')}>
-              <Ionicons name="search" size={26} color="#560bad" />
-              <Text style={styles.shortcutText}>Diccionario</Text>
-            </Pressable>
-          </View>
-        </ScrollView>
-
-        {/* NavBar Fija en la parte inferior */}
-        {/* <View style={styles.navBar}>
-          <View style={styles.navItem}>
-            <Ionicons name="home" size={22} color="#fff" />
-            <Text style={styles.navText}>Inicio</Text>
-          </View>
-          <View style={styles.navItem}>
-            <Ionicons name="book" size={22} color="#fff" />
-            <Text style={styles.navText}>Cursos</Text>
-          </View>
-          <View style={styles.navItem}>
-            <Ionicons name="search" size={22} color="#fff" />
-            <Text style={styles.navText}>Diccionario</Text>
-          </View>
-          <View style={styles.navItem}>
-            <Ionicons name="person-circle-outline" size={22} color="#fff" />
-            <Text style={styles.navText}>Perfil</Text>
-          </View>
-        </View> */}
-      </View>
-    </SafeAreaView>
+          <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/Diccionario')}>
+            <Ionicons name="search" size={22} color="#20bfa9" />
+            <Text style={styles.shortcutTextCursos}>Diccionario</Text>
+          </Pressable>
+        </View>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#e0f7fa', // celeste muy claro
-  },
-  mainView: {
-    flex: 1,
+    backgroundColor: '#e6f7f2',
     position: 'relative',
+    paddingTop: 0,
   },
+  // topBlock eliminado
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 50,
-    paddingBottom: 100, // Espacio para la barra de navegación
+    paddingTop: 40,
+    paddingBottom: 60,
+    zIndex: 2,
   },
-  headerContainer: {
-    marginBottom: 10,
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: '#222',
+    marginTop: 32,
+    marginBottom: 18,
+    alignSelf: 'center',
+    zIndex: 2,
+    letterSpacing: 0.5,
   },
-  greeting: {
-    fontSize: 26,
-    fontWeight: "bold",
-    color: "#00b4d8", // celeste
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 32,
+    padding: 24,
+    marginBottom: 18,
+    width: '92%',
+    alignItems: 'flex-start',
+    shadowColor: '#222',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
   },
-  streakHighlight: {
-    flexDirection: "row",
-    alignItems: "center",
-    alignSelf: "flex-start",
-    backgroundColor: "#caf0f8", // celeste claro
-    borderRadius: 12,
-    paddingHorizontal: 12,
-    paddingVertical: 6,
-    marginBottom: 20,
+  cardLeft: {
+    marginRight: 8,
   },
-  streakHighlightText: {
+  cardRight: {
     marginLeft: 8,
-    color: "#00b4d8",
-    fontWeight: "600",
-    fontSize: 14,
   },
-  progressMiniCard: {
-    backgroundColor: "#fff",
+  cardTitleCursos: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 2,
+    fontFamily: 'System',
+    letterSpacing: 0.2,
+  },
+  cardTextCursos: {
+    fontSize: 15,
+    color: '#222',
+    opacity: 0.8,
+    marginBottom: 6,
+    fontFamily: 'System',
+  },
+  progressBarBgCursos: {
+    width: '100%',
+    height: 12,
+    backgroundColor: '#f5f5f5',
+    borderRadius: 8,
+    marginTop: 12,
+    marginBottom: 4,
+    overflow: 'hidden',
+  },
+  progressBarFillCursos: {
+    height: '100%',
+    borderRadius: 8,
+    backgroundColor: '#20bfa9',
+  },
+  ctaButtonCursos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#20bfa9',
+    borderRadius: 14,
+    height: 50,
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  ctaButtonTextCursos: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  shortcutCardCursos: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
     borderRadius: 12,
-    padding: 12,
-    marginBottom: 25,
+    paddingVertical: 18,
+    marginHorizontal: 6,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    shadowColor: '#222',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
   },
-  progressMiniText: {
+  shortcutTextCursos: {
+    color: '#20bfa9',
+    fontWeight: 'bold',
     fontSize: 14,
-    color: "#00b4d8",
-    fontWeight: "bold",
+    marginTop: 6,
+    fontFamily: 'System',
+  },
+  cardTitle: {
+    fontSize: 18,
+    fontWeight: 'bold',
+    color: '#20bfa9',
+    marginBottom: 4,
+  },
+  cardText: {
+    fontSize: 15,
+    color: '#222',
+    opacity: 0.8,
     marginBottom: 6,
   },
-  progressMiniBarBg: {
-    width: "100%",
+  progressBarBg: {
+    width: '100%',
     height: 8,
-    backgroundColor: "#caf0f8",
+    backgroundColor: '#e6f7f2',
     borderRadius: 4,
+    marginTop: 8,
+    marginBottom: 2,
+    overflow: 'hidden',
   },
-  progressMiniBarFill: {
-    height: "100%",
-    backgroundColor: "#ffb703", // naranja
+  progressBarFill: {
+    height: '100%',
+    backgroundColor: '#ffb703',
     borderRadius: 4,
   },
   ctaButton: {
-    flexDirection: "row",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#00b4d8",
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#20bfa9',
     borderRadius: 14,
-    height: 60,
-    marginBottom: 30,
-    shadowColor: "#000",
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
+    height: 50,
+    marginBottom: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   ctaButtonText: {
-    color: "#fff",
-    fontSize: 18,
-    fontWeight: "bold",
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
   },
   buttonIcon: {
-    marginRight: 10,
+    marginRight: 8,
+  },
+  rowCards: {
+    flexDirection: 'row',
+    width: '100%',
+    marginBottom: 10,
   },
   shortcutsRow: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-    marginBottom: 30,
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   shortcutCard: {
     flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#fff",
-    borderRadius: 12,
-    paddingVertical: 20,
-    marginHorizontal: 6,
-    borderWidth: 1,
-    borderColor: "#00b4d8",
-  },
-  shortcutText: {
-    color: "#00b4d8",
-    fontWeight: "bold",
-    fontSize: 14,
-    marginTop: 6,
-  },
-  // Barra de navegación mejorada
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-around',
-    alignItems: 'center',
-    backgroundColor: '#00b4d8',
-    paddingVertical: 12,
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 10,
-  },
-  navItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 70, // Ancho mínimo para cada elemento
+    backgroundColor: '#20bfa9',
+    borderRadius: 12,
+    paddingVertical: 18,
+    marginHorizontal: 6,
+    borderWidth: 2,
+    borderColor: '#17897a',
+    shadowColor: '#20bfa9',
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 2,
   },
-  navText: {
+  shortcutText: {
     color: '#fff',
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '500',
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginTop: 6,
+    textShadowColor: '#17897a',
+    textShadowOffset: {width:0, height:1},
+    textShadowRadius: 2,
   },
 });

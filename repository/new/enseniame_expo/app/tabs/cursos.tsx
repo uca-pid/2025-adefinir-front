@@ -48,7 +48,7 @@ export default function Cursos() {
 
   return (
     <View style={styles.container}>
-      <View style={styles.topBlock} />
+  {/* Barra de diseño eliminada */}
       <Text style={styles.title}>Cursos</Text>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {cursos.map((curso, idx) => (
@@ -82,18 +82,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 0,
     position: 'relative',
   },
-  topBlock: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    width: '100%',
-    height: 110,
-    backgroundColor: '#20bfa9', 
-    borderBottomRightRadius: 60,
-    borderBottomLeftRadius: 0,
-    transform: [{ skewY: '-6deg' }],
-    zIndex: 1,
-  },
+
   title: {
     fontSize: 32,
     fontWeight: 'bold',
