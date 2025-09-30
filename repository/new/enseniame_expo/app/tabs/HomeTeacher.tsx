@@ -13,12 +13,10 @@ export default function HomeTeacher() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Panel del Profesor</Text>
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
-        <View style={styles.cardCursos}>
-          <Pressable style={styles.ctaButtonCursos}>
-            <Ionicons name="add" size={24} color="#fff" style={styles.ctaIcon} />
-            <Text style={styles.ctaButtonTextCursos}>Crear contenido</Text>
-          </Pressable>
-        </View>
+        <Pressable style={styles.ctaButtonCursos}>
+          <Ionicons name="add" size={24} color="#fff" style={styles.ctaIcon} />
+          <Text style={styles.ctaButtonTextCursos}>Crear contenido</Text>
+        </Pressable>
         <View style={styles.cardRow}>
           <Pressable onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCardCursos}>
             <Ionicons name="videocam-outline" size={22} color="#20bfa9" />
@@ -66,21 +64,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     zIndex: 2,
   },
-  cardCursos: {
-    backgroundColor: '#fff',
-    borderRadius: 32,
-    padding: 24,
-    marginBottom: 18,
-    width: '92%',
-    alignItems: 'flex-start',
-    shadowColor: '#222',
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-    borderWidth: 1.5,
-    borderColor: '#e0e0e0',
-  },
+  // cardCursos eliminado, botón destacado fuera de tarjeta
   ctaButtonCursos: {
     flexDirection: 'row',
     alignItems: 'center',
