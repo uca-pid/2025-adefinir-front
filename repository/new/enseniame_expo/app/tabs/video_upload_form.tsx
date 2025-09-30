@@ -1,5 +1,5 @@
 import { 
-  Pressable, Text, TextInput, View, StyleSheet,  SafeAreaView,
+  Pressable, Text, TextInput, View, StyleSheet, SafeAreaView,
   ScrollView,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -9,7 +9,6 @@ import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
 import { supabase } from '../../utils/supabase';
 import { error_alert, success_alert } from '@/components/alert';
-
 
 export default function VideoUploadForm() {
   
@@ -26,24 +25,23 @@ export default function VideoUploadForm() {
   };
 
   const getSignedUrl = async (bucketName: string, filePath: string): Promise<string> => {
-  try {
-    // Calcular expiración en segundos (1 año = 365 días * 24 horas * 60 minutos * 60 segundos)
-    const expiresIn = 365 * 24 * 60 * 60;
-    
-    const { data, error } = await supabase.storage
-      .from(bucketName)
-      .createSignedUrl(filePath, expiresIn);
-    
-    if (error) {
-      throw new Error(`Error creating signed URL: ${error.message}`);
+    try {
+      const expiresIn = 365 * 24 * 60 * 60; // 1 año
+      
+      const { data, error } = await supabase.storage
+        .from(bucketName)
+        .createSignedUrl(filePath, expiresIn);
+      
+      if (error) {
+        throw new Error(`Error creating signed URL: ${error.message}`);
+      }
+      
+      return data.signedUrl;
+    } catch (error) {
+      console.error('Error:', error);
+      throw error;
     }
-    
-    return data.signedUrl;
-  } catch (error) {
-    console.error('Error:', error);
-    throw error;
-  }
-};
+  };
 
   const handleSubmit = async () => {
     if (!meaning || !videoFile) {
@@ -52,7 +50,6 @@ export default function VideoUploadForm() {
     }
     setSubiendo(true);
     try {
-      // 1. Crear FormData para subir el archivo
       const formData = new FormData();
       formData.append('file', {
         uri: videoFile.uri,
@@ -60,7 +57,6 @@ export default function VideoUploadForm() {
         type: 'video/mp4'
       } as any);
 
-      // 2. Subir video al bucket usando FormData
       const filename = `Senias/${videoFile.name}`;
       const { data, error } = await supabase.storage
         .from('videos')
@@ -71,11 +67,9 @@ export default function VideoUploadForm() {
 
       if (error) throw error;
 
-      // 3. Obtener URL privada
       const videoPath = data.path;
       const videoUrl = await getSignedUrl('videos', videoPath);
 
-      // 4. Guardar en la tabla
       const { error: insertError } = await supabase
         .from('Senias')
         .insert([{ significado: meaning, video_url: videoUrl }]);
@@ -124,10 +118,10 @@ export default function VideoUploadForm() {
 
           {videoFile ? (
             <View style={styles.fileInfoContainer}>
-              <Ionicons name="videocam" size={22} color="#560bad" />
+              <Ionicons name="videocam" size={22} color="#222" />
               <Text style={styles.fileName}>{videoFile.name}</Text>
               <Pressable onPress={handleRemoveVideo} style={styles.removeFileBtn}>
-                <Ionicons name="close-circle" size={20} color="#F72585" />
+                <Ionicons name="close-circle" size={20} color="#dc3545" />
               </Pressable>
             </View>
           ) : (
@@ -135,8 +129,8 @@ export default function VideoUploadForm() {
           )}
 
           {meaning.trim() !== '' && videoFile && (
-            <Pressable style={styles.ctaButton} onPress={handleSubmit} disabled={subiendo}>
-              <Text style={styles.ctaButtonText}>{subiendo ? 'Subiendo...' : 'Guardar Seña'}</Text>
+            <Pressable style={styles.cursosBtn} onPress={handleSubmit} disabled={subiendo}>
+              <Text style={styles.cursosBtnText}>{subiendo ? 'Subiendo...' : 'Subir Video'}</Text>
             </Pressable>
           )}
         </View>
@@ -155,13 +149,13 @@ export default function VideoUploadForm() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e6f7f2',
   },
   mainView: {
     alignItems: 'center',
     paddingTop: 40,
     paddingBottom: 40,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e6f7f2',
   },
   headerContainer: {
     alignItems: 'center',
@@ -170,12 +164,12 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#560bad',
+    color: '#222',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#560bad',
+    color: '#222',
     fontWeight: '500',
     marginBottom: 10,
     textAlign: 'center',
@@ -190,79 +184,92 @@ const styles = StyleSheet.create({
   },
   card: {
     backgroundColor: '#fff',
-    borderRadius: 16,
-    padding: 22,
+    borderRadius: 32,
+    padding: 24,
     marginBottom: 18,
-    width: '90%',
-    alignItems: 'center',
-    shadowColor: '#000',
+    width: '92%',
+    alignItems: 'flex-start',
+    shadowColor: '#222',
     shadowOpacity: 0.08,
-    shadowRadius: 8,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
     elevation: 3,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
   },
   label: {
     fontSize: 16,
-    color: '#560bad',
+    color: '#222',
     fontWeight: '600',
     marginBottom: 8,
     alignSelf: 'flex-start',
     textAlign: 'center',
   },
   input: {
-    borderWidth: 1,
-    borderColor: '#ccc',
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
     borderRadius: 8,
     padding: 10,
     width: '100%',
     marginBottom: 18,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
+    color: '#222',
   },
-  ctaButton: {
+  cursosBtn: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F72585',
-    borderRadius: 14,
-    height: 50,
+    backgroundColor: '#20bfa9',
+    borderRadius: 32,
+    paddingVertical: 14,
     paddingHorizontal: 24,
-    marginTop: 8,
-    width: '100%',
+    marginTop: 18,
+    alignSelf: 'center',
+    width: '92%',
+    shadowColor: '#222',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
   },
-  ctaIcon: {
-    marginRight: 10,
-  },
-  ctaButtonText: {
-    color: '#fff',
+  cursosBtnText: {
+    color: '#222',
     fontSize: 17,
     fontWeight: 'bold',
+    textAlign: 'center',
+    letterSpacing: 0.2,
+    fontFamily: 'System',
+    width: '100%',
   },
   infoCard: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
     borderRadius: 14,
     padding: 18,
-    width: '90%',
-    shadowColor: '#000',
+    width: '92%',
+    shadowColor: '#222',
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 1,
     marginTop: 8,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
   },
   infoTitle: {
-    color: '#560bad',
+    color: '#222',
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 6,
     textAlign: 'center',
   },
   infoText: {
-    color: '#22223b',
+    color: '#222',
     fontSize: 14,
     textAlign: 'center',
   },
   fileInfoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e6f7f2',
     borderRadius: 8,
     padding: 10,
     marginBottom: 12,
@@ -270,7 +277,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   fileName: {
-    color: '#560bad',
+    color: '#222',
     fontWeight: '600',
     marginLeft: 8,
     flex: 1,
