@@ -4,6 +4,7 @@ import {
   View, Text, StyleSheet, FlatList, Pressable, 
   SafeAreaView, ActivityIndicator, Modal, TextInput,
 } from 'react-native';
+import { Checkbox } from 'expo-checkbox';
 import { Ionicons } from '@expo/vector-icons';
 import VideoPlayer from '@/components/VideoPlayer';
 import {  Senia_Info } from '@/components/types';
@@ -12,6 +13,7 @@ import { paleta,paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import {  buscarSenias } from '@/conexiones/videos';
 import { ThemedText } from '@/components/ThemedText';
+import { useUserContext } from '@/context/UserContext';
 
 export default function Diccionario() {
   const [senias, setSenias] = useState<Senia_Info[]>([]);
@@ -21,6 +23,10 @@ export default function Diccionario() {
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [mostrarPropios, setmostrarPropios] = useState(false);
+
+  const contexto = useUserContext();
 
   useFocusEffect(
     useCallback(() => {
@@ -33,7 +39,7 @@ export default function Diccionario() {
 
   useEffect(() => {
     filterSenias();
-  }, [searchQuery, senias]);
+  }, [searchQuery, senias, mostrarPropios]);
 
   const fetchSenias = async () => {
     try {
@@ -51,10 +57,13 @@ export default function Diccionario() {
   };
 
   const filterSenias = () => {
-    const filtered = senias.filter(senia => 
+    var filtered = senias.filter(senia => 
       senia.significado.toLowerCase().includes(searchQuery.toLowerCase()) ||
       senia.Categorias?.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) 
     );
+    if (mostrarPropios){
+      filtered = filtered.filter(senia =>  senia.Users?.id == contexto.user.id)
+    }
    
     setFilteredSenias(filtered);
   };
@@ -107,6 +116,16 @@ export default function Diccionario() {
             onChangeText={setSearchQuery}
             placeholderTextColor="#34a0a499"
           />
+        </View>
+
+        <View style={[styles.searchContainer,{padding:5}]}>
+          <Checkbox
+            style={styles.checkbox}
+            value={mostrarPropios}
+            onValueChange={setmostrarPropios}
+            color={mostrarPropios ? paleta.yellow : undefined}
+          />
+          <ThemedText type='defaultSemiBold' lightColor='#34a0a4'>Mostrar sólo mis videos</ThemedText>
         </View>
 
         <FlatList
@@ -267,5 +286,10 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     alignItems: 'center',
     backgroundColor: '#f3e8ff',
+  },
+  checkbox: {
+    margin: 8,
+    borderRadius:10,
+    borderColor: paleta.strong_yellow 
   },
 });

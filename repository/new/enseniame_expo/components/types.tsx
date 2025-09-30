@@ -98,7 +98,7 @@ interface Senia {
 
 interface Senia_Info {
     Categorias: {nombre:string} | null,
-    Users: {username: string} | null,
+    Users: Logged_User| null,
     id: number;
     significado: string;
     video_url: string;

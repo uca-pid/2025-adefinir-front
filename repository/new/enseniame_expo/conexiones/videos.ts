@@ -23,7 +23,7 @@ const traer_tabla_videos = async () => {
 
 const buscarSenias = async () => {
     try {        
-        let { data, error } = await supabase.from('Senias').select(`*,  Users (username),  Categorias (nombre) `);        
+        let { data, error } = await supabase.from('Senias').select(`*,  Users (*),  Categorias (nombre) `);        
 
         if (error) throw error;
         if (data && data.length>0)  return data
