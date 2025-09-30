@@ -9,6 +9,7 @@ import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
 import { supabase } from '../../utils/supabase';
 import { error_alert, success_alert } from '@/components/alert';
+import Toast from 'react-native-toast-message';
 
 
 export default function VideoUploadForm() {
@@ -87,6 +88,7 @@ export default function VideoUploadForm() {
       setVideoFile(null);
     } catch (e: any) {
       error_alert('Error al subir: ' + e.message);
+      //atrapar error de videos/señas repetidas
     } finally {
       setSubiendo(false);
     }
@@ -148,6 +150,7 @@ export default function VideoUploadForm() {
           </Text>
         </View>
       </ScrollView>
+      <Toast/>
     </SafeAreaView>
   );
 }
