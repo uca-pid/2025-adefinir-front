@@ -68,11 +68,11 @@ export default function HomeTeacher() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f3e8ff', // violeta claro
+    backgroundColor: '#e0f7fa', // celeste muy claro
   },
   mainView: {
     flex: 1,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e0f7fa',
     justifyContent: 'flex-start',
     alignItems: 'center',
     paddingTop: 60,
@@ -84,12 +84,12 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#560bad',
+    color: '#00b4d8', // celeste
     marginBottom: 4,
   },
   teacherName: {
     fontSize: 18,
-    color: '#560bad',
+    color: '#00b4d8',
     fontWeight: '500',
     marginBottom: 18,
   },
@@ -97,7 +97,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F72585',
+    backgroundColor: '#ffb703', // naranja
     borderRadius: 14,
     height: 60,
     marginBottom: 28,
@@ -126,13 +126,15 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
     borderRadius: 12,
     paddingVertical: 20,
     marginHorizontal: 6,
+    borderWidth: 1,
+    borderColor: '#00b4d8',
   },
   quickActionText: {
-    color: '#560bad',
+    color: '#00b4d8',
     fontWeight: 'bold',
     fontSize: 14,
     marginTop: 6,
@@ -143,7 +145,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-evenly',
     alignItems: 'center',
-    backgroundColor: '#560bad',
+    backgroundColor: '#00b4d8',
     paddingVertical: 12,
     width: '100%',
     position: 'absolute',
@@ -177,7 +179,7 @@ const styles = StyleSheet.create({
     left: '50%',
     bottom: 1,
     transform: [{ translateX: -32 }, { translateY: -32 }],
-    backgroundColor: '#7209B7',
+    backgroundColor: '#ffb703',
     width: 64,
     height: 64,
     borderRadius: 32,
@@ -188,7 +190,7 @@ const styles = StyleSheet.create({
     shadowRadius: 8,
     elevation: 8,
     borderWidth: 4,
-    borderColor: '#f3e8ff',
+    borderColor: '#e0f7fa',
     zIndex: 2,
   },
 });

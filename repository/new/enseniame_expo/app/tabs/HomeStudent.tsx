@@ -82,7 +82,7 @@ export default function HomeStudent() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#fff',
+    backgroundColor: '#e0f7fa', // celeste muy claro
   },
   mainView: {
     flex: 1,
@@ -99,13 +99,13 @@ const styles = StyleSheet.create({
   greeting: {
     fontSize: 26,
     fontWeight: "bold",
-    color: "#560bad",
+    color: "#00b4d8", // celeste
   },
   streakHighlight: {
     flexDirection: "row",
     alignItems: "center",
     alignSelf: "flex-start",
-    backgroundColor: "#f3e8ff",
+    backgroundColor: "#caf0f8", // celeste claro
     borderRadius: 12,
     paddingHorizontal: 12,
     paddingVertical: 6,
@@ -113,38 +113,38 @@ const styles = StyleSheet.create({
   },
   streakHighlightText: {
     marginLeft: 8,
-    color: "#560bad",
+    color: "#00b4d8",
     fontWeight: "600",
     fontSize: 14,
   },
   progressMiniCard: {
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#fff",
     borderRadius: 12,
     padding: 12,
     marginBottom: 25,
   },
   progressMiniText: {
     fontSize: 14,
-    color: "#560bad",
+    color: "#00b4d8",
     fontWeight: "bold",
     marginBottom: 6,
   },
   progressMiniBarBg: {
     width: "100%",
     height: 8,
-    backgroundColor: "#e5defa",
+    backgroundColor: "#caf0f8",
     borderRadius: 4,
   },
   progressMiniBarFill: {
     height: "100%",
-    backgroundColor: "#F72585",
+    backgroundColor: "#ffb703", // naranja
     borderRadius: 4,
   },
   ctaButton: {
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#560bad",
+    backgroundColor: "#00b4d8",
     borderRadius: 14,
     height: 60,
     marginBottom: 30,
@@ -170,13 +170,15 @@ const styles = StyleSheet.create({
     flex: 1,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "#fff",
     borderRadius: 12,
     paddingVertical: 20,
     marginHorizontal: 6,
+    borderWidth: 1,
+    borderColor: "#00b4d8",
   },
   shortcutText: {
-    color: "#560bad",
+    color: "#00b4d8",
     fontWeight: "bold",
     fontSize: 14,
     marginTop: 6,
@@ -186,7 +188,7 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     justifyContent: 'space-around',
     alignItems: 'center',
-    backgroundColor: '#560bad',
+    backgroundColor: '#00b4d8',
     paddingVertical: 12,
     width: '100%',
     position: 'absolute',

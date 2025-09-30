@@ -20,10 +20,8 @@ export default function Diccionario() {
 
   useFocusEffect(
     useCallback(() => {
-      console.log('Tab Diccionario enfocada - Recargando señas...');
       fetchSenias();
-      return () => {
-      };
+      return () => {};
     }, [])
   );
 
@@ -42,7 +40,6 @@ export default function Diccionario() {
       setSenias(data || []);
       setFilteredSenias(data || []);
     } catch (error) {
-      console.error('Error fetching señas:', error);
       error_alert('No se pudieron cargar las señas');
     } finally {
       setLoading(false);
@@ -74,7 +71,7 @@ export default function Diccionario() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#560bad" />
+        <ActivityIndicator size="large" color="#00b4d8" />
       </View>
     );
   }
@@ -143,11 +140,11 @@ export default function Diccionario() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e0f7fa', // celeste muy claro
   },
   mainView: {
     flex: 1,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e0f7fa',
     paddingTop: 60,
   },
   headerContainer: {
@@ -157,12 +154,12 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#560bad',
+    color: '#00b4d8', // celeste
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 18,
-    color: '#560bad',
+    color: '#00b4d8',
     fontWeight: '500',
     marginBottom: 18,
   },
@@ -182,7 +179,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#560bad',
+    color: '#00b4d8',
   },
   listContent: {
     paddingHorizontal: 16,
@@ -201,7 +198,7 @@ const styles = StyleSheet.create({
   },
   significadoText: {
     fontSize: 16,
-    color: '#560bad',
+    color: '#00b4d8',
     fontWeight: '500',
   },
   separator: {
@@ -228,7 +225,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#560bad',
+    color: '#00b4d8',
   },
   closeButton: {
     padding: 8,
@@ -242,6 +239,6 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f3e8ff',
+    backgroundColor: '#e0f7fa',
   },
 });
