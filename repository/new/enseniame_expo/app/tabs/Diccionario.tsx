@@ -83,7 +83,7 @@ export default function Diccionario() {
       {text: 'Confirmar', onPress: () => {
         eliminar_video(senia);
         setModalVisible(false);
-        router.reload();
+        router.replace("/tabs/Diccionario");
         }},
     ])
   }

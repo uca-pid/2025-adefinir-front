@@ -34,41 +34,24 @@ const buscarSenias = async () => {
     } 
 };
 
-const buscarAutor = async (id:number ) =>{
-    try {
-        const { data: user, error } = await supabase.from('Users').select('*').eq('id', id);
-        if (error) throw error;
-        if (user && user.length >0) {
-            return user[0]
-        }
-    } catch (error) {
-        console.error('Error buscando al autor:', error);
+function getPathFromUrl(fileUrl: string) {
+      const urlParts = fileUrl.split('/');
+      const first_index=urlParts.findIndex(each=>each=="videos")
+      const filePath = urlParts[first_index+1]+"/"+urlParts[first_index+2].split("?")[0];
+      return  filePath ;
     }
-}
-
-const buscarCategoria = async (id:number ) =>{
-    try {
-       
-        let { data: cate, error } = await supabase.from('Categorias').select('*').eq('id',id);
-            
-        if (error) throw error;
-        if (cate && cate.length>0) {
-            console.log(cate);
-            return cate[0]
-        }
-        return {id:0,nombre: "Nada"}
-    } catch (error) {
-        console.error('Error buscando la categoria:', error);
-    }
-}
-
 const eliminar_video = async (senia:Senia_Info)=>{
     try {
 
-        const { data, error: error2 } = await supabase.storage.from('videos').remove([senia.video_url]);
+        const filePath =getPathFromUrl(senia.video_url)
+        const { data, error: error2 } = await supabase.storage.from("videos").remove([filePath]);
+        if (data) {
+            console.log(data)
+        }
         
         const { error } = await supabase.from('Senias').delete().eq('id', senia.id);
         if (error || error2) throw new Error(String(error));
+
           
     } catch (error) {
         console.error("Error borrando la seña:",error);
