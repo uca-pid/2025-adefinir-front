@@ -62,4 +62,18 @@ const buscarCategoria = async (id:number ) =>{
     }
 }
 
-export {traer_tabla_videos,buscarSenias,buscarAutor, buscarCategoria}
+const eliminar_video = async (senia:Senia_Info)=>{
+    try {
+
+        const { data, error: error2 } = await supabase.storage.from('videos').remove([senia.video_url]);
+        
+        const { error } = await supabase.from('Senias').delete().eq('id', senia.id);
+        if (error || error2) throw new Error(String(error));
+          
+    } catch (error) {
+        console.error("Error borrando la seña:",error);
+        error_alert("Ocurrió un error al borrar la seña");
+    }
+}
+
+export {traer_tabla_videos,buscarSenias,eliminar_video}

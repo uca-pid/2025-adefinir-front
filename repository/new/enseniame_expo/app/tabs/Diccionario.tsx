@@ -3,6 +3,7 @@ import { useFocusEffect } from '@react-navigation/native';
 import { 
   View, Text, StyleSheet, FlatList, Pressable, 
   SafeAreaView, ActivityIndicator, Modal, TextInput,
+  TouchableOpacity, Alert
 } from 'react-native';
 import { Checkbox } from 'expo-checkbox';
 import { Ionicons } from '@expo/vector-icons';
@@ -11,9 +12,10 @@ import {  Senia_Info } from '@/components/types';
 import { success_alert,error_alert } from '@/components/alert';
 import { paleta,paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
-import {  buscarSenias } from '@/conexiones/videos';
+import {  buscarSenias, eliminar_video } from '@/conexiones/videos';
 import { ThemedText } from '@/components/ThemedText';
 import { useUserContext } from '@/context/UserContext';
+import { router } from 'expo-router';
 
 export default function Diccionario() {
   const [senias, setSenias] = useState<Senia_Info[]>([]);
@@ -62,11 +64,33 @@ export default function Diccionario() {
       senia.Categorias?.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) 
     );
     if (mostrarPropios){
-      filtered = filtered.filter(senia =>  senia.Users?.id == contexto.user.id)
+      filtered = filtered.filter(senia =>  esMio(senia))
     }
    
     setFilteredSenias(filtered);
   };
+
+  const esMio = (senia: Senia_Info)=>{
+    return senia.Users?.id == contexto.user.id && contexto.user.is_prof
+  }
+
+  const eliminar_senia = (senia: Senia_Info) =>{
+    Alert.alert('Eliminar cuenta', '¿Estás seguro de que querés eliminar el video?', [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {text: 'Confirmar', onPress: () => {
+        eliminar_video(senia);
+        setModalVisible(false);
+        router.reload();
+        }},
+    ])
+  }
+
+  const editar_senia= (senia: Senia_Info) =>{
+
+  }
 
   const renderSenia = ({ item }: { item: Senia_Info }) => (
     <Pressable 
@@ -173,6 +197,18 @@ export default function Diccionario() {
                 <ThemedText>{selectedSenia.Users.username}</ThemedText>
               </ThemedText>
                 :null
+              }
+
+              {selectedSenia && esMio(selectedSenia) ?
+                <>
+                  <TouchableOpacity style={[styles.iconButton,estilos.shadow]} onPress={()=>{editar_senia(selectedSenia)}}   >  
+                    <Ionicons name="create" color='#34a0a4' size={25} style={styles.icon} />
+                    <ThemedText type="subtitle" lightColor='#34a0a4' style={{flex:2}}>Editar seña</ThemedText>
+                  </TouchableOpacity>
+                 <TouchableOpacity style={[styles.iconButton,estilos.shadow,paleta_colores.yellow]} onPress={()=>{eliminar_senia(selectedSenia)}}   >  
+                    <Ionicons name="trash-bin-outline" color='#c91216' size={25} style={styles.icon} />
+                    <ThemedText type="subtitle" lightColor='#c91216' style={{flex:2}}>Eliminar seña</ThemedText>
+                  </TouchableOpacity></> : null
               }
             </View>
           </View>
@@ -292,4 +328,20 @@ const styles = StyleSheet.create({
     borderRadius:10,
     borderColor: paleta.strong_yellow 
   },
+   iconButton: {
+    borderRadius: 10,
+    height: 50,
+    minWidth: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: "row",
+    width:"100%",
+    backgroundColor: "white",
+    position: "relative",
+    marginTop: 25
+  },
+  icon:{
+    flex:1,
+    marginLeft: 25
+  }
 });
