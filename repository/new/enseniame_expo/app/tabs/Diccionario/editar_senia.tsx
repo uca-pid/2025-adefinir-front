@@ -1,6 +1,6 @@
 import { 
   Pressable, Text, TextInput, View, StyleSheet,  SafeAreaView,
-  ScrollView,
+  ScrollView,  KeyboardAvoidingView,  Platform,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from "react";
@@ -10,7 +10,7 @@ import VideoPlayer from '@/components/VideoPlayer';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { router, useLocalSearchParams } from 'expo-router';
-import { subir_senia } from '@/conexiones/videos';
+import { cambiar_video, subir_senia } from '@/conexiones/videos';
 
 export default function VideoUploadForm() {
     const {id_senia=0,url,significado} =useLocalSearchParams();
@@ -37,9 +37,16 @@ export default function VideoUploadForm() {
     }
     setSubiendo(true);
     try {
-      subir_senia(videoFile,meaning);
+      //si cambio el video
+      if (name!=videoFile.name || type!=videoFile.type) cambiar_video(videoFile,Number(id_senia))
 
-      success_alert('¡Seña subida con éxito!');
+      //si cambio el significado
+      if (significado!=meaning) //update tabla
+
+      //si cambio la categoria (después)
+
+      success_alert('¡Seña subida con éxito!'),
+
       setMeaning('');
       setVideoFile(null);
     } catch (e: any) {
@@ -47,12 +54,16 @@ export default function VideoUploadForm() {
       //atrapar error de videos/señas repetidas
     } finally {
       setSubiendo(false);
-      
+        
     }
   };
 
   return (
     <SafeAreaView style={styles.safeArea}>
+        <KeyboardAvoidingView
+                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+                style={{flex: 1}}
+              >
       <ScrollView contentContainerStyle={styles.mainView}>
         <View style={styles.headerContainer}>
           <Text style={styles.panelTitle}>Editar video de seña</Text>
@@ -107,6 +118,7 @@ export default function VideoUploadForm() {
           </Text>
         </View>
       </ScrollView>
+      </KeyboardAvoidingView>
       <Toast/>
     </SafeAreaView>
   );

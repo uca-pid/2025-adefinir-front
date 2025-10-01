@@ -92,15 +92,14 @@ const subir_video =async(videoFile: { uri: string; name: string; type: string })
 const subir_senia = async(videoFile: { uri: string; name: string; type: string },meaning:string)=>{
     try {
         
-    const videoUrl = await subir_video(videoFile);
-    console.log(videoUrl)
+        const videoUrl = await subir_video(videoFile);
 
-    // 4. Guardar en la tabla
-    const { error: insertError } = await supabase
-    .from('Senias')
-    .insert([{ significado: meaning, video_url: videoUrl }]);
+        // 4. Guardar en la tabla
+        const { error: insertError } = await supabase
+        .from('Senias')
+        .insert([{ significado: meaning, video_url: videoUrl }]);
 
-    if (insertError) throw insertError;
+        if (insertError) throw insertError;
     } catch (error) {
         error_alert("Ocurrió un error al subir la seña");
         console.error(error)
@@ -126,4 +125,16 @@ const getSignedUrl = async (bucketName: string, filePath: string): Promise<strin
   }
 };
 
-export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , subir_video}
+const cambiar_video = async (videoFile: { uri: string; name: string; type: string },id_senia:number)=>{
+    const url = await subir_video(videoFile);
+    
+    const { error } = await supabase
+        .from('Senias')
+        .update({ video_url: url })
+        .eq('id', id_senia)
+        .select();
+
+    if (error) throw new Error(String(error))
+}
+
+export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video}
