@@ -11,6 +11,7 @@ import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { router, useLocalSearchParams } from 'expo-router';
 import { borrar_video_de_storage, cambiar_nombre_senia, cambiar_video, subir_senia } from '@/conexiones/videos';
+import { paleta } from '@/components/colores';
 
 export default function VideoUploadForm() {
     const {id_senia=0,url,significado} =useLocalSearchParams();
@@ -99,10 +100,10 @@ export default function VideoUploadForm() {
 
           {videoFile ? (
             <View style={styles.fileInfoContainer}>
-              <Ionicons name="videocam" size={22} color="#560bad" />
+              <Ionicons name="videocam" size={22} color="#34a0a4" />
               <Text style={styles.fileName}>{videoFile.name}</Text>
               <Pressable onPress={handleRemoveVideo} style={styles.removeFileBtn}>
-                <Ionicons name="close-circle" size={20} color="#F72585" />
+                <Ionicons name="close-circle" size={20} color={paleta.strong_yellow} />
               </Pressable>
             </View>
           ) : (
@@ -141,13 +142,13 @@ const getNameAndTypeFromURL = (url:string)=>{
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: paleta.aqua_bck,
   },
   mainView: {
     alignItems: 'center',
     paddingTop: 40,
     paddingBottom: 40,
-    backgroundColor: '#f3e8ff',
+    backgroundColor: paleta.aqua_bck,
   },
   headerContainer: {
     alignItems: 'center',
@@ -156,12 +157,12 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#560bad',
+    color: '#34a0a4',
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#560bad',
+    color: '#34a0a4',
     fontWeight: '500',
     marginBottom: 10,
     textAlign: 'center',
@@ -188,7 +189,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#560bad',
+    color: '#34a0a4',
     fontWeight: '600',
     marginBottom: 8,
     alignSelf: 'flex-start',
@@ -201,13 +202,13 @@ const styles = StyleSheet.create({
     padding: 10,
     width: '100%',
     marginBottom: 18,
-    backgroundColor: '#f8f9fa',
+    backgroundColor: paleta.aqua_bck,
   },
   ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F72585',
+    backgroundColor: paleta.yellow,
     borderRadius: 14,
     height: 50,
     paddingHorizontal: 24,
@@ -223,7 +224,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
   },
   infoCard: {
-    backgroundColor: '#f8f9fa',
+    backgroundColor: paleta.aqua_bck,
     borderRadius: 14,
     padding: 18,
     width: '90%',
@@ -234,7 +235,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   infoTitle: {
-    color: '#560bad',
+    color: '#34a0a4',
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 6,
@@ -248,7 +249,7 @@ const styles = StyleSheet.create({
   fileInfoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#f3e8ff',
+    backgroundColor: paleta.aqua_bck,
     borderRadius: 8,
     padding: 10,
     marginBottom: 12,
@@ -256,7 +257,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   fileName: {
-    color: '#560bad',
+    color: '#34a0a4',
     fontWeight: '600',
     marginLeft: 8,
     flex: 1,
