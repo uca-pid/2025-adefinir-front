@@ -62,4 +62,68 @@ const eliminar_video = async (senia:Senia_Info)=>{
     }
 }
 
-export {traer_tabla_videos,buscarSenias,eliminar_video}
+const subir_video =async(videoFile: { uri: string; name: string; type: string })=>{
+// 1. Crear FormData para subir el archivo
+      const formData = new FormData();
+      formData.append('file', {
+        uri: videoFile.uri,
+        name: videoFile.name,
+        type: 'video/mp4'
+      } as any);
+
+      // 2. Subir video al bucket usando FormData
+      const filename = `Senias/${videoFile.name}`;
+      const { data, error } = await supabase.storage
+        .from('videos')
+        .upload(filename, formData, {
+          contentType: 'video/mp4',
+          upsert: true
+        });
+
+      if (error) throw error;
+      console.log(data)
+
+      // 3. Obtener URL privada
+      const videoPath = data.path;
+      const videoUrl = await getSignedUrl('videos', videoPath);
+      return videoUrl
+}
+
+const subir_senia = async(videoFile: { uri: string; name: string; type: string },meaning:string)=>{
+    try {
+        
+    const videoUrl = await subir_video(videoFile);
+    console.log(videoUrl)
+
+    // 4. Guardar en la tabla
+    const { error: insertError } = await supabase
+    .from('Senias')
+    .insert([{ significado: meaning, video_url: videoUrl }]);
+
+    if (insertError) throw insertError;
+    } catch (error) {
+        error_alert("Ocurrió un error al subir la seña");
+        console.error(error)
+    }
+}
+const getSignedUrl = async (bucketName: string, filePath: string): Promise<string> => {
+  try {
+    // Calcular expiración en segundos (1 año = 365 días * 24 horas * 60 minutos * 60 segundos)
+    const expiresIn = 365 * 24 * 60 * 60;
+    
+    const { data, error } = await supabase.storage
+      .from(bucketName)
+      .createSignedUrl(filePath, expiresIn);
+    
+    if (error) {
+      throw new Error(`Error creating signed URL: ${error.message}`);
+    }
+    
+    return data.signedUrl;
+  } catch (error) {
+    console.error('Error:', error);
+    throw error;
+  }
+};
+
+export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , subir_video}
