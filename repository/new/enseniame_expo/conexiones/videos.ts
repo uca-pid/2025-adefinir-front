@@ -44,9 +44,7 @@ function getPathFromUrl(fileUrl: string) {
 const borrar_de_bucket= async (fileUrl: string) =>{
     const filePath =getPathFromUrl(fileUrl)
     const { data, error } = await supabase.storage.from("videos").remove([filePath]);
-    if (data) {
-        console.log(data)
-    }
+    
     if (error) throw new Error(String(error));
 }
 
@@ -81,7 +79,6 @@ const subir_video =async(videoFile: { uri: string; name: string; type: string })
         });
 
       if (error) throw error;
-      console.log(data)
 
       // 3. Obtener URL privada
       const videoPath = data.path;
@@ -137,4 +134,4 @@ const cambiar_video = async (videoFile: { uri: string; name: string; type: strin
     if (error) throw new Error(String(error))
 }
 
-export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video}
+export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video, borrar_de_bucket as borrar_video_de_storage}

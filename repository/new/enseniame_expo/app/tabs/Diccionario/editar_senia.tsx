@@ -10,7 +10,7 @@ import VideoPlayer from '@/components/VideoPlayer';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { router, useLocalSearchParams } from 'expo-router';
-import { cambiar_video, subir_senia } from '@/conexiones/videos';
+import { borrar_video_de_storage, cambiar_video, subir_senia } from '@/conexiones/videos';
 
 export default function VideoUploadForm() {
     const {id_senia=0,url,significado} =useLocalSearchParams();
@@ -38,7 +38,10 @@ export default function VideoUploadForm() {
     setSubiendo(true);
     try {
       //si cambio el video
-      if (name!=videoFile.name || type!=videoFile.type) cambiar_video(videoFile,Number(id_senia))
+        if (name!=videoFile.name || type!=videoFile.type) {
+            borrar_video_de_storage(String(url))
+            cambiar_video(videoFile,Number(id_senia))
+        }
 
       //si cambio el significado
       if (significado!=meaning) //update tabla
@@ -54,7 +57,8 @@ export default function VideoUploadForm() {
       //atrapar error de videos/señas repetidas
     } finally {
       setSubiendo(false);
-        
+        router.dismiss();
+        router.replace("/tabs/Diccionario");
     }
   };
 
