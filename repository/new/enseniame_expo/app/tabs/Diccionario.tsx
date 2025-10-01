@@ -75,7 +75,7 @@ export default function Diccionario() {
   }
 
   const eliminar_senia = (senia: Senia_Info) =>{
-    Alert.alert('Eliminar cuenta', '¿Estás seguro de que querés eliminar el video?', [
+    Alert.alert('Eliminar seña', '¿Estás seguro de que querés eliminar el video?', [
       {
         text: 'Cancelar',
         style: 'cancel',

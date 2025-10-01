@@ -39,19 +39,22 @@ function getPathFromUrl(fileUrl: string) {
       const first_index=urlParts.findIndex(each=>each=="videos")
       const filePath = urlParts[first_index+1]+"/"+urlParts[first_index+2].split("?")[0];
       return  filePath ;
+}
+
+const borrar_de_bucket= async (fileUrl: string) =>{
+    const filePath =getPathFromUrl(fileUrl)
+    const { data, error } = await supabase.storage.from("videos").remove([filePath]);
+    if (data) {
+        console.log(data)
     }
+    if (error) throw new Error(String(error));
+}
+
 const eliminar_video = async (senia:Senia_Info)=>{
     try {
-
-        const filePath =getPathFromUrl(senia.video_url)
-        const { data, error: error2 } = await supabase.storage.from("videos").remove([filePath]);
-        if (data) {
-            console.log(data)
-        }
-        
+        borrar_de_bucket(senia.video_url);      
         const { error } = await supabase.from('Senias').delete().eq('id', senia.id);
-        if (error || error2) throw new Error(String(error));
-
+        if (error) throw new Error(String(error));
           
     } catch (error) {
         console.error("Error borrando la seña:",error);
