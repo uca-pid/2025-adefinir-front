@@ -43,6 +43,17 @@ export default function RootLayout() {
         ),
       })}
       />
+      <Tabs.Screen name='modulos'   options={({ navigation }) =>({title:"Módulos", 
+        tabBarButton: ((props) => 
+          <TouchableOpacity onPress={() => navigation.navigate('modulos')}  style={styles.navItem}>
+            <Ionicons name="albums-outline" size={22} color="#fff" />
+            <Text style={styles.navText}>Módulos</Text>
+          </TouchableOpacity>
+        ),
+      })}
+      />
+      <Tabs.Screen name="modulo_detalle" options={{ href: null }} />
+      <Tabs.Screen name="senia" options={{ href: null }} />
       {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"Subir video", 
           tabBarButton: ((props) => 
             <TouchableOpacity onPress={() => navigation.navigate('video_upload_form')}  style={styles.fabButton}>
