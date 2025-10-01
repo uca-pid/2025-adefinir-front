@@ -66,8 +66,17 @@ export default function Diccionario() {
     if (mostrarPropios){
       filtered = filtered.filter(senia =>  esMio(senia))
     }
-   
-    setFilteredSenias(filtered);
+   const orderedAndFiltered =filtered.sort(function (a, b) {
+      if (a.significado < b.significado) {
+        return -1;
+      }
+      if (a.significado > b.significado) {
+        return 1;
+      }
+      return 0;
+    })
+    setFilteredSenias(orderedAndFiltered);
+    
   };
 
   const esMio = (senia: Senia_Info)=>{

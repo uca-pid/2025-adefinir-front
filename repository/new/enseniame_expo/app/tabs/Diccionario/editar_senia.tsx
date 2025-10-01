@@ -10,7 +10,7 @@ import VideoPlayer from '@/components/VideoPlayer';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { router, useLocalSearchParams } from 'expo-router';
-import { borrar_video_de_storage, cambiar_video, subir_senia } from '@/conexiones/videos';
+import { borrar_video_de_storage, cambiar_nombre_senia, cambiar_video, subir_senia } from '@/conexiones/videos';
 
 export default function VideoUploadForm() {
     const {id_senia=0,url,significado} =useLocalSearchParams();
@@ -44,7 +44,7 @@ export default function VideoUploadForm() {
         }
 
       //si cambio el significado
-      if (significado!=meaning) //update tabla
+      if (significado!=meaning) cambiar_nombre_senia(meaning,Number(id_senia));
 
       //si cambio la categoria (después)
 
@@ -57,17 +57,18 @@ export default function VideoUploadForm() {
       //atrapar error de videos/señas repetidas
     } finally {
       setSubiendo(false);
+      setTimeout(()=> {
         router.dismiss();
-        router.replace("/tabs/Diccionario");
+        router.replace("/tabs/Diccionario");}, 700);
     }
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <View style={styles.safeArea}>
         <KeyboardAvoidingView
-                behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-                style={{flex: 1}}
-              >
+            behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+            style={{flex: 1,width:"100%"}}
+          >
       <ScrollView contentContainerStyle={styles.mainView}>
         <View style={styles.headerContainer}>
           <Text style={styles.panelTitle}>Editar video de seña</Text>
@@ -124,7 +125,7 @@ export default function VideoUploadForm() {
       </ScrollView>
       </KeyboardAvoidingView>
       <Toast/>
-    </SafeAreaView>
+    </View>
   );
 }
 
