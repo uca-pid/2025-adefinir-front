@@ -43,7 +43,7 @@ function getPathFromUrl(fileUrl: string) {
 
 const borrar_de_bucket= async (fileUrl: string) =>{
     const filePath =getPathFromUrl(fileUrl)
-    const { data, error } = await supabase.storage.from("videos").remove([filePath]);
+    const { error } = await supabase.storage.from("videos").remove([filePath]);
     
     if (error) throw new Error(String(error));
 }
@@ -88,7 +88,6 @@ const subir_video =async(videoFile: { uri: string; name: string; type: string })
 
 const subir_senia = async(videoFile: { uri: string; name: string; type: string },meaning:string)=>{
     try {
-        
         const videoUrl = await subir_video(videoFile);
 
         // 4. Guardar en la tabla
@@ -134,4 +133,13 @@ const cambiar_video = async (videoFile: { uri: string; name: string; type: strin
     if (error) throw new Error(String(error))
 }
 
-export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video, borrar_de_bucket as borrar_video_de_storage}
+const cambiar_nombre_senia = async (nombre_nuevo:string,id_senia:number)=>{
+    const { error } = await supabase
+        .from('Senias')
+        .update({ significado: nombre_nuevo })
+        .eq('id', id_senia)
+        .select();
+        if (error) throw new Error(String(error));
+}
+
+export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video, borrar_de_bucket as borrar_video_de_storage, cambiar_nombre_senia}
