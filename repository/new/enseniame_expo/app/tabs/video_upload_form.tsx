@@ -9,6 +9,7 @@ import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
 import { supabase } from '../../utils/supabase';
 import { error_alert, success_alert } from '@/components/alert';
+import Toast from 'react-native-toast-message';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { paleta } from '@/components/colores';
@@ -144,7 +145,6 @@ export default function VideoUploadForm() {
     }
     setSubiendo(true);
     try {
-      // 1. Crear FormData para subir el archivo
       const formData = new FormData();
       formData.append('file', {
         uri: videoFile.uri,
@@ -152,7 +152,6 @@ export default function VideoUploadForm() {
         type: 'video/mp4'
       } as any);
 
-      // 2. Subir video al bucket usando FormData
       const filename = `Senias/${videoFile.name}`;
       const { data, error } = await supabase.storage
         .from('videos')
@@ -163,7 +162,6 @@ export default function VideoUploadForm() {
 
       if (error) throw error;
 
-      // 3. Obtener URL privada
       const videoPath = data.path;
       const videoUrl = await getSignedUrl('videos', videoPath);
 
@@ -274,6 +272,7 @@ export default function VideoUploadForm() {
           </ThemedText>
         </ThemedView> */}
       </ScrollView>
+      <Toast/>
     </ThemedView>
   );
 }
@@ -281,11 +280,13 @@ export default function VideoUploadForm() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
+    backgroundColor: '#e6f7f2',
   },
   mainView: {
     alignItems: 'center',
     paddingTop: 40,
     paddingBottom: 40,
+    backgroundColor: '#e6f7f2',
     marginBottom: 60,
     flexGrow: 1,
   },
@@ -348,6 +349,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   fileName: {
+    color: '#222',
     fontWeight: '600',
     marginLeft: 8,
     flex: 1,

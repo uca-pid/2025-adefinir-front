@@ -1,194 +1,155 @@
 import React from 'react';
-import { View, Text, StyleSheet, SafeAreaView, Pressable } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Link , router} from 'expo-router';
+import { router } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
 
 export default function HomeTeacher() {
   const contexto = useUserContext();
-  // Simulación de nombre docente
-  const teacherName = 'Prof. '+ contexto.user.username;
+  const teacherName = 'Prof. ' + contexto.user.username;
   return (
-    <SafeAreaView style={styles.safeArea}>
-      <View style={styles.mainView}>
-        {/* Encabezado */}
-        <View style={styles.headerContainer}>
-          <Text style={styles.panelTitle}>Panel del Profesor <Text style={{fontSize:22}}></Text></Text>
-          <Text style={styles.teacherName}>Bienvenido, {teacherName}</Text>
-        </View>
-
-        {/* CTA principal */}
-        <Pressable style={styles.ctaButton}>
-          <Ionicons name="add" size={28} color="#fff" style={styles.ctaIcon} />
-          <Text style={styles.ctaButtonText}>Crear contenido</Text>
+    <View style={styles.container}>
+      <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
+        <Text style={styles.title}>Panel del Profesor</Text>
+        <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
+        <Pressable style={styles.ctaButtonCursos} onPress={()=>router.push('/tabs/mis_modulos')}>
+          <Ionicons name="albums-outline" size={24} color="#fff" style={styles.ctaIcon} />
+          <Text style={styles.ctaButtonTextCursos}>Mis módulos</Text>
         </Pressable>
-
-        {/* Gestión rápida */}
-        <View style={styles.quickActionsRow}>
-          <Pressable onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCard}>
-            <Ionicons name="videocam-outline" size={26} color="#560bad" />
-            <Text style={styles.quickActionText}>Subir video de seña</Text>
+        <View style={styles.cardRow}>
+          <Pressable onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCardCursos}>
+            <Ionicons name="videocam-outline" size={22} color="#20bfa9" />
+            <Text style={styles.quickActionTextCursos}>Subir video de seña</Text>
           </Pressable>
-          <Pressable style={styles.quickActionCard}>
-            <Ionicons name="school-outline" size={26} color="#560bad" />
-            <Text style={styles.quickActionText}>Ver progreso de estudiantes</Text>
+          <Pressable style={styles.quickActionCardCursos}>
+            <Ionicons name="school-outline" size={22} color="#20bfa9" />
+            <Text style={styles.quickActionTextCursos}>Ver progreso de estudiantes</Text>
           </Pressable>
         </View>
-
-
-        {/* Barra de navegación inferior con botón flotante */}
-        {/* <View style={styles.navBar}>
-          <View style={styles.navItem}>
-            <Ionicons name="home" size={22} color="#fff" />
-            <Text style={styles.navText}>Inicio</Text>
-          </View>
-          <View style={styles.navItem}>
-            <Ionicons name="book" size={22} color="#fff" />
-            <Text style={styles.navText}>Cursos</Text>
-          </View>
-          <View style={styles.fabPlaceholder} />
-          <View style={styles.navItem}>
-            <Ionicons name="search" size={22} color="#fff" />
-            <Text style={styles.navText}>Diccionario</Text>
-          </View>
-          <View style={styles.navItem}>
-            <Ionicons name="person-circle-outline" size={22} color="#fff" />
-            <Text style={styles.navText}>Perfil</Text>
-          </View>
-        </View> */}
-        {/* Botón flotante central sobre la barra */}
-        {/* <Pressable style={styles.fabButton}>
-          <Ionicons name="add" size={32} color="#fff" />
-        </Pressable> */}
-      </View>
-    </SafeAreaView>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
+  container: {
     flex: 1,
-    backgroundColor: '#f3e8ff', // violeta claro
+    backgroundColor: '#e6f7f2',
+    position: 'relative',
+    paddingTop: 0,
   },
-  mainView: {
-    flex: 1,
-    backgroundColor: '#f3e8ff',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    paddingTop: 60,
+  
+  scrollContent: {
+    paddingHorizontal: 20,
+    paddingTop: 40,
+    paddingBottom: 60,
+    zIndex: 2,
   },
-  headerContainer: {
-    marginBottom: 24,
-    alignItems: 'center',
-  },
-  panelTitle: {
-    fontSize: 26,
+  title: {
+    fontSize: 28,
     fontWeight: 'bold',
-    color: '#560bad',
-    marginBottom: 4,
+    color: '#222',
+    marginTop: 32,
+    marginBottom: 8,
+    alignSelf: 'center',
+    zIndex: 2,
+    letterSpacing: 0.5,
   },
-  teacherName: {
-    fontSize: 18,
-    color: '#560bad',
+  subtitle: {
+    fontSize: 16,
+    color: '#20bfa9',
     fontWeight: '500',
     marginBottom: 18,
+    alignSelf: 'center',
+    zIndex: 2,
+  },
+  
+  ctaButtonCursos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#20bfa9',
+    borderRadius: 14,
+    height: 50,
+    marginBottom: 8,
+    paddingHorizontal: 18,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  ctaButtonTextCursos: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+  quickActionCardCursos: {
+    flex: 1,
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    paddingVertical: 18,
+    marginHorizontal: 6,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    shadowColor: '#222',
+    shadowOpacity: 0.08,
+    shadowRadius: 10,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  quickActionTextCursos: {
+    color: '#20bfa9',
+    fontWeight: 'bold',
+    fontSize: 14,
+    marginTop: 6,
+    textAlign: 'center',
+    fontFamily: 'System',
+  },
+  cardRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    marginBottom: 10,
   },
   ctaButton: {
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#F72585',
+    backgroundColor: '#ffb703',
     borderRadius: 14,
-    height: 60,
-    marginBottom: 28,
+    height: 44,
+    marginBottom: 8,
+    paddingHorizontal: 18,
     shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-    paddingHorizontal: 24,
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
   },
   ctaIcon: {
-    marginRight: 10,
+    marginRight: 8,
   },
   ctaButtonText: {
     color: '#fff',
-    fontSize: 18,
+    fontSize: 16,
     fontWeight: 'bold',
-  },
-  quickActionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 22,
-    width: '100%',
-    paddingHorizontal: 16,
   },
   quickActionCard: {
     flex: 1,
     alignItems: 'center',
     justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
+    backgroundColor: '#fff',
     borderRadius: 12,
-    paddingVertical: 20,
+    paddingVertical: 18,
     marginHorizontal: 6,
+    borderWidth: 1,
+    borderColor: '#20bfa9',
   },
   quickActionText: {
-    color: '#560bad',
+    color: '#20bfa9',
     fontWeight: 'bold',
     fontSize: 14,
     marginTop: 6,
     textAlign: 'center',
-  },
-  // summaryCard y summaryText eliminados
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    backgroundColor: '#560bad',
-    paddingVertical: 12,
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 10,
-    zIndex: 1,
-  },
-  fabPlaceholder: {
-    width: 80,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 60,
-  },
-  navText: {
-    color: '#fff',
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '500',
-  },
-  fabButton: {
-    position: 'absolute',
-    left: '50%',
-    bottom: 1,
-    transform: [{ translateX: -32 }, { translateY: -32 }],
-    backgroundColor: '#7209B7',
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 4,
-    borderColor: '#f3e8ff',
-    zIndex: 2,
   },
 });
