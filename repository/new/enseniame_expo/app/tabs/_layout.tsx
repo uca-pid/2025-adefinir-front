@@ -31,7 +31,7 @@ export default function RootLayout() {
       })}
       />
 
-      <Tabs.Screen name={contexto.user.is_prof ? 'mis_modulos' :'Modulos_Alumno' }  options={({ navigation }) =>({title:"Módulos", 
+      <Tabs.Screen name={contexto.user.is_prof ? 'mis_modulos' :'Modulos_Alumno' }  options={({ navigation }) =>({title:"Módulos",      
           tabBarButton: ((props) => 
             <TouchableOpacity onPress={() => contexto.user.gotToModules()}  style={styles.navItem}>
               <Ionicons name="albums-outline" size={22} color="#fff" />
@@ -74,6 +74,7 @@ export default function RootLayout() {
         ),
       })}
       />
+
       <Tabs.Screen name='crear_modulo'  options={{href:null}} />
       <Tabs.Screen name='detalle_modulo'  options={{href:null}} />
       <Tabs.Screen name='modulo_detalle'  options={{href:null}} />
@@ -108,7 +109,7 @@ const styles = StyleSheet.create({
   navItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 70, // Ancho mínimo para cada elemento
+    minWidth: 70,
     marginTop: 15
   },
   navText: {

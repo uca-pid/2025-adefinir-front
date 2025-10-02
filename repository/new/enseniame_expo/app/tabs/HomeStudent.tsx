@@ -19,7 +19,7 @@ export default function HomeStudent() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Hola, {contexto.user.username} 👋</Text>
         
-        {/* Tarjetas de racha y nivel/XP */}
+        
         <View style={styles.stackCards}>
           <View style={[styles.card, styles.cardLeft]}> 
             <Ionicons name="flame" size={28} color="#20bfa9" style={{marginBottom: 8}} />
@@ -34,13 +34,13 @@ export default function HomeStudent() {
           </View>
         </View>
 
-        {/* Botón principal */}
+        
         <Pressable style={styles.ctaButtonCursos}>
           <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
           <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
         </Pressable>
 
-        {/* Accesos rápidos */}
+       
         <View style={styles.shortcutsRow}>
           <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/cursos')}>
             <Ionicons name="book" size={22} color="#20bfa9" />
@@ -79,7 +79,6 @@ const styles = StyleSheet.create({
     zIndex: 2,
     letterSpacing: 0.5,
   },
-  // Tarjetas
   stackCards: {
     flexDirection: 'row',
     width: '100%',
@@ -89,7 +88,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
     borderRadius: 32,
     padding: 24,
-    flex: 1, // ocupan el mismo ancho
+    flex: 1, 
     alignItems: 'flex-start',
     shadowColor: '#222',
     shadowOpacity: 0.08,
@@ -134,7 +133,6 @@ const styles = StyleSheet.create({
     borderRadius: 8,
     backgroundColor: '#20bfa9',
   },
-  // Botón principal
   ctaButtonCursos: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -156,7 +154,6 @@ const styles = StyleSheet.create({
   buttonIcon: {
     marginRight: 8,
   },
-  // Accesos rápidos
   shortcutsRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

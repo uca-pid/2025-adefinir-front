@@ -75,7 +75,6 @@ export default function Diccionario() {
 
   return (
     <View style={styles.container}>
-  {/* Barra de diseño eliminada */}
       <Text style={styles.titleCursos}>Diccionario</Text>
       <View style={styles.searchBarRowCursos}>
         <Ionicons name="search" size={22} color="#20bfa9" style={styles.searchIcon} />

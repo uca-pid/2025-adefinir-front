@@ -48,7 +48,6 @@ export default function Cursos() {
 
   return (
     <View style={styles.container}>
-  {/* Barra de diseño eliminada */}
       <Text style={styles.title}>Cursos</Text>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         {cursos.map((curso, idx) => (

@@ -9,7 +9,6 @@ export default function HomeTeacher() {
   const teacherName = 'Prof. ' + contexto.user.username;
   return (
     <View style={styles.container}>
-  {/* Barra de diseño eliminada para unificar estilo */}
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Panel del Profesor</Text>
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
@@ -39,7 +38,7 @@ const styles = StyleSheet.create({
     position: 'relative',
     paddingTop: 0,
   },
-  // topBlock eliminado
+  
   scrollContent: {
     paddingHorizontal: 20,
     paddingTop: 40,
@@ -64,7 +63,7 @@ const styles = StyleSheet.create({
     alignSelf: 'center',
     zIndex: 2,
   },
-  // cardCursos eliminado, botón destacado fuera de tarjeta
+  
   ctaButtonCursos: {
     flexDirection: 'row',
     alignItems: 'center',
