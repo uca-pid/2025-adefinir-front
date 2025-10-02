@@ -3,14 +3,13 @@ import { View, Text, StyleSheet } from "react-native";
 import { useLocalSearchParams } from "expo-router";
 
 export default function SeniaScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-
+  const { id, nombre, video_url } = useLocalSearchParams<{ id: string, nombre: string, video_url: string }>();
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Seña {id}</Text>
-      <Text style={styles.description}>
-        Aquí se mostraría el video o imagen de la seña seleccionada.
-      </Text>
+      <Text style={styles.title}>{nombre}</Text>
+      <Text style={styles.description}>ID: {id}</Text>
+      {/* Aquí puedes usar un componente VideoPlayer si tienes uno */}
+      <Text style={styles.description}>Video: {video_url}</Text>
     </View>
   );
 }

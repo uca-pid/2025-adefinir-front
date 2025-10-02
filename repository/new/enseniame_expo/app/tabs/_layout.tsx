@@ -13,19 +13,17 @@ export default function RootLayout() {
   return(
     
     <Tabs screenOptions={{
-      
-				tabBarStyle: styles.navBar,
-        tabBarItemStyle: {
-          alignItems: 'center',
-          justifyContent: 'center',
-          minWidth: 70, 
-        },
-		}}>
+      tabBarStyle: styles.navBar,
+      tabBarItemStyle: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        minWidth: 70, 
+      },
+    }}>
       <Tabs.Screen name='index'  options={({ navigation }) =>({title:"Home",
         tabBarButton: ((props) => 
           <TouchableOpacity onPress={() => {
             contexto.user.goHome()
-
           }} style={styles.navItem}>
             <Ionicons name="home" size={22} color="#fff" />
             <Text style={styles.navText}>Inicio</Text>
@@ -34,15 +32,27 @@ export default function RootLayout() {
       })}
       />
 
-      <Tabs.Screen name='cursos'   options={({ navigation }) =>({title:"Cursos", 
-        tabBarButton: ((props) => 
-          <TouchableOpacity onPress={() => navigation.navigate('cursos')}  style={styles.navItem}>
-            <Ionicons name="book" size={22} color="#fff" />
-            <Text style={styles.navText}>Cursos</Text>
-          </TouchableOpacity>
-        ),
-      })}
-      />
+      {contexto.user.is_prof ? (
+        <Tabs.Screen name='mis_modulos' options={({ navigation }) => ({
+          title: "Mis módulos",
+          tabBarButton: ((props) =>
+            <TouchableOpacity onPress={() => navigation.navigate('mis_modulos')} style={styles.navItem}>
+              <Ionicons name="albums-outline" size={22} color="#fff" />
+              <Text style={styles.navText}>Mis módulos</Text>
+            </TouchableOpacity>
+          ),
+        })} />
+      ) : (
+        <Tabs.Screen name='modulos'   options={({ navigation }) =>({title:"Módulos", 
+          tabBarButton: ((props) => 
+            <TouchableOpacity onPress={() => navigation.navigate('modulos')}  style={styles.navItem}>
+              <Ionicons name="albums-outline" size={22} color="#fff" />
+              <Text style={styles.navText}>Módulos</Text>
+            </TouchableOpacity>
+          ),
+        })}
+        />
+      )}
       {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"Subir video", 
           tabBarButton: ((props) => 
             <TouchableOpacity onPress={() => navigation.navigate('video_upload_form')}  style={styles.fabButton}>
@@ -73,19 +83,15 @@ export default function RootLayout() {
         ),
       })}
       />
-
-      <Tabs.Screen name="HomeStudent" options={{href:null,title:"Home"}}/>
-      <Tabs.Screen name="HomeTeacher" options={{href:null,title:"Home"}}/>
       
     </Tabs>
-    
-    );
+  );
 }
 
 const styles = StyleSheet.create({
   navBar: {
     flexDirection: 'row',
-    justifyContent: 'space-around',
+    justifyContent: 'space-evenly',
     alignItems: 'center',
     backgroundColor: '#3e9f94ff',
     paddingVertical: 12,

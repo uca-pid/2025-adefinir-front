@@ -3,17 +3,43 @@ import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 
+type Sign = { id: string; nombre: string; video_url: string };
 type Module = {
   id: string;
   nombre: string;
   icon: keyof typeof Ionicons.glyphMap;
-  cantidad: number;
+  signs: Sign[];
 };
 
 const modules: Module[] = [
-  { id: "1", nombre: "Señas de tránsito", icon: "car", cantidad: 10 },
-  { id: "2", nombre: "Señas básicas", icon: "hand-left", cantidad: 15 },
-  { id: "3", nombre: "Animales", icon: "paw", cantidad: 8 },
+  {
+    id: "1",
+    nombre: "Señas de tránsito",
+    icon: "car",
+    signs: [
+      { id: "1", nombre: "Pare", video_url: "https://www.example.com/video/pare.mp4" },
+      { id: "2", nombre: "Ceda el paso", video_url: "https://www.example.com/video/ceda.mp4" },
+      { id: "3", nombre: "Velocidad máxima", video_url: "https://www.example.com/video/velocidad.mp4" },
+    ],
+  },
+  {
+    id: "2",
+    nombre: "Señas básicas",
+    icon: "hand-left",
+    signs: [
+      { id: "4", nombre: "Hola", video_url: "https://www.example.com/video/hola.mp4" },
+      { id: "5", nombre: "Gracias", video_url: "https://www.example.com/video/gracias.mp4" },
+    ],
+  },
+  {
+    id: "3",
+    nombre: "Animales",
+    icon: "paw",
+    signs: [
+      { id: "6", nombre: "Perro", video_url: "https://www.example.com/video/perro.mp4" },
+      { id: "7", nombre: "Gato", video_url: "https://www.example.com/video/gato.mp4" },
+    ],
+  },
 ];
 
 export default function ModulosScreen() {
@@ -30,11 +56,11 @@ export default function ModulosScreen() {
             <Ionicons name={item.icon} size={36} color="#20bfa9" />
             <Text style={styles.cardTitle}>{item.nombre}</Text>
             <Text style={styles.cardSubtitle}>
-              {item.cantidad} señas incluidas
+              {item.signs.length} señas incluidas
             </Text>
             <Pressable
               style={styles.button}
-              onPress={() => router.push("./modulo_detalle")}
+              onPress={() => router.push({ pathname: '/tabs/modulo_detalle', params: { id: item.id } })}
             >
               <Text style={styles.buttonText}>Ver módulo</Text>
             </Pressable>

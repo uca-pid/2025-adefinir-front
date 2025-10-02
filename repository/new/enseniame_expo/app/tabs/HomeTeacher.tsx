@@ -13,9 +13,9 @@ export default function HomeTeacher() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Panel del Profesor</Text>
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
-        <Pressable style={styles.ctaButtonCursos}>
-          <Ionicons name="add" size={24} color="#fff" style={styles.ctaIcon} />
-          <Text style={styles.ctaButtonTextCursos}>Crear contenido</Text>
+        <Pressable style={styles.ctaButtonCursos} onPress={()=>router.push('/tabs/mis_modulos')}>
+          <Ionicons name="albums-outline" size={24} color="#fff" style={styles.ctaIcon} />
+          <Text style={styles.ctaButtonTextCursos}>Mis módulos</Text>
         </Pressable>
         <View style={styles.cardRow}>
           <Pressable onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCardCursos}>
