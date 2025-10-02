@@ -63,7 +63,7 @@ export default function Index() {
         </ThemedText>
       </ThemedView>
 
-      <BotonLogin callback={()=>{router.navigate('/signup_alumno');}} textColor={'black'} bckColor={paleta.dark_aqua} text={'Empezar'} />
+      <BotonLogin callback={()=>{router.navigate('/login');}} textColor={'black'} bckColor={paleta.dark_aqua} text={'Empezar'} />
     </ParallaxScrollView>
   );
 }
