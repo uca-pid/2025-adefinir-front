@@ -14,7 +14,7 @@ import { ThemedView } from '@/components/ThemedView';
 import { paleta } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { BotonLogin } from '@/components/botones';
-
+import { useUserContext } from '@/context/UserContext';
 
 export default function VideoUploadForm() {
   
@@ -24,6 +24,14 @@ export default function VideoUploadForm() {
   const [videoFile, setVideoFile] = useState<{ uri: string; name: string; type: string } | null>(null);
   const [subiendo, setSubiendo] = useState(false);
   const checkTimeoutRef = useRef<any>(null);
+
+  const contexto = useUserContext();
+  const [user,setUser] = useState({ nombre: contexto.user.username, id: contexto.user.id });
+
+  // Nuevos estados para categorías
+  const [categories, setCategories] = useState<{ id: number; nombre: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [loadingCategories, setLoadingCategories] = useState(false);
 
   useEffect(() => {
     const trimmed = meaning.trim();
@@ -67,6 +75,32 @@ export default function VideoUploadForm() {
     };
   }, [meaning]);
 
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      try {
+        const { data, error } = await supabase
+          .from('Categorias')
+          .select('id,nombre')
+          .order('nombre', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching categorias:', error.message);
+          setCategories([]);
+        } else {
+          setCategories(data || []);
+        }
+      } catch (e) {
+        console.error('Error fetching categorias:', e);
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
+
   const handleVideoUpload = (video: { uri: string; name: string; type: string }) => {
     setVideoFile(video);
   };
@@ -100,6 +134,10 @@ export default function VideoUploadForm() {
       error_alert('Completa el significado y sube un video.');
       return;
     }
+    if (!selectedCategory) {
+      error_alert('Selecciona una categoría.');
+      return;
+    }
     if (meaningError) {
       error_alert('Revisa el significado: ' + meaningError);
       return;
@@ -129,18 +167,24 @@ export default function VideoUploadForm() {
       const videoPath = data.path;
       const videoUrl = await getSignedUrl('videos', videoPath);
 
-      // 4. Guardar en la tabla
+      // 4. Guardar en la tabla incluyendo autor y categoría
       const { error: insertError } = await supabase
         .from('Senias')
-        .insert([{ significado: meaning, video_url: videoUrl }]);
+        .insert([{
+          significado: meaning,
+          video_url: videoUrl,
+          id_autor: user.id,
+          categoria: selectedCategory
+        }]);
 
       if (insertError) throw insertError;
 
         success_alert('¡Seña subida con éxito!');
         setMeaning('');
         setVideoFile(null);
+        setSelectedCategory(null);
       } catch (e: any) {
-        error_alert('Error al subir: ' + e.message);
+        error_alert('Error al subir: ' + (e?.message || e));
       } finally {
         setSubiendo(false);
       }
@@ -174,6 +218,32 @@ export default function VideoUploadForm() {
             <ThemedText style={styles.errorText}>{meaningError}</ThemedText>
           )}
 
+          <ThemedText type="defaultSemiBold" style={[styles.label, { marginTop: 4 }]}>Categoría</ThemedText>
+          <View style={styles.categoriesRow}>
+            {loadingCategories ? (
+              <ThemedText style={styles.smallMuted}>Cargando categorías...</ThemedText>
+            ) : categories.length === 0 ? (
+              <ThemedText style={styles.smallMuted}>No hay categorías disponibles</ThemedText>
+            ) : (
+              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
+                {categories.map(cat => {
+                  const selected = selectedCategory === (cat.id as any);
+                  return (
+                    <TouchableOpacity
+                      key={String(cat.id)}
+                      onPress={() => setSelectedCategory(cat.id)}
+                      style={[
+                        styles.chip,
+                        selected ? styles.chipSelected : styles.chipIdle
+                      ]}
+                    >
+                      <ThemedText style={[styles.chipText, selected ? { color: '#fff' } : {}]}>{cat.nombre}</ThemedText>
+                    </TouchableOpacity>
+                  );
+                })}
+              </ScrollView>
+            )}
+          </View>
 
           {videoFile ? (
             <ThemedView style={styles.fileInfoContainer} lightColor={paleta.aqua_bck} darkColor="#3a3a3a">
@@ -187,7 +257,7 @@ export default function VideoUploadForm() {
             <VideoUpload onVideoUpload={handleVideoUpload} />
           )}
 
-          {meaning.trim() !== '' && videoFile && !meaningError && (
+          {meaning.trim() !== '' && videoFile && !meaningError && selectedCategory && (
             <BotonLogin 
               callback={handleSubmit} 
               textColor="white" 
@@ -295,5 +365,32 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginTop: -12,
     marginBottom: 12,
+  },
+
+  categoriesRow: {
+    width: '100%',
+    marginBottom: 12,
+  },
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    marginRight: 8,
+    borderWidth: 1,
+  },
+  chipIdle: {
+    backgroundColor: '#fff',
+    borderColor: paleta.softgray,
+  },
+  chipSelected: {
+    backgroundColor: paleta.dark_aqua,
+    borderColor: paleta.dark_aqua,
+  },
+  chipText: {
+    fontSize: 14,
+  },
+  smallMuted: {
+    color: '#666',
+    fontSize: 13,
   },
 });
