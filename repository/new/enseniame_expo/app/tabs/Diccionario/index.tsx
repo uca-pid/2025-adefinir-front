@@ -117,7 +117,7 @@ export default function Diccionario() {
           
         </View>
         
-        <Ionicons name="chevron-forward" size={24} color="#34a0a4" />
+        <Ionicons name="chevron-forward" size={24} color={paleta.dark_aqua} />
       </View>
     </Pressable>
   );
@@ -125,7 +125,7 @@ export default function Diccionario() {
   if (loading) {
     return (
       <View style={styles.loadingContainer}>
-        <ActivityIndicator size="large" color="#34a0a4" />
+        <ActivityIndicator size="large" color={paleta.dark_aqua} />
       </View>
     );
   }
@@ -141,13 +141,13 @@ export default function Diccionario() {
         </View>
 
         <View style={styles.searchContainer}>
-          <Ionicons name="search" size={20} color="#34a0a4" style={styles.searchIcon} />
+          <Ionicons name="search" size={20} color={paleta.dark_aqua} style={styles.searchIcon} />
           <TextInput
             style={styles.searchInput}
             placeholder="Buscar señas o categorías..."
             value={searchQuery}
             onChangeText={setSearchQuery}
-            placeholderTextColor="#34a0a499"
+            placeholderTextColor={paleta.dark_aqua}
           />
         </View>
 
@@ -158,7 +158,7 @@ export default function Diccionario() {
             onValueChange={setmostrarPropios}
             color={mostrarPropios ? paleta.yellow : undefined}
           />
-          <ThemedText type='defaultSemiBold' lightColor='#34a0a4'>Mostrar sólo mis videos</ThemedText>
+          <ThemedText type='defaultSemiBold' lightColor={paleta.dark_aqua}>Mostrar sólo mis videos</ThemedText>
         </View>
 
         <FlatList
@@ -211,8 +211,8 @@ export default function Diccionario() {
               {selectedSenia && esMio(selectedSenia) ?
                 <>
                   <TouchableOpacity style={[styles.iconButton,estilos.shadow]} onPress={()=>{editar_senia(selectedSenia)}}   >  
-                    <Ionicons name="create" color='#34a0a4' size={25} style={styles.icon} />
-                    <ThemedText type="subtitle" lightColor='#34a0a4' style={{flex:2}}>Editar seña</ThemedText>
+                    <Ionicons name="create" color={paleta.dark_aqua} size={25} style={styles.icon} />
+                    <ThemedText type="subtitle" lightColor={paleta.dark_aqua} style={{flex:2}}>Editar seña</ThemedText>
                   </TouchableOpacity>
                  <TouchableOpacity style={[styles.iconButton,estilos.shadow,paleta_colores.yellow]} onPress={()=>{eliminar_senia(selectedSenia)}}   >  
                     <Ionicons name="trash-bin-outline" color='#c91216' size={25} style={styles.icon} />
@@ -244,12 +244,12 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: "#34a0a4",
+    color: paleta.dark_aqua,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 18,
-    color: '#34a0a4',
+    color: paleta.dark_aqua,
     fontWeight: '500',
     marginBottom: 18,
   },
@@ -269,7 +269,7 @@ const styles = StyleSheet.create({
     flex: 1,
     paddingVertical: 12,
     fontSize: 16,
-    color: '#34a0a4',
+    color: paleta.dark_aqua
     
   },
   listContent: {
@@ -289,7 +289,7 @@ const styles = StyleSheet.create({
   },
   significadoText: {
     fontSize: 16,
-    color: '#34a0a4',
+    color: paleta.dark_aqua,
     fontWeight: '500',
   },
   separator: {
@@ -316,7 +316,7 @@ const styles = StyleSheet.create({
   modalTitle: {
     fontSize: 24,
     fontWeight: 'bold',
-    color: '#34a0a4',
+    color: paleta.dark_aqua
   },
   closeButton: {
     padding: 8,

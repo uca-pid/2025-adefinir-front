@@ -46,6 +46,7 @@ const borrar_de_bucket= async (fileUrl: string) =>{
     const { error } = await supabase.storage.from("videos").remove([filePath]);
     
     if (error) throw new Error(String(error));
+    return true
 }
 
 const eliminar_video = async (senia:Senia_Info)=>{
@@ -53,7 +54,7 @@ const eliminar_video = async (senia:Senia_Info)=>{
         borrar_de_bucket(senia.video_url);      
         const { error } = await supabase.from('Senias').delete().eq('id', senia.id);
         if (error) throw new Error(String(error));
-          
+        
     } catch (error) {
         console.error("Error borrando la seña:",error);
         error_alert("Ocurrió un error al borrar la seña");
@@ -78,7 +79,7 @@ const subir_video =async(videoFile: { uri: string; name: string; type: string })
           upsert: true
         });
 
-      if (error) throw error;
+      if (error) throw new Error(String(error));
 
       // 3. Obtener URL privada
       const videoPath = data.path;
@@ -139,7 +140,8 @@ const cambiar_nombre_senia = async (nombre_nuevo:string,id_senia:number)=>{
         .update({ significado: nombre_nuevo })
         .eq('id', id_senia)
         .select();
-        if (error) throw new Error(String(error));
+    if (error) throw new Error(String(error));
+    return true
 }
 
 export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video, borrar_de_bucket as borrar_video_de_storage, cambiar_nombre_senia}

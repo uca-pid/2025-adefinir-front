@@ -39,28 +39,37 @@ export default function VideoUploadForm() {
     setSubiendo(true);
     try {
       //si cambio el video
+      let exito= false;
         if (name!=videoFile.name || type!=videoFile.type) {
-            borrar_video_de_storage(String(url))
-            cambiar_video(videoFile,Number(id_senia))
+            exito = await borrar_video_de_storage(String(url))
+            const aux = await cambiar_video(videoFile,Number(id_senia)).catch((reason)=>{
+              exito = false;
+              error_alert("Este video ya fue subido");
+              console.log(reason);
+            });
         }
-
+        
       //si cambio el significado
-      if (significado!=meaning) cambiar_nombre_senia(meaning,Number(id_senia));
+      if (significado!=meaning) exito = await cambiar_nombre_senia(meaning,Number(id_senia));
 
       //si cambio la categoria (después)
 
-      success_alert('¡Seña subida con éxito!'),
+      if (exito){
+        success_alert('¡Seña subida con éxito!');
 
-      setMeaning('');
-      setVideoFile(null);
+        setMeaning('');
+        setVideoFile(null);
+        setTimeout(()=> {
+          router.dismiss();
+          router.replace("/tabs/Diccionario");}, 700);
+      }
+      
     } catch (e: any) {
       error_alert('Error al subir: ' + e.message);
       //atrapar error de videos/señas repetidas
+      console.log("Atrapé!!!");
     } finally {
       setSubiendo(false);
-      setTimeout(()=> {
-        router.dismiss();
-        router.replace("/tabs/Diccionario");}, 700);
     }
   };
 
@@ -73,7 +82,7 @@ export default function VideoUploadForm() {
       <ScrollView contentContainerStyle={styles.mainView}>
         <View style={styles.headerContainer}>
           <Text style={styles.panelTitle}>Editar video de seña</Text>
-          <Text style={styles.subtitle}>Comparte tus videos de LSA con la comunidad</Text>
+          <Text style={styles.subtitle}>Mantén tus videos actualizados para una mejor experiencia de aprendizaje</Text>
         </View>
 
         <Image
@@ -100,14 +109,14 @@ export default function VideoUploadForm() {
 
           {videoFile ? (
             <View style={styles.fileInfoContainer}>
-              <Ionicons name="videocam" size={22} color="#34a0a4" />
+              <Ionicons name="videocam" size={22} color={paleta.dark_aqua}/>
               <Text style={styles.fileName}>{videoFile.name}</Text>
               <Pressable onPress={handleRemoveVideo} style={styles.removeFileBtn}>
                 <Ionicons name="close-circle" size={20} color={paleta.strong_yellow} />
               </Pressable>
             </View>
           ) : (
-            <VideoUpload onVideoUpload={handleVideoUpload} />
+            <VideoUpload onVideoUpload={handleVideoUpload}  />
           )}
 
           {meaning.trim() !== '' && videoFile && (
@@ -157,12 +166,12 @@ const styles = StyleSheet.create({
   panelTitle: {
     fontSize: 26,
     fontWeight: 'bold',
-    color: '#34a0a4',
+    color: paleta.dark_aqua,
     marginBottom: 4,
   },
   subtitle: {
     fontSize: 16,
-    color: '#34a0a4',
+    color: paleta.dark_aqua,
     fontWeight: '500',
     marginBottom: 10,
     textAlign: 'center',
@@ -189,7 +198,7 @@ const styles = StyleSheet.create({
   },
   label: {
     fontSize: 16,
-    color: '#34a0a4',
+    color: paleta.dark_aqua,
     fontWeight: '600',
     marginBottom: 8,
     alignSelf: 'flex-start',
@@ -235,7 +244,7 @@ const styles = StyleSheet.create({
     marginTop: 8,
   },
   infoTitle: {
-    color: '#34a0a4',
+    color: paleta.dark_aqua,
     fontWeight: 'bold',
     fontSize: 16,
     marginBottom: 6,
@@ -257,7 +266,7 @@ const styles = StyleSheet.create({
     width: '100%',
   },
   fileName: {
-    color: '#34a0a4',
+    color: paleta.dark_aqua,
     fontWeight: '600',
     marginLeft: 8,
     flex: 1,
