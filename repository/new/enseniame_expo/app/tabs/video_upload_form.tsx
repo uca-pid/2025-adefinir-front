@@ -191,14 +191,14 @@ export default function VideoUploadForm() {
   };
 
   return (
-    <ThemedView style={[styles.safeArea, { marginBottom: insets.bottom + 12 }]} lightColor={paleta.aqua_bck} darkColor={paleta.aqua_bck}>
+    <ThemedView style={[styles.safeArea, { marginBottom: insets.bottom + 12 }]} lightColor={paleta.aqua_bck} darkColor='#333'>
       <ScrollView contentContainerStyle={styles.mainView}>
         <View style={styles.headerContainer}>
           <ThemedText type="title" style={styles.panelTitle}>Subir video de seña</ThemedText>
-          <ThemedText type="defaultSemiBold" lightColor="#666" darkColor="#666" style={styles.subtitle}>Comparte tus videos de LSA con la comunidad</ThemedText>
+          <ThemedText type="defaultSemiBold" lightColor="#666" darkColor="white" style={styles.subtitle}>Comparte tus videos de LSA con la comunidad</ThemedText>
         </View>
 
-        <ThemedView style={[styles.card, estilos.shadow]} lightColor="white" darkColor="white">
+        <ThemedView style={[styles.card, estilos.shadow]} lightColor="white" darkColor="#3e9f94ff">
           {videoFile && (
             <VideoPlayer 
               uri={videoFile.uri}
