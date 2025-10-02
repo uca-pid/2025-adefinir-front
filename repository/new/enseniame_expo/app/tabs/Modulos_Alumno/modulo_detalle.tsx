@@ -50,12 +50,13 @@ export default function ModuloDetalleScreen() {
       <Text style={styles.title}> {modulo?.nombre}</Text>
 
       {/*Hardcodear ejemplo de teoría*/}
+      {modulo?.id==10 ? 
       <View style={styles.card}>
         <ThemedText style={styles.cardTitle}>Verbos invertidos</ThemedText>
         <TouchableOpacity onPress={()=>setModalTeoriVisible(true)} style={styles.button}>
           <ThemedText lightColor="white">Ver más</ThemedText>
         </TouchableOpacity>
-      </View>
+      </View>: null}
       <FlatList
         data={senias ? senias : []}
         keyExtractor={(item) => item.id.toString()}
