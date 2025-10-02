@@ -1,7 +1,8 @@
-import React from "react";
+import React, { useState } from "react";
 import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
-import { useLocalSearchParams, useRouter } from "expo-router";
-import { Senia,Senia_Info } from "@/components/types";
+import { useLocalSearchParams, useRouter, router } from "expo-router";
+import { Senia,Senia_Info, Modulo } from "@/components/types";
+import { buscar_modulo } from "@/conexiones/modulos";
 
 const modules = [
   {
@@ -29,8 +30,20 @@ const modules = [
 ];
 
 export default function ModuloDetalleScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
-  const router = useRouter();
+  const { id=0 } = useLocalSearchParams<{ id: string }>();
+  if (id==0) router.back();
+
+  const [modulo,setModulo] = useState<Modulo | undefined>();
+  
+  
+
+  const fetch_modulo = async ()=>{
+    const m = await buscar_modulo(Number(id));
+    setModulo(m || []);
+  } 
+
+  fetch_modulo()
+  
   const module = modules.find((m) => m.id === id);
   return (
     <View style={styles.container}>
