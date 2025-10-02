@@ -1,9 +1,12 @@
 import React, { useCallback, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList, Modal, TouchableOpacity } from "react-native";
 import { useLocalSearchParams, useRouter, router, useFocusEffect } from "expo-router";
 import { Senia,Senia_Info, Modulo } from "@/components/types";
 import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
 import { Ionicons } from "@expo/vector-icons";
+import { ThemedText } from "@/components/ThemedText";
+import VideoPlayer from "@/components/VideoPlayer";
+import { paleta } from "@/components/colores";
 
 const modules = [
   {
@@ -39,6 +42,10 @@ export default function ModuloDetalleScreen() {
   if (id==0) router.back();
   const [modulo,setModulo] = useState<Modulo | undefined>();
   const [senias,setSenias] = useState<Senia_Info[]>();
+
+  const [loading, setLoading] = useState(true);
+  const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
   
    useFocusEffect(
       useCallback(() => {
@@ -54,29 +61,76 @@ export default function ModuloDetalleScreen() {
 
   const fetch_senias = async ()=>{
     const s = await  buscar_senias_modulo(Number(id));
-    console.log( s);
     setSenias(s || [])
   }
   
-  const module = modules.find((m) => m.id === id);
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Detalle del módulo {id}</Text>
       <FlatList
-        data={module ? module.signs : []}
-        keyExtractor={(item) => item.id}
+        data={senias ? senias : []}
+        keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>{item.nombre}</Text>
+            <Text style={styles.cardTitle}>{item.significado}</Text>
             <Pressable
               style={styles.button}
-              onPress={() => router.push({ pathname: '/tabs/senia', params: { id: item.id, nombre: item.nombre, video_url: item.video_url } })}
+              onPress={() => {
+                setSelectedSenia(item);
+                setModalVisible(true);
+              }}
             >
               <Text style={styles.buttonText}>Ver seña</Text>
             </Pressable>
           </View>
         )}
       />
+
+      <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{selectedSenia?.significado}</Text>
+                <Pressable 
+                  onPress={() => setModalVisible(false)}
+                  style={styles.closeButton}
+                >
+                  <Ionicons name="close" size={24} color="#014f86" />
+                </Pressable>
+              </View>
+              
+              {selectedSenia && (
+                <VideoPlayer 
+                  uri={selectedSenia.video_url}
+                  style={styles.video}
+                />
+              )}
+              {selectedSenia && selectedSenia.Categorias ?
+              <ThemedText style={{margin:10}}>
+                <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
+                <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
+              </ThemedText>
+                :null
+              }
+              
+              {selectedSenia && selectedSenia.Users  ?
+              <ThemedText style={{margin:10}}>
+                <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
+                <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
+              </ThemedText>
+                :null
+              }
+
+              
+            </View>
+          </View>
+        </Modal>
     </View>
   );
 }
@@ -123,4 +177,62 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 15,
   },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: paleta.dark_aqua
+  },
+  closeButton: {
+    padding: 8,
+  },
+  video: {
+    width: '100%',
+    aspectRatio: 16/9,
+    borderRadius: 12,
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#f3e8ff',
+  },
+  checkbox: {
+    margin: 8,
+    borderRadius:10,
+    borderColor: paleta.strong_yellow 
+  },
+   iconButton: {
+    borderRadius: 10,
+    height: 50,
+    minWidth: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    flexDirection: "row",
+    width:"100%",
+    backgroundColor: "white",
+    position: "relative",
+    marginTop: 25
+  },
+  icon:{
+    flex:1,
+    marginLeft: 25
+  }
 });
