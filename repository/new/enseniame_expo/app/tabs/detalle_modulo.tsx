@@ -128,7 +128,36 @@ export default function DetalleModuloScreen() {
 
   return (
     <View style={styles.container}>
+      <Pressable style={[styles.backBtn, {marginBottom: 10}]} onPress={() => router.replace('/tabs/mis_modulos')}>
+        <Text style={styles.backBtnText}>← Volver a mis módulos</Text>
+      </Pressable>
       <Text style={styles.title}>Módulo: {id}</Text>
+      {/* Barra de búsqueda fija */}
+      <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }}>
+        <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Buscar seña en el diccionario</Text>
+        <TextInput
+          placeholder="Buscar palabra..."
+          style={{ borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 8, padding: 8, marginBottom: 10 }}
+          value={search}
+          onChangeText={setSearch}
+        />
+        {agregando && <ActivityIndicator size="small" color="#20bfa9" style={{ marginBottom: 8 }} />}
+        {search.length > 0 && filteredDiccionario.length > 0 && (
+          filteredDiccionario.map((senia) => (
+            <Pressable
+              key={senia.id}
+              style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee' }}
+              onPress={() => handleAgregarSenia(senia)}
+            >
+              <Text style={{ color: '#222', fontSize: 16 }}>{senia.significado}</Text>
+            </Pressable>
+          ))
+        )}
+        {search.length > 0 && filteredDiccionario.length === 0 && (
+          <Text style={{ color: '#888', fontStyle: 'italic' }}>No se encontraron coincidencias.</Text>
+        )}
+      </View>
+      {/* Lista de señas agregadas al módulo */}
       {loading ? (
         <ActivityIndicator size="large" color="#20bfa9" style={{ marginTop: 40 }} />
       ) : (
@@ -163,29 +192,13 @@ export default function DetalleModuloScreen() {
           )}
         />
       )}
-      {/* Buscador y agregar seña */}
-      <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 18, marginTop: 18, elevation: 3 }}>
-        <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Agregar seña del diccionario</Text>
-        <TextInput
-          placeholder="Buscar palabra..."
-          style={{ borderWidth: 1, borderColor: '#e0e0e0', borderRadius: 8, padding: 8, marginBottom: 10 }}
-          value={search}
-          onChangeText={setSearch}
-        />
-        {agregando && <ActivityIndicator size="small" color="#20bfa9" style={{ marginBottom: 8 }} />}
-        {filteredDiccionario.map((senia) => (
-          <Pressable
-            key={senia.id}
-            style={{ paddingVertical: 8, borderBottomWidth: 1, borderBottomColor: '#eee' }}
-            onPress={() => handleAgregarSenia(senia)}
-          >
-            <Text style={{ color: '#222', fontSize: 16 }}>{senia.significado}</Text>
-          </Pressable>
-        ))}
-        {search.length > 0 && filteredDiccionario.length === 0 && (
-          <Text style={{ color: '#888', fontStyle: 'italic' }}>No se encontraron coincidencias.</Text>
-        )}
-      </View>
+      {/* Botón Guardar */}
+      <Pressable
+        style={{ backgroundColor: '#20bfa9', borderRadius: 30, alignSelf: 'center', marginTop: 24, paddingVertical: 14, paddingHorizontal: 40 }}
+        onPress={() => router.back()}
+      >
+        <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>Guardar</Text>
+      </Pressable>
     </View>
   );
 }
@@ -243,5 +256,19 @@ const styles = StyleSheet.create({
   viewBtnText: {
     color: '#fff',
     fontWeight: 'bold',
+  },
+  backBtn: {
+    padding: 10,
+    borderRadius: 8,
+    backgroundColor: '#fff',
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 2,
+  },
+  backBtnText: {
+    color: '#20bfa9',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });

@@ -1,4 +1,3 @@
-
 import React, { useEffect, useState } from "react";
 import { View, Text, StyleSheet, Pressable, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
@@ -44,7 +43,13 @@ export default function SeniaScreen() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={styles.backBtn} onPress={() => router.back()}>
+      <Pressable style={styles.backBtn} onPress={() => {
+        if (modulo_id) {
+          router.replace({ pathname: '/tabs/detalle_modulo', params: { id: modulo_id } });
+        } else {
+          router.back();
+        }
+      }}>
         <Text style={styles.backBtnText}>← Volver</Text>
       </Pressable>
       <Text style={styles.title}>{senia.nombre}</Text>
