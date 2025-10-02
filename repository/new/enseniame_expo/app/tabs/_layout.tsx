@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, Tabs } from "expo-router";
 import { Platform, StyleSheet, View , Text, TouchableOpacity} from "react-native";
 import { UserContext, useUserContext } from "@/context/UserContext";
-import { UserContextProvider } from "@/context/UserContext";
 
 export default function RootLayout() {
   const contexto = useUserContext()
@@ -53,6 +52,9 @@ export default function RootLayout() {
         })}
         />
       )}
+      {contexto.user.is_prof ? (
+        <Tabs.Screen name='modulos'  options={{href:null}} />
+      ): <Tabs.Screen name='mis_modulos'  options={{href:null}} />}
       {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"Subir video", 
           tabBarButton: ((props) => 
             <TouchableOpacity onPress={() => navigation.navigate('video_upload_form')}  style={styles.fabButton}>
@@ -83,6 +85,13 @@ export default function RootLayout() {
         ),
       })}
       />
+      <Tabs.Screen name='crear_modulo'  options={{href:null}} />
+      <Tabs.Screen name='detalle_modulo'  options={{href:null}} />
+      <Tabs.Screen name='modulo_detalle'  options={{href:null}} />
+      <Tabs.Screen name='senia'  options={{href:null}} />
+      <Tabs.Screen name='cursos'  options={{href:null}} />
+      <Tabs.Screen name="HomeStudent" options={{href:null,title:"Home"}}/>
+      <Tabs.Screen name="HomeTeacher" options={{href:null,title:"Home"}}/>
       
     </Tabs>
   );
