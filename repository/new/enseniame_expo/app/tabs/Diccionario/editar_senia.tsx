@@ -1,9 +1,10 @@
 import { 
   Pressable, Text, TextInput, View, StyleSheet,  SafeAreaView,
   ScrollView,  KeyboardAvoidingView,  Platform,
+  TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Image } from 'expo-image';
 import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -12,16 +13,47 @@ import Toast from 'react-native-toast-message';
 import { router, useLocalSearchParams } from 'expo-router';
 import { borrar_video_de_storage, cambiar_nombre_senia, cambiar_video, subir_senia } from '@/conexiones/videos';
 import { paleta } from '@/components/colores';
+import { supabase } from '@/lib/supabase';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function VideoUploadForm() {
-    const {id_senia=0,url,significado} =useLocalSearchParams();
+    const {id_senia=0,url,significado,cate} =useLocalSearchParams();
     if (id_senia==0) router.back();
 
     const {name,type}= getNameAndTypeFromURL(String(url));
   
   const [meaning, setMeaning] = useState(String(significado));
+  const [categories, setCategories] = useState<{ id: number; nombre: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(Number(cate));
   const [videoFile, setVideoFile] = useState<{ uri: string; name: string; type: string } | null>({uri:String(url),name:name,type:type});
   const [subiendo, setSubiendo] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+
+  useEffect(() => {
+      const fetchCategories = async () => {
+        setLoadingCategories(true);
+        try {
+          const { data, error } = await supabase
+            .from('Categorias')
+            .select('id,nombre')
+            .order('nombre', { ascending: true });
+  
+          if (error) {
+            console.error('Error fetching categorias:', error.message);
+            setCategories([]);
+          } else {
+            setCategories(data || []);
+          }
+        } catch (e) {
+          console.error('Error fetching categorias:', e);
+          setCategories([]);
+        } finally {
+          setLoadingCategories(false);
+        }
+      };
+  
+      fetchCategories();
+    }, []);
 
   const handleVideoUpload = (video: { uri: string; name: string; type: string }) => {
     setVideoFile(video);
@@ -53,6 +85,13 @@ export default function VideoUploadForm() {
       if (significado!=meaning) exito = await cambiar_nombre_senia(meaning,Number(id_senia));
 
       //si cambio la categoria (después)
+        if (Number(cate) != selectedCategory) {
+          console.log("cambiando")
+          const {error} = await supabase.from("Senias").update({categoria:selectedCategory}).eq("id",Number(id_senia));
+          
+          if (error) throw error
+          exito=true;
+        }
 
       if (exito){
         success_alert('¡Seña subida con éxito!');
@@ -119,10 +158,37 @@ export default function VideoUploadForm() {
             <VideoUpload onVideoUpload={handleVideoUpload}  />
           )}
 
+          <ThemedText type="defaultSemiBold" style={[styles.label, { marginTop: 4 }]}>Categoría</ThemedText>
+                    <View style={styles.categoriesRow}>
+                      {loadingCategories ? (
+                        <ThemedText style={styles.smallMuted}>Cargando categorías...</ThemedText>
+                      ) : categories.length === 0 ? (
+                        <ThemedText style={styles.smallMuted}>No hay categorías disponibles</ThemedText>
+                      ) : (
+                        <View style={styles.categoriesWrap}>
+                          {categories.map(cat => {
+                            const selected = selectedCategory === cat.id;
+                            return (
+                              <TouchableOpacity
+                                key={String(cat.id)}
+                                onPress={() => setSelectedCategory(cat.id)}
+                                style={[
+                                  styles.chip,
+                                  selected ? styles.chipSelected : styles.chipIdle
+                                ]}
+                              >
+                                <ThemedText style={[styles.chipText, selected ? { color: '#fff' } : {}]} numberOfLines={1}>{cat.nombre}</ThemedText>
+                              </TouchableOpacity>
+                            );
+                          })}
+                        </View>
+                      )}
+                    </View>
+
           {meaning.trim() !== '' && videoFile && (
-            <Pressable style={styles.ctaButton} onPress={handleSubmit} disabled={subiendo}>
+            <TouchableOpacity style={styles.ctaButton} onPress={handleSubmit} disabled={subiendo}>
               <Text style={styles.ctaButtonText}>{subiendo ? 'Subiendo...' : 'Guardar Seña'}</Text>
-            </Pressable>
+            </TouchableOpacity>
           )}
         </View>
 
@@ -278,5 +344,41 @@ const styles = StyleSheet.create({
   previewVideo: {
     marginBottom: 20,
     width: '100%',
+  },
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    marginRight: 8,
+    borderWidth: 1,
+  },
+  chipIdle: {
+    backgroundColor: '#fff',
+    borderColor: paleta.softgray,
+  },
+  chipSelected: {
+    backgroundColor: paleta.dark_aqua,
+    borderColor: paleta.dark_aqua,
+  },
+  chipText: {
+    fontSize: 14,
+  },
+  categoriesRow: {
+    width: '100%',
+    marginBottom: 12,
+    alignItems: 'center',
+    paddingTop: 4,
+    paddingBottom: 4,
+  },
+  smallMuted: {
+    color: '#666',
+    fontSize: 13,
+  },
+  categoriesWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });

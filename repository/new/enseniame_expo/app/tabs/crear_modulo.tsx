@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, TextInput, Pressable, Alert } from "react-nativ
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter, useLocalSearchParams } from "expo-router";
 import { supabase } from "../../utils/supabase";
+import { useUserContext } from "@/context/UserContext";
 
 const iconOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
 
@@ -14,6 +15,8 @@ export default function CrearModuloScreen() {
   const [descripcion, setDescripcion] = useState("");
   const [icon, setIcon] = useState("car");
   const [loading, setLoading] = useState(false);
+
+  const contexto = useUserContext()
 
   useEffect(() => {
     if (isEdit) {
@@ -58,7 +61,7 @@ export default function CrearModuloScreen() {
     <View style={styles.container}>
       <Pressable 
         style={styles.backBtn} 
-        onPress={() => router.back()}
+        onPress={() => contexto.user.gotToModules()}
       >
         <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
         <Text style={styles.backBtnText}>Volver</Text>
