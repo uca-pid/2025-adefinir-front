@@ -12,12 +12,12 @@ export default function SeniaScreen() {
 
   useEffect(() => {
     if (nombre && video_url) {
-      setSenia({ nombre, video_url });
+      setSenia({ nombre: String(nombre), video_url: String(video_url) });
     } else if (id) {
       const fetchSenia = async () => {
         setLoading(true);
         try {
-          const { data } = await supabase
+          const { data, error } = await supabase
             .from('Senias')
             .select('significado, video_url')
             .eq('id', id)

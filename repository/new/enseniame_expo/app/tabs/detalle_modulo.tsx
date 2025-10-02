@@ -128,8 +128,9 @@ export default function DetalleModuloScreen() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={[styles.backBtn, {marginBottom: 10}]} onPress={() => router.replace('/tabs/mis_modulos')}>
-        <Text style={styles.backBtnText}>← Volver a mis módulos</Text>
+      <Pressable style={[styles.backBtn, {marginBottom: 10, flexDirection: 'row', alignItems: 'center'}]} onPress={() => router.replace('/tabs/mis_modulos')}>
+        <Ionicons name="arrow-back" size={20} color="#fff" style={{marginRight: 6}} />
+        <Text style={styles.backBtnText}>Volver</Text>
       </Pressable>
       <Text style={styles.title}>Módulo: {id}</Text>
       {/* Barra de búsqueda fija */}

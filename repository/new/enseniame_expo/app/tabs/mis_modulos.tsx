@@ -1,58 +1,106 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable } from "react-native";
+import React, { useState, useEffect } from "react";
+import { useFocusEffect } from "expo-router";
+import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-
-const initialModules = [
-  { id: "1", nombre: "Señas de tránsito", icon: "car" as const, signs: [{ id: "1", nombre: "Pare" }] },
-  { id: "2", nombre: "Animales", icon: "paw" as const, signs: [] },
-];
+import { supabase } from "../../utils/supabase";
 
 export default function MisModulosScreen() {
-  const [modules] = useState(initialModules);
+  const [modules, setModules] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [showMenu, setShowMenu] = useState<number | null>(null);
   const router = useRouter();
+
+  useEffect(() => {
+    fetchModules();
+  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchModules();
+    }, [])
+  );
+
+  const fetchModules = async () => {
+    setLoading(true);
+    const { data, error } = await supabase.from('Modulos').select('*').order('id', { ascending: true });
+    if (!error && data) setModules(data);
+    setLoading(false);
+  };
+
+  const handleDelete = async (id: number) => {
+    setShowMenu(null);
+    const { error } = await supabase.from('Modulos').delete().eq('id', id);
+    if (!error) fetchModules();
+  };
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mis módulos creados</Text>
-      <FlatList
-        data={modules}
-        keyExtractor={(item) => item.id}
-        renderItem={({ item }) => (
-          <View style={styles.card}>
-            <Ionicons name={item.icon} size={32} color="#20bfa9" />
-            <Text style={styles.cardTitle}>{item.nombre}</Text>
-            <Text style={styles.cardSubtitle}>{item.signs.length} señas incluidas</Text>
-            <View style={styles.cardActions}>
-              <Pressable
-                style={styles.editBtn}
-                onPress={() => router.push({
-                  pathname: "/tabs/crear_modulo",
-                  params: { id: item.id, nombre: item.nombre, icon: item.icon }
-                })}
-              >
-                <Ionicons name="create-outline" size={18} color="#20bfa9" />
-                <Text style={styles.editBtnText}>Editar módulo</Text>
-              </Pressable>
-              <Pressable
-                style={styles.viewBtn}
-                onPress={() => router.push({
-                  pathname: "/tabs/detalle_modulo",
-                  params: { id: item.id }
-                })}
-              >
-                <Text style={styles.viewBtnText}>Ver señas</Text>
-              </Pressable>
-            </View>
-          </View>
-        )}
-      />
       <Pressable
-        style={styles.fab}
+        style={styles.addBtn}
         onPress={() => router.push("/tabs/crear_modulo")}
       >
-        <Ionicons name="add" size={32} color="#fff" />
+        <Ionicons name="add" size={28} color="#fff" />
+        <Text style={styles.addBtnText}>Agregar módulo</Text>
       </Pressable>
+      {loading ? (
+        <ActivityIndicator size="large" color="#20bfa9" style={{ marginTop: 40 }} />
+      ) : (
+        <FlatList
+          data={modules}
+          keyExtractor={(item) => item.id.toString()}
+          contentContainerStyle={{ paddingBottom: 40 }}
+          renderItem={({ item }) => (
+            <View style={styles.card}>
+              <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
+                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                  <Ionicons name={item.icon || "cube-outline"} size={32} color="#20bfa9" style={{ marginRight: 10 }} />
+                  <View>
+                    <Text style={styles.cardTitle}>{item.nombre}</Text>
+                    <Text style={styles.cardSubtitle}>{item.descripcion || ''}</Text>
+                  </View>
+                </View>
+                <Pressable onPress={() => setShowMenu(showMenu === item.id ? null : item.id)} style={{ padding: 8 }}>
+                  <Ionicons name="ellipsis-vertical" size={22} color="#888" />
+                </Pressable>
+              </View>
+              <View style={styles.cardActions}>
+                <Pressable
+                  style={styles.viewBtn}
+                  onPress={() => router.push({
+                    pathname: "/tabs/detalle_modulo",
+                    params: { id: item.id }
+                  })}
+                >
+                  <Text style={styles.viewBtnText}>Ver señas</Text>
+                </Pressable>
+              </View>
+              {/* Menú de tres puntitos */}
+              {showMenu === item.id && (
+                <View style={{ position: 'absolute', top: 12, right: 12, backgroundColor: '#fff', borderRadius: 10, elevation: 6, shadowColor: '#222', shadowOpacity: 0.15 }}>
+                  <Pressable
+                    style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => {
+                      setShowMenu(null);
+                      router.push({ pathname: "/tabs/crear_modulo", params: { id: item.id, nombre: item.nombre, icon: item.icon, descripcion: item.descripcion } });
+                    }}
+                  >
+                    <Ionicons name="create-outline" size={18} color="#20bfa9" style={{ marginRight: 8 }} />
+                    <Text style={{ color: '#20bfa9', fontWeight: 'bold' }}>Editar módulo</Text>
+                  </Pressable>
+                  <Pressable
+                    style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
+                    onPress={() => handleDelete(item.id)}
+                  >
+                    <Ionicons name="trash" size={18} color="#e74c3c" style={{ marginRight: 8 }} />
+                    <Text style={{ color: '#e74c3c', fontWeight: 'bold' }}>Eliminar módulo</Text>
+                  </Pressable>
+                </View>
+              )}
+            </View>
+          )}
+        />
+      )}
     </View>
   );
 }
@@ -62,6 +110,41 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#e6f7f2",
     padding: 16,
+  },
+  backBtn: {
+    alignSelf: 'flex-start',
+    marginBottom: 10,
+    backgroundColor: '#20bfa9',
+    borderRadius: 8,
+    paddingVertical: 6,
+    paddingHorizontal: 14,
+  },
+  backBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  addBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    alignSelf: 'center',
+    backgroundColor: '#20bfa9',
+    borderRadius: 30,
+    paddingVertical: 12,
+    paddingHorizontal: 28,
+    marginBottom: 18,
+    marginTop: 8,
+    shadowColor: '#222',
+    shadowOpacity: 0.12,
+    shadowRadius: 8,
+    elevation: 4,
+  },
+  addBtnText: {
+    color: '#fff',
+    fontWeight: 'bold',
+    fontSize: 18,
+    marginLeft: 8,
   },
   title: {
     fontSize: 28,
@@ -119,21 +202,5 @@ const styles = StyleSheet.create({
   viewBtnText: {
     color: "#fff",
     fontWeight: "bold",
-  },
-  fab: {
-    position: "absolute",
-    right: 24,
-    bottom: 32,
-    backgroundColor: "#20bfa9",
-    width: 60,
-    height: 60,
-    borderRadius: 30,
-    alignItems: "center",
-    justifyContent: "center",
-    shadowColor: "#222",
-    shadowOpacity: 0.12,
-    shadowRadius: 8,
-    elevation: 4,
-    zIndex: 10,
   },
 });

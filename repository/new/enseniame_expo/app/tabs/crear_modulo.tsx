@@ -8,16 +8,17 @@ const iconOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"]
 
 export default function CrearModuloScreen() {
   const router = useRouter();
-  const params = useLocalSearchParams<{ id?: string; nombre?: string; icon?: string }>();
+  const params = useLocalSearchParams<{ id?: string; nombre?: string; icon?: string; descripcion?: string }>();
   const isEdit = !!params.id;
   const [nombre, setNombre] = useState(params.nombre || "");
-  const [descripcion, setDescripcion] = useState("");
+  const [descripcion, setDescripcion] = useState((params.descripcion as string) || "");
   const [icon, setIcon] = useState((params.icon as string) || "car");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (params.nombre) setNombre(params.nombre as string);
     if (params.icon) setIcon(params.icon as string);
+    if (params.descripcion) setDescripcion(params.descripcion as string);
   }, [params]);
 
   const handleSave = async () => {
