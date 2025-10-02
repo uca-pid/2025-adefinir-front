@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 abstract class User {
@@ -55,6 +56,7 @@ abstract class Logged_User {
         this.institution=""
     }
     abstract goHome():void;
+    abstract gotToModules():void;
 
 }
 class Logged_Profesor extends Logged_User {
@@ -70,6 +72,9 @@ class Logged_Profesor extends Logged_User {
     goHome(): void {
         router.push('/tabs/HomeTeacher');
     }
+    gotToModules():void{
+        router.push('/tabs/mis_modulos');
+    }
 
 }
 
@@ -81,11 +86,9 @@ class Logged_Alumno extends Logged_User {
     goHome(): void {
             router.push('/tabs/HomeStudent');
     }
-}
-
-interface Categoria {
-    id: number;
-    nombre: string;
+    gotToModules():void{
+        router.navigate('/tabs/Modulos_Alumno');
+    }
 }
 
 interface Senia {
@@ -102,6 +105,24 @@ interface Senia_Info {
     id: number;
     significado: string;
     video_url: string;
+  id_autor: number | undefined;
+  categoria: number | undefined
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia, Categoria, Senia_Info}
+interface Senia_Info {
+    Categorias: {nombre:string} | null,
+    Users: Logged_User| null,
+    id: number;
+    significado: string;
+    video_url: string;
+}
+
+interface Modulo {
+    id: number,
+    autor: number | null,
+    descripcion: String,
+    icon: keyof typeof Ionicons.glyphMap,
+    nombre: String
+}
+
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo}
