@@ -3,7 +3,7 @@ import {
   ScrollView, TouchableOpacity
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Image } from 'expo-image';
 import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -19,8 +19,53 @@ import { BotonLogin } from '@/components/botones';
 export default function VideoUploadForm() {
   
   const [meaning, setMeaning] = useState('');
+  const [meaningError, setMeaningError] = useState<string | null>(null);
+  const [checkingMeaning, setCheckingMeaning] = useState(false);
   const [videoFile, setVideoFile] = useState<{ uri: string; name: string; type: string } | null>(null);
   const [subiendo, setSubiendo] = useState(false);
+  const checkTimeoutRef = useRef<any>(null);
+
+  useEffect(() => {
+    const trimmed = meaning.trim();
+
+    if (!trimmed) {
+      setMeaningError(null);
+      setCheckingMeaning(false);
+      return;
+    }
+
+    setCheckingMeaning(true);
+    if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
+
+    checkTimeoutRef.current = setTimeout(async () => {
+      try {
+
+        const { data, error } = await supabase
+          .from('Senias')
+          .select('id')
+          .ilike('significado', trimmed);
+
+        if (error) {
+          console.error('Error checking significado:', error.message);
+
+          setMeaningError(null);
+        } else if (data && data.length > 0) {
+          setMeaningError('La seña ya está creada');
+        } else {
+          setMeaningError(null);
+        }
+      } catch (e) {
+        console.error('Error checking significado:', e);
+        setMeaningError(null);
+      } finally {
+        setCheckingMeaning(false);
+      }
+    }, 500);
+
+    return () => {
+      if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
+    };
+  }, [meaning]);
 
   const handleVideoUpload = (video: { uri: string; name: string; type: string }) => {
     setVideoFile(video);
@@ -53,6 +98,10 @@ export default function VideoUploadForm() {
   const handleSubmit = async () => {
     if (!meaning || !videoFile) {
       error_alert('Completa el significado y sube un video.');
+      return;
+    }
+    if (meaningError) {
+      error_alert('Revisa el significado: ' + meaningError);
       return;
     }
     setSubiendo(true);
@@ -121,6 +170,10 @@ export default function VideoUploadForm() {
             onChangeText={setMeaning}
             style={[styles.input, { backgroundColor: paleta.softgray }]}
           />
+          {meaningError && (
+            <ThemedText style={styles.errorText}>{meaningError}</ThemedText>
+          )}
+
 
           {videoFile ? (
             <ThemedView style={styles.fileInfoContainer} lightColor={paleta.aqua_bck} darkColor="#3a3a3a">
@@ -134,7 +187,7 @@ export default function VideoUploadForm() {
             <VideoUpload onVideoUpload={handleVideoUpload} />
           )}
 
-          {meaning.trim() !== '' && videoFile && (
+          {meaning.trim() !== '' && videoFile && !meaningError && (
             <BotonLogin 
               callback={handleSubmit} 
               textColor="white" 
@@ -235,5 +288,12 @@ const styles = StyleSheet.create({
     marginBottom: 20,
     width: '100%',
     borderRadius: 10,
+  },
+  errorText: {
+    color: '#cc0000',
+    fontSize: 12,
+    alignSelf: 'flex-start',
+    marginTop: -12,
+    marginBottom: 12,
   },
 });
