@@ -24,16 +24,22 @@ export default function MisModulosScreen() {
             <Text style={styles.cardTitle}>{item.nombre}</Text>
             <Text style={styles.cardSubtitle}>{item.signs.length} señas incluidas</Text>
             <View style={styles.cardActions}>
-              {/* <Pressable
+              <Pressable
                 style={styles.editBtn}
-                onPress={() => router.push("/tabs/editar_modulo")} 
+                onPress={() => router.push({
+                  pathname: "/tabs/crear_modulo",
+                  params: { id: item.id, nombre: item.nombre, icon: item.icon }
+                })}
               >
                 <Ionicons name="create-outline" size={18} color="#20bfa9" />
                 <Text style={styles.editBtnText}>Editar módulo</Text>
-              </Pressable> */}
+              </Pressable>
               <Pressable
                 style={styles.viewBtn}
-                onPress={() => router.push("/tabs/detalle_modulo")} 
+                onPress={() => router.push({
+                  pathname: "/tabs/detalle_modulo",
+                  params: { id: item.id }
+                })}
               >
                 <Text style={styles.viewBtnText}>Ver señas</Text>
               </Pressable>

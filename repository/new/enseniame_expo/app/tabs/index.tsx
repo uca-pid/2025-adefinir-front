@@ -13,7 +13,6 @@ import { useEffect, useState } from "react";
 export default function Inicio() {
   return (
     <View style={styles.container}>
-  {/* Barra de diseño eliminada */}
       <Text style={styles.title}>Bienvenido</Text>
       <View style={styles.cardsRow}>
         <View style={styles.cardStudent}>

@@ -1,19 +1,55 @@
-import React, { useState } from "react";
-import { View, Text, StyleSheet, TextInput, Pressable } from "react-native";
+import React, { useState, useEffect } from "react";
+import { View, Text, StyleSheet, TextInput, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useRouter, useLocalSearchParams } from "expo-router";
+import { supabase } from "../../utils/supabase";
 
 const iconOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
 
 export default function CrearModuloScreen() {
-  const [nombre, setNombre] = useState("");
-  const [descripcion, setDescripcion] = useState("");
-  const [icon, setIcon] = useState("car");
   const router = useRouter();
+  const params = useLocalSearchParams<{ id?: string; nombre?: string; icon?: string }>();
+  const isEdit = !!params.id;
+  const [nombre, setNombre] = useState(params.nombre || "");
+  const [descripcion, setDescripcion] = useState("");
+  const [icon, setIcon] = useState((params.icon as string) || "car");
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    if (params.nombre) setNombre(params.nombre as string);
+    if (params.icon) setIcon(params.icon as string);
+  }, [params]);
+
+  const handleSave = async () => {
+    if (!nombre.trim()) {
+      Alert.alert("Error", "El nombre del módulo es obligatorio.");
+      return;
+    }
+    setLoading(true);
+    try {
+      if (isEdit && params.id) {
+        const { error } = await supabase
+          .from("Modulos")
+          .update({ nombre, descripcion, icon })
+          .eq("id", params.id);
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from("Modulos")
+          .insert([{ nombre, descripcion, icon }]);
+        if (error) throw error;
+      }
+      router.replace("/tabs/mis_modulos");
+    } catch (e: any) {
+      Alert.alert("Error", e.message || "No se pudo guardar el módulo");
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Crear módulo</Text>
+      <Text style={styles.title}>{isEdit ? "Editar módulo" : "Agregar módulo"}</Text>
       <TextInput
         style={styles.input}
         placeholder="Nombre del módulo"
@@ -41,8 +77,8 @@ export default function CrearModuloScreen() {
           </Pressable>
         ))}
       </View>
-      <Pressable style={styles.saveBtn} onPress={() => router.back()}>
-        <Text style={styles.saveBtnText}>Guardar módulo</Text>
+      <Pressable style={styles.saveBtn} onPress={handleSave} disabled={loading}>
+        <Text style={styles.saveBtnText}>{loading ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear módulo"}</Text>
       </Pressable>
     </View>
   );

@@ -110,7 +110,7 @@ const styles = StyleSheet.create({
   navItem: {
     alignItems: 'center',
     justifyContent: 'center',
-    minWidth: 70, // Ancho mínimo para cada elemento
+    minWidth: 70,
     marginTop: 15
   },
   navText: {
