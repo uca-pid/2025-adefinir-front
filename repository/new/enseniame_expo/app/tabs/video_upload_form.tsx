@@ -4,7 +4,7 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useEffect, useRef } from "react";
-import { Image } from 'expo-image';
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
 import { supabase } from '../../utils/supabase';
@@ -18,6 +18,7 @@ import { useUserContext } from '@/context/UserContext';
 
 export default function VideoUploadForm() {
   
+  const insets = useSafeAreaInsets();
   const [meaning, setMeaning] = useState('');
   const [meaningError, setMeaningError] = useState<string | null>(null);
   const [checkingMeaning, setCheckingMeaning] = useState(false);
@@ -28,7 +29,6 @@ export default function VideoUploadForm() {
   const contexto = useUserContext();
   const [user,setUser] = useState({ nombre: contexto.user.username, id: contexto.user.id });
 
-  // Nuevos estados para categorías
   const [categories, setCategories] = useState<{ id: number; nombre: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(false);
@@ -191,14 +191,14 @@ export default function VideoUploadForm() {
   };
 
   return (
-    <ThemedView style={styles.safeArea} lightColor={paleta.aqua_bck} darkColor="#1a1a1a">
+    <ThemedView style={[styles.safeArea, { marginBottom: insets.bottom + 12 }]} lightColor={paleta.aqua_bck} darkColor={paleta.aqua_bck}>
       <ScrollView contentContainerStyle={styles.mainView}>
         <View style={styles.headerContainer}>
           <ThemedText type="title" style={styles.panelTitle}>Subir video de seña</ThemedText>
-          <ThemedText type="defaultSemiBold" lightColor="#666" darkColor="#999" style={styles.subtitle}>Comparte tus videos de LSA con la comunidad</ThemedText>
+          <ThemedText type="defaultSemiBold" lightColor="#666" darkColor="#666" style={styles.subtitle}>Comparte tus videos de LSA con la comunidad</ThemedText>
         </View>
 
-        <ThemedView style={[styles.card, estilos.shadow]} lightColor="white" darkColor="#2a2a2a">
+        <ThemedView style={[styles.card, estilos.shadow]} lightColor="white" darkColor="white">
           {videoFile && (
             <VideoPlayer 
               uri={videoFile.uri}
@@ -225,9 +225,9 @@ export default function VideoUploadForm() {
             ) : categories.length === 0 ? (
               <ThemedText style={styles.smallMuted}>No hay categorías disponibles</ThemedText>
             ) : (
-              <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 4 }}>
+              <View style={styles.categoriesWrap}>
                 {categories.map(cat => {
-                  const selected = selectedCategory === (cat.id as any);
+                  const selected = selectedCategory === cat.id;
                   return (
                     <TouchableOpacity
                       key={String(cat.id)}
@@ -237,16 +237,16 @@ export default function VideoUploadForm() {
                         selected ? styles.chipSelected : styles.chipIdle
                       ]}
                     >
-                      <ThemedText style={[styles.chipText, selected ? { color: '#fff' } : {}]}>{cat.nombre}</ThemedText>
+                      <ThemedText style={[styles.chipText, selected ? { color: '#fff' } : {}]} numberOfLines={1}>{cat.nombre}</ThemedText>
                     </TouchableOpacity>
                   );
                 })}
-              </ScrollView>
+              </View>
             )}
           </View>
 
           {videoFile ? (
-            <ThemedView style={styles.fileInfoContainer} lightColor={paleta.aqua_bck} darkColor="#3a3a3a">
+            <ThemedView style={styles.fileInfoContainer} lightColor={paleta.aqua_bck} darkColor={paleta.aqua_bck}>
               <Ionicons name="videocam" size={22} color={paleta.dark_aqua} />
               <ThemedText style={styles.fileName}>{videoFile.name}</ThemedText>
               <TouchableOpacity onPress={handleRemoveVideo} style={styles.removeFileBtn}>
@@ -267,12 +267,12 @@ export default function VideoUploadForm() {
           )}
         </ThemedView>
 
-        <ThemedView style={[styles.infoCard, estilos.shadow]} lightColor={paleta.softgray} darkColor="#2a2a2a">
+        {/* <ThemedView style={[styles.infoCard, estilos.shadow]} lightColor={paleta.softgray} darkColor="#2a2a2a">
           <ThemedText type="defaultSemiBold" style={styles.infoTitle}>¿Por qué subir tus videos?</ThemedText>
           <ThemedText style={styles.infoText}>
             Sube videos cortos de tus prácticas en Lengua de Señas Argentina (LSA) y contribuye a una comunidad de aprendizaje colaborativo. Tus videos ayudarán a otros usuarios a mejorar sus habilidades y a compartir conocimientos.
           </ThemedText>
-        </ThemedView>
+        </ThemedView> */}
       </ScrollView>
     </ThemedView>
   );
@@ -286,6 +286,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     paddingTop: 40,
     paddingBottom: 40,
+    marginBottom: 60,
     flexGrow: 1,
   },
   headerContainer: {
@@ -295,6 +296,7 @@ const styles = StyleSheet.create({
   panelTitle: {
     marginBottom: 8,
     textAlign: 'center',
+    color: paleta.dark_aqua,
   },
   subtitle: {
     textAlign: 'center',
@@ -370,6 +372,9 @@ const styles = StyleSheet.create({
   categoriesRow: {
     width: '100%',
     marginBottom: 12,
+    alignItems: 'center',
+    paddingTop: 4,
+    paddingBottom: 4,
   },
   chip: {
     paddingVertical: 8,
@@ -392,5 +397,12 @@ const styles = StyleSheet.create({
   smallMuted: {
     color: '#666',
     fontSize: 13,
+  },
+  categoriesWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
