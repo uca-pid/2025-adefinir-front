@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, A
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "../../utils/supabase";
+import { useUserContext } from "@/context/UserContext";
 
 interface Senia {
   id: number;
@@ -20,6 +21,8 @@ export default function DetalleModuloScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [diccionario, setDiccionario] = useState<Senia[]>([]);
   const [agregando, setAgregando] = useState(false);
+
+  const contexto = useUserContext()
 
   useEffect(() => {
     fetchSeniasModulo();
@@ -127,13 +130,7 @@ export default function DetalleModuloScreen() {
     <View style={styles.container}>
       <Pressable
         style={[styles.backBtn, { marginBottom: 10, flexDirection: 'row', alignItems: 'center' }]}
-        onPress={() => {
-          if (router.canGoBack()) {
-            router.back();
-          } else {
-            router.replace('/tabs/mis_modulos');
-          }
-        }}
+        onPress={() => {   contexto.user.gotToModules()   }}
       >
         <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
         <Text style={styles.backBtnText}>Volver</Text>
