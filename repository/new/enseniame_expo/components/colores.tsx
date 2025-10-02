@@ -28,7 +28,7 @@ const paleta = {
     aqua_bck: "#ebfbfbff",
     yellow:  "#ffbb51",
     soft_yellow: "#fdce85",
-    strong_yellow: "#fcb64c",
+    strong_yellow: "#fdac32ff",
     softgray:  "#f6f6f6"
 }
 

@@ -114,6 +114,8 @@ export default function Diccionario() {
         <View>
           <Text style={styles.significadoText}>{item.significado}</Text>
           {item.Categorias ? <Text style={[styles.significadoText,{fontSize:12,marginTop:5}]}>{item.Categorias?.nombre}</Text>:null }
+          {item.Users && esMio(item) ? <Text style={[styles.significadoText,{fontSize:12,marginTop:5,color:paleta.strong_yellow}]}>{item.Users?.username} (Yo)</Text>:null }
+          {item.Users && !esMio(item) ? <Text style={[styles.significadoText,{fontSize:12,marginTop:5,color:paleta.strong_yellow}]}>{item.Users?.username}</Text>:null }
           
         </View>
         
@@ -200,10 +202,17 @@ export default function Diccionario() {
               </ThemedText>
                 :null
               }
-              {selectedSenia && selectedSenia.Users ?
+              {selectedSenia && selectedSenia.Users && esMio(selectedSenia) ?
               <ThemedText style={{margin:10}}>
                 <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
-                <ThemedText>{selectedSenia.Users.username}</ThemedText>
+                <ThemedText>{selectedSenia.Users.username} (Yo)</ThemedText> {''}
+              </ThemedText>
+                :null
+              }
+              {selectedSenia && selectedSenia.Users && !esMio(selectedSenia) ?
+              <ThemedText style={{margin:10}}>
+                <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
+                <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
               </ThemedText>
                 :null
               }
