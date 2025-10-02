@@ -1,23 +1,11 @@
-import React, { useCallback, useState } from "react";
+import React from "react";
 import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
-import { Ionicons } from "@expo/vector-icons";
-import { useFocusEffect, useRouter } from "expo-router";
-import { Senia,Senia_Info, Modulo } from "@/components/types";
-import { todos_los_modulos } from "@/conexiones/modulos";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { Senia,Senia_Info } from "@/components/types";
 
-type Sign = { id: string; nombre: string; video_url: string };
-type Module = {
-  id: string;
-  nombre: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  signs: Sign[];
-};
-
-const modules: Module[] = [
+const modules = [
   {
     id: "1",
-    nombre: "Señas de tránsito",
-    icon: "car",
     signs: [
       { id: "1", nombre: "Pare", video_url: "https://www.example.com/video/pare.mp4" },
       { id: "2", nombre: "Ceda el paso", video_url: "https://www.example.com/video/ceda.mp4" },
@@ -26,8 +14,6 @@ const modules: Module[] = [
   },
   {
     id: "2",
-    nombre: "Señas básicas",
-    icon: "hand-left",
     signs: [
       { id: "4", nombre: "Hola", video_url: "https://www.example.com/video/hola.mp4" },
       { id: "5", nombre: "Gracias", video_url: "https://www.example.com/video/gracias.mp4" },
@@ -35,8 +21,6 @@ const modules: Module[] = [
   },
   {
     id: "3",
-    nombre: "Animales",
-    icon: "paw",
     signs: [
       { id: "6", nombre: "Perro", video_url: "https://www.example.com/video/perro.mp4" },
       { id: "7", nombre: "Gato", video_url: "https://www.example.com/video/gato.mp4" },
@@ -44,44 +28,24 @@ const modules: Module[] = [
   },
 ];
 
-export default function ModulosScreen() {
+export default function ModuloDetalleScreen() {
+  const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
-
-  const [modulos,setModulos] = useState<Modulo[]>();
-
-  useFocusEffect(
-      useCallback(() => {
-        fetch_modulos();
-        return () => {};
-      }, [])
-    );
-
-  const fetch_modulos = async ()=>{
-    const m = await todos_los_modulos();
-    setModulos(m || [])
-    //console.log(m)
-  }
-
+  const module = modules.find((m) => m.id === id);
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mis módulos</Text>
+      <Text style={styles.title}>Detalle del módulo {id}</Text>
       <FlatList
-        data={modulos}
-        keyExtractor={(item) => item.id.toString()}
-        contentContainerStyle={{paddingBottom:80}}
-
+        data={module ? module.signs : []}
+        keyExtractor={(item) => item.id}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Ionicons name={item.icon} size={36} color="#20bfa9" />
             <Text style={styles.cardTitle}>{item.nombre}</Text>
-            <Text style={styles.cardSubtitle}>
-              {/* {item.length} señas incluidas */}
-            </Text>
             <Pressable
               style={styles.button}
-              onPress={() => router.push({ pathname: '/tabs/Modulos_Alumno/modulo_detalle', params: { id: item.id } })}
+              onPress={() => router.push({ pathname: '/tabs/senia', params: { id: item.id, nombre: item.nombre, video_url: item.video_url } })}
             >
-              <Text style={styles.buttonText}>Ver módulo</Text>
+              <Text style={styles.buttonText}>Ver seña</Text>
             </Pressable>
           </View>
         )}
@@ -97,7 +61,7 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   title: {
-    fontSize: 28,
+    fontSize: 26,
     fontWeight: "bold",
     marginBottom: 20,
     color: "#222",
@@ -107,7 +71,7 @@ const styles = StyleSheet.create({
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
-    marginBottom: 16,
+    marginBottom: 14,
     shadowColor: "#222",
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -116,19 +80,14 @@ const styles = StyleSheet.create({
   },
   cardTitle: {
     color: "#222",
-    fontSize: 20,
-    fontWeight: "bold",
-    marginTop: 12,
-  },
-  cardSubtitle: {
-    color: "#555",
-    fontSize: 15,
-    marginBottom: 12,
+    fontSize: 18,
+    fontWeight: "600",
+    marginBottom: 10,
   },
   button: {
     backgroundColor: "#20bfa9",
     paddingVertical: 10,
-    borderRadius: 14,
+    borderRadius: 12,
     alignItems: "center",
     marginTop: 8,
   },

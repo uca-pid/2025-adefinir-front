@@ -1,3 +1,4 @@
+import { Ionicons } from "@expo/vector-icons";
 import { router } from "expo-router";
 
 abstract class User {
@@ -55,6 +56,7 @@ abstract class Logged_User {
         this.institution=""
     }
     abstract goHome():void;
+    abstract gotToModules():void;
 
 }
 class Logged_Profesor extends Logged_User {
@@ -70,6 +72,9 @@ class Logged_Profesor extends Logged_User {
     goHome(): void {
         router.push('/tabs/HomeTeacher');
     }
+    gotToModules():void{
+        router.push('/tabs/mis_modulos');
+    }
 
 }
 
@@ -81,19 +86,11 @@ class Logged_Alumno extends Logged_User {
     goHome(): void {
             router.push('/tabs/HomeStudent');
     }
-}
-
-class info_video {
-    id: number
-    significado: string
-    video_url: string
-    constructor(id:number,significado: string, video_url: string){
-        this.id=id;
-        this.significado=significado;
-        this.video_url=video_url
+    gotToModules():void{
+        router.navigate('/tabs/Modulos_Alumno');
     }
-
 }
+
 interface Senia {
   id: number;
   significado: string;
@@ -110,4 +107,12 @@ interface Senia_Info {
     video_url: string;
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,Senia_Info}
+interface Modulo {
+    id: number,
+    autor: number | null,
+    descripcion: String,
+    icon: keyof typeof Ionicons.glyphMap,
+    nombre: String
+}
+
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,Senia_Info, Modulo}

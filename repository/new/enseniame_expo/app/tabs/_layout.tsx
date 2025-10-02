@@ -31,27 +31,16 @@ export default function RootLayout() {
       })}
       />
 
-      {contexto.user.is_prof ? (
-        <Tabs.Screen name='mis_modulos' options={({ navigation }) => ({
-          title: "Mis módulos",
-          tabBarButton: ((props) =>
-            <TouchableOpacity onPress={() => navigation.navigate('mis_modulos')} style={styles.navItem}>
-              <Ionicons name="albums-outline" size={22} color="#fff" />
-              <Text style={styles.navText}>Mis módulos</Text>
-            </TouchableOpacity>
-          ),
-        })} />
-      ) : (
-        <Tabs.Screen name='Modulos_Alumno'   options={({ navigation }) =>({title:"Módulos", 
+      <Tabs.Screen name={contexto.user.is_prof ? 'mis_modulos' :'Modulos_Alumno' }  options={({ navigation }) =>({title:"Módulos", 
           tabBarButton: ((props) => 
-            <TouchableOpacity onPress={() => navigation.navigate("Modulos_Alumno")}  style={styles.navItem}>
+            <TouchableOpacity onPress={() => contexto.user.gotToModules()}  style={styles.navItem}>
               <Ionicons name="albums-outline" size={22} color="#fff" />
               <Text style={styles.navText}>Módulos</Text>
             </TouchableOpacity>
           ),
         })}
         />
-      )}
+
       {contexto.user.is_prof ? (
         <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />
       ): <Tabs.Screen name='mis_modulos'  options={{href:null}} />}
