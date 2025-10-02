@@ -94,11 +94,20 @@ class info_video {
     }
 
 }
-
 interface Senia {
   id: number;
   significado: string;
   video_url: string;
+  id_autor: number | undefined;
+  categoria: number | undefined
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia}
+interface Senia_Info {
+    Categorias: {nombre:string} | null,
+    Users: Logged_User| null,
+    id: number;
+    significado: string;
+    video_url: string;
+}
+
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,Senia_Info}

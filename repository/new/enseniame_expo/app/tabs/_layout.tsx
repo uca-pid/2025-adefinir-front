@@ -42,9 +42,9 @@ export default function RootLayout() {
           ),
         })} />
       ) : (
-        <Tabs.Screen name='modulos'   options={({ navigation }) =>({title:"Módulos", 
+        <Tabs.Screen name='Modulos_Alumno'   options={({ navigation }) =>({title:"Módulos", 
           tabBarButton: ((props) => 
-            <TouchableOpacity onPress={() => navigation.navigate('modulos')}  style={styles.navItem}>
+            <TouchableOpacity onPress={() => navigation.navigate("Modulos_Alumno")}  style={styles.navItem}>
               <Ionicons name="albums-outline" size={22} color="#fff" />
               <Text style={styles.navText}>Módulos</Text>
             </TouchableOpacity>
@@ -53,7 +53,7 @@ export default function RootLayout() {
         />
       )}
       {contexto.user.is_prof ? (
-        <Tabs.Screen name='modulos'  options={{href:null}} />
+        <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />
       ): <Tabs.Screen name='mis_modulos'  options={{href:null}} />}
       {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"Subir video", 
           tabBarButton: ((props) => 

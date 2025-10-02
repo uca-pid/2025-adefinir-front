@@ -2,6 +2,7 @@ import React from "react";
 import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
+import { Senia,Senia_Info } from "@/components/types";
 
 type Sign = { id: string; nombre: string; video_url: string };
 type Module = {
