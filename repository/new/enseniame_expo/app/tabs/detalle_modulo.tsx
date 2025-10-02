@@ -12,7 +12,7 @@ interface Senia {
 }
 
 export default function DetalleModuloScreen() {
-  const { id } = useLocalSearchParams<{ id: string }>();
+  const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [seniasModulo, setSeniasModulo] = useState<Senia[]>([]);
@@ -128,11 +128,22 @@ export default function DetalleModuloScreen() {
 
   return (
     <View style={styles.container}>
-      <Pressable style={[styles.backBtn, {marginBottom: 10, flexDirection: 'row', alignItems: 'center'}]} onPress={() => router.replace('/tabs/mis_modulos')}>
-        <Ionicons name="arrow-back" size={20} color="#fff" style={{marginRight: 6}} />
+      <Pressable
+        style={[styles.backBtn, { marginBottom: 10, flexDirection: 'row', alignItems: 'center' }]}
+        onPress={() => {
+          // Si viene de mis_modulos o modulos, volver ahí según el tipo de usuario
+          if (router.canGoBack()) {
+            router.back();
+          } else {
+            // fallback: ir a la pantalla de módulos según el nombre de la tab
+            router.replace('/tabs/mis_modulos');
+          }
+        }}
+      >
+        <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
         <Text style={styles.backBtnText}>Volver</Text>
       </Pressable>
-      <Text style={styles.title}>Módulo: {id}</Text>
+      <Text style={styles.title}>Módulo: {nombre ? nombre : ''}</Text>
       {/* Barra de búsqueda fija */}
       <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }}>
         <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Buscar seña en el diccionario</Text>

@@ -35,7 +35,7 @@ export default function MisModulosScreen() {
 
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Mis módulos creados</Text>
+  <Text style={styles.title}>Módulos</Text>
       <Pressable
         style={styles.addBtn}
         onPress={() => router.push("/tabs/crear_modulo")}
@@ -69,33 +69,56 @@ export default function MisModulosScreen() {
                   style={styles.viewBtn}
                   onPress={() => router.push({
                     pathname: "/tabs/detalle_modulo",
-                    params: { id: item.id }
+                    params: { id: item.id, nombre: item.nombre }
                   })}
                 >
                   <Text style={styles.viewBtnText}>Ver señas</Text>
                 </Pressable>
               </View>
-              {/* Menú de tres puntitos */}
               {showMenu === item.id && (
-                <View style={{ position: 'absolute', top: 12, right: 12, backgroundColor: '#fff', borderRadius: 10, elevation: 6, shadowColor: '#222', shadowOpacity: 0.15 }}>
+                <>
                   <Pressable
-                    style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
-                    onPress={() => {
-                      setShowMenu(null);
-                      router.push({ pathname: "/tabs/crear_modulo", params: { id: item.id, nombre: item.nombre, icon: item.icon, descripcion: item.descripcion } });
+                    style={{
+                      position: 'absolute',
+                      top: -1000,
+                      left: -1000,
+                      right: -1000, 
+                      bottom: -1000,
+                      zIndex: 98
                     }}
-                  >
-                    <Ionicons name="create-outline" size={18} color="#20bfa9" style={{ marginRight: 8 }} />
-                    <Text style={{ color: '#20bfa9', fontWeight: 'bold' }}>Editar módulo</Text>
-                  </Pressable>
-                  <Pressable
-                    style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
-                    onPress={() => handleDelete(item.id)}
-                  >
-                    <Ionicons name="trash" size={18} color="#e74c3c" style={{ marginRight: 8 }} />
-                    <Text style={{ color: '#e74c3c', fontWeight: 'bold' }}>Eliminar módulo</Text>
-                  </Pressable>
-                </View>
+                    onPress={() => setShowMenu(null)}
+                  />
+                  {/* Menú flotante */}
+                  <View style={{ 
+                    position: 'absolute', 
+                    top: 12, 
+                    right: 12, 
+                    backgroundColor: '#fff', 
+                    borderRadius: 10, 
+                    elevation: 6, 
+                    shadowColor: '#222', 
+                    shadowOpacity: 0.15, 
+                    zIndex: 100 
+                  }}>
+                    <Pressable
+                      style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
+                      onPress={() => {
+                        setShowMenu(null);
+                        router.push({ pathname: "/tabs/crear_modulo", params: { id: item.id, nombre: item.nombre, icon: item.icon, descripcion: item.descripcion } });
+                      }}
+                    >
+                      <Ionicons name="create-outline" size={18} color="#20bfa9" style={{ marginRight: 8 }} />
+                      <Text style={{ color: '#20bfa9', fontWeight: 'bold' }}>Editar módulo</Text>
+                    </Pressable>
+                    <Pressable
+                      style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
+                      onPress={() => handleDelete(item.id)}
+                    >
+                      <Ionicons name="trash" size={18} color="#e74c3c" style={{ marginRight: 8 }} />
+                      <Text style={{ color: '#e74c3c', fontWeight: 'bold' }}>Eliminar módulo</Text>
+                    </Pressable>
+                  </View>
+                </>
               )}
             </View>
           )}

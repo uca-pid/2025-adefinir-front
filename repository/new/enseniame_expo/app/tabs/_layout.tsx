@@ -34,11 +34,11 @@ export default function RootLayout() {
 
       {contexto.user.is_prof ? (
         <Tabs.Screen name='mis_modulos' options={({ navigation }) => ({
-          title: "Mis módulos",
+          title: "Módulos",
           tabBarButton: ((props) =>
             <TouchableOpacity onPress={() => navigation.navigate('mis_modulos')} style={styles.navItem}>
               <Ionicons name="albums-outline" size={22} color="#fff" />
-              <Text style={styles.navText}>Mis módulos</Text>
+              <Text style={styles.navText}>Módulos</Text>
             </TouchableOpacity>
           ),
         })} />
@@ -83,7 +83,7 @@ export default function RootLayout() {
         ),
       })}
       />
-      
+      {/* Eliminar tab de 'senia' si existe */}
     </Tabs>
   );
 }
