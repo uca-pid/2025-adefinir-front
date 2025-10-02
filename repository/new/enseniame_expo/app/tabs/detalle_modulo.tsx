@@ -34,7 +34,6 @@ export default function DetalleModuloScreen() {
   const fetchSeniasModulo = async () => {
     setLoading(true);
     try {
-      // 1. Traer las relaciones Modulo_Video para este módulo
       const { data: relaciones, error: relError } = await supabase
         .from('Modulo_Video')
         .select('id_video')
@@ -46,7 +45,6 @@ export default function DetalleModuloScreen() {
         setLoading(false);
         return;
       }
-      // 2. Traer los videos correspondientes
       const { data: senias, error: seniaError } = await supabase
         .from('Senias')
         .select('*')
@@ -119,7 +117,6 @@ export default function DetalleModuloScreen() {
     }
   };
 
-  // Filtrar señas del diccionario que no estén ya en el módulo y coincidan con la búsqueda
   const filteredDiccionario = diccionario.filter(
     s =>
       s.significado.toLowerCase().includes(search.toLowerCase()) &&
@@ -131,11 +128,9 @@ export default function DetalleModuloScreen() {
       <Pressable
         style={[styles.backBtn, { marginBottom: 10, flexDirection: 'row', alignItems: 'center' }]}
         onPress={() => {
-          // Si viene de mis_modulos o modulos, volver ahí según el tipo de usuario
           if (router.canGoBack()) {
             router.back();
           } else {
-            // fallback: ir a la pantalla de módulos según el nombre de la tab
             router.replace('/tabs/mis_modulos');
           }
         }}

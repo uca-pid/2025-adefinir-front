@@ -10,16 +10,22 @@ export default function CrearModuloScreen() {
   const router = useRouter();
   const params = useLocalSearchParams<{ id?: string; nombre?: string; icon?: string; descripcion?: string }>();
   const isEdit = !!params.id;
-  const [nombre, setNombre] = useState(params.nombre || "");
-  const [descripcion, setDescripcion] = useState((params.descripcion as string) || "");
-  const [icon, setIcon] = useState((params.icon as string) || "car");
+  const [nombre, setNombre] = useState("");
+  const [descripcion, setDescripcion] = useState("");
+  const [icon, setIcon] = useState("car");
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (params.nombre) setNombre(params.nombre as string);
-    if (params.icon) setIcon(params.icon as string);
-    if (params.descripcion) setDescripcion(params.descripcion as string);
-  }, [params]);
+    if (isEdit) {
+      setNombre(params.nombre ? String(params.nombre) : "");
+      setDescripcion(params.descripcion ? String(params.descripcion) : "");
+      setIcon(params.icon ? String(params.icon) : "car");
+    } else {
+      setNombre("");
+      setDescripcion("");
+      setIcon("car");
+    }
+  }, [params.id, params.nombre, params.descripcion, params.icon, isEdit]);
 
   const handleSave = async () => {
     if (!nombre.trim()) {
@@ -50,6 +56,13 @@ export default function CrearModuloScreen() {
 
   return (
     <View style={styles.container}>
+      <Pressable 
+        style={styles.backBtn} 
+        onPress={() => router.back()}
+      >
+        <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
+        <Text style={styles.backBtnText}>Volver</Text>
+      </Pressable>
       <Text style={styles.title}>{isEdit ? "Editar módulo" : "Agregar módulo"}</Text>
       <TextInput
         style={styles.input}
@@ -57,6 +70,10 @@ export default function CrearModuloScreen() {
         value={nombre}
         onChangeText={setNombre}
         placeholderTextColor="#888"
+        editable={!loading}
+        selectTextOnFocus={true}
+        autoCorrect={false}
+        autoCapitalize="words"
       />
       <TextInput
         style={[styles.input, { height: 60 }]}
@@ -65,6 +82,11 @@ export default function CrearModuloScreen() {
         onChangeText={setDescripcion}
         placeholderTextColor="#888"
         multiline
+        editable={!loading}
+        selectTextOnFocus={true}
+        autoCorrect={false}
+        autoCapitalize="sentences"
+        textAlignVertical="top"
       />
       <Text style={styles.label}>Icono:</Text>
       <View style={styles.iconRow}>
@@ -90,6 +112,18 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: '#e6f7f2',
     padding: 24,
+  },
+  backBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    marginBottom: 10,
+    padding: 8,
+  },
+  backBtnText: {
+    color: '#20bfa9',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
   title: {
     fontSize: 26,
