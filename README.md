@@ -20,3 +20,4 @@ Metacello new
 * npm i @emailjs/react-native
 * npx expo install expo-crypto
 * npx expo install @supabase/supabase-js @react-native-async-storage/async-storage @rneui/themed
+* npm i @react-native-picker/picker
