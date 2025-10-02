@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList, Modal, TouchableOpacity } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList, Modal, TouchableOpacity, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter, router, useFocusEffect } from "expo-router";
 import { Senia,Senia_Info, Modulo } from "@/components/types";
 import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
@@ -61,9 +61,17 @@ export default function ModuloDetalleScreen() {
 
   const fetch_senias = async ()=>{
     const s = await  buscar_senias_modulo(Number(id));
-    setSenias(s || [])
+    setSenias(s || []);
+    setLoading(false)
   }
   
+  if (loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#20bfa9" />
+        </View>
+      );
+    }
   
   return (
     <View style={styles.container}>
@@ -212,7 +220,7 @@ const styles = StyleSheet.create({
     flex: 1,
     justifyContent: 'center',
     alignItems: 'center',
-    backgroundColor: '#f3e8ff',
+    backgroundColor: paleta.aqua_bck
   },
   checkbox: {
     margin: 8,
