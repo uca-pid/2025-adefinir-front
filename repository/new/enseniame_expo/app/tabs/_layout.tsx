@@ -5,7 +5,6 @@ import { Ionicons } from "@expo/vector-icons";
 import { Stack, Tabs } from "expo-router";
 import { Platform, StyleSheet, View , Text, TouchableOpacity} from "react-native";
 import { UserContext, useUserContext } from "@/context/UserContext";
-import { UserContextProvider } from "@/context/UserContext";
 
 export default function RootLayout() {
   const contexto = useUserContext()
@@ -32,27 +31,19 @@ export default function RootLayout() {
       })}
       />
 
-      {contexto.user.is_prof ? (
-        <Tabs.Screen name='mis_modulos' options={({ navigation }) => ({
-          title: "Módulos",
-          tabBarButton: ((props) =>
-            <TouchableOpacity onPress={() => navigation.navigate('mis_modulos')} style={styles.navItem}>
-              <Ionicons name="albums-outline" size={22} color="#fff" />
-              <Text style={styles.navText}>Módulos</Text>
-            </TouchableOpacity>
-          ),
-        })} />
-      ) : (
-        <Tabs.Screen name='modulos'   options={({ navigation }) =>({title:"Módulos", 
+      <Tabs.Screen name={contexto.user.is_prof ? 'mis_modulos' :'Modulos_Alumno' }  options={({ navigation }) =>({title:"Módulos",      
           tabBarButton: ((props) => 
-            <TouchableOpacity onPress={() => navigation.navigate('modulos')}  style={styles.navItem}>
+            <TouchableOpacity onPress={() => contexto.user.gotToModules()}  style={styles.navItem}>
               <Ionicons name="albums-outline" size={22} color="#fff" />
               <Text style={styles.navText}>Módulos</Text>
             </TouchableOpacity>
           ),
         })}
         />
-      )}
+
+      {contexto.user.is_prof ? (
+        <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />
+      ): <Tabs.Screen name='mis_modulos'  options={{href:null}} />}
       {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"Subir video", 
           tabBarButton: ((props) => 
             <TouchableOpacity onPress={() => navigation.navigate('video_upload_form')}  style={styles.fabButton}>
@@ -83,7 +74,15 @@ export default function RootLayout() {
         ),
       })}
       />
-      {/* Eliminar tab de 'senia' si existe */}
+
+      <Tabs.Screen name='crear_modulo'  options={{href:null}} />
+      <Tabs.Screen name='detalle_modulo'  options={{href:null}} />
+      <Tabs.Screen name='modulo_detalle'  options={{href:null}} />
+      <Tabs.Screen name='senia'  options={{href:null}} />
+      <Tabs.Screen name='cursos'  options={{href:null}} />
+      <Tabs.Screen name="HomeStudent" options={{href:null,title:"Home"}}/>
+      <Tabs.Screen name="HomeTeacher" options={{href:null,title:"Home"}}/>
+      
     </Tabs>
   );
 }

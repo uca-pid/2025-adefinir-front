@@ -1,4 +1,4 @@
-import {   StyleSheet} from 'react-native';
+import {   Pressable, StyleSheet} from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { Link, router } from 'expo-router';
 import { Image } from 'expo-image';
@@ -7,8 +7,11 @@ import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { BotonLogin } from '@/components/botones';
 import { paleta } from '@/components/colores';
+import { useUserContext } from '@/context/UserContext';
+import { Logged_Alumno, Logged_Profesor } from '@/components/types';
 
 export default function Index() {
+  const contexto = useUserContext()
   return (
     <ParallaxScrollView
           headerBackgroundColor={{ light: '#4CC9F0', dark: '#1D3D47' }}
@@ -22,7 +25,10 @@ export default function Index() {
         <ThemedText type="title">¡Hola!</ThemedText>
         <HelloWave />
       </ThemedView>
-      
+{/* 
+      <Pressable onPress={()=>contexto.login_app(new Logged_Profesor("admin@mail.com","Administrador","","HQ",1))}><ThemedText>Login debug</ThemedText></Pressable>
+      <Pressable onPress={()=>contexto.login_app(new Logged_Alumno("belcaguinalde@uca.edu.ar","Belu","",8))}><ThemedText>Login alumno</ThemedText></Pressable>
+       */}
       <ThemedView style={styles.stepContainer}>
         <ThemedText>
           <ThemedText type="subtitle">¿Qué es </ThemedText>{''}

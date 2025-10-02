@@ -1,7 +1,9 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter } from "expo-router";
+import { useFocusEffect, useRouter } from "expo-router";
+import { Senia,Senia_Info, Modulo } from "@/components/types";
+import { todos_los_modulos } from "@/conexiones/modulos";
 
 type Sign = { id: string; nombre: string; video_url: string };
 type Module = {
@@ -45,22 +47,39 @@ const modules: Module[] = [
 export default function ModulosScreen() {
   const router = useRouter();
 
+  const [modulos,setModulos] = useState<Modulo[]>();
+
+  useFocusEffect(
+      useCallback(() => {
+        fetch_modulos();
+        return () => {};
+      }, [])
+    );
+
+  const fetch_modulos = async ()=>{
+    const m = await todos_los_modulos();
+    setModulos(m || [])
+    //console.log(m)
+  }
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mis módulos</Text>
       <FlatList
-        data={modules}
-        keyExtractor={(item) => item.id}
+        data={modulos}
+        keyExtractor={(item) => item.id.toString()}
+        contentContainerStyle={{paddingBottom:80}}
+
         renderItem={({ item }) => (
           <View style={styles.card}>
             <Ionicons name={item.icon} size={36} color="#20bfa9" />
             <Text style={styles.cardTitle}>{item.nombre}</Text>
             <Text style={styles.cardSubtitle}>
-              {item.signs.length} señas incluidas
+              {/* {item.length} señas incluidas */}
             </Text>
             <Pressable
               style={styles.button}
-              onPress={() => router.push({ pathname: '/tabs/modulo_detalle', params: { id: item.id } })}
+              onPress={() => router.push({ pathname: '/tabs/Modulos_Alumno/modulo_detalle', params: { id: item.id } })}
             >
               <Text style={styles.buttonText}>Ver módulo</Text>
             </Pressable>
