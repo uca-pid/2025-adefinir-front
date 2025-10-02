@@ -1,8 +1,9 @@
-import React, { useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
-import { useLocalSearchParams, useRouter, router } from "expo-router";
+import { useLocalSearchParams, useRouter, router, useFocusEffect } from "expo-router";
 import { Senia,Senia_Info, Modulo } from "@/components/types";
-import { buscar_modulo } from "@/conexiones/modulos";
+import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
+import { Ionicons } from "@expo/vector-icons";
 
 const modules = [
   {
@@ -29,20 +30,33 @@ const modules = [
   },
 ];
 
+interface SeniaAux {
+  Senias: Senia
+}
+
 export default function ModuloDetalleScreen() {
   const { id=0 } = useLocalSearchParams<{ id: string }>();
   if (id==0) router.back();
-
   const [modulo,setModulo] = useState<Modulo | undefined>();
+  const [senias,setSenias] = useState<Senia_Info[]>();
   
-  
-
+   useFocusEffect(
+      useCallback(() => {
+        fetch_modulo();
+        fetch_senias();
+        return () => {};
+      }, [])
+    );
   const fetch_modulo = async ()=>{
     const m = await buscar_modulo(Number(id));
     setModulo(m || []);
   } 
 
-  fetch_modulo()
+  const fetch_senias = async ()=>{
+    const s = await  buscar_senias_modulo(Number(id));
+    console.log( s);
+    setSenias(s || [])
+  }
   
   const module = modules.find((m) => m.id === id);
   return (
