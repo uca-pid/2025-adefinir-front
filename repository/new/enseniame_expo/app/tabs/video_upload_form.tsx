@@ -9,6 +9,7 @@ import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
 import { supabase } from '../../utils/supabase';
 import { error_alert, success_alert } from '@/components/alert';
+import Toast from 'react-native-toast-message';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
 import { paleta } from '@/components/colores';
@@ -271,6 +272,7 @@ export default function VideoUploadForm() {
           </ThemedText>
         </ThemedView> */}
       </ScrollView>
+      <Toast/>
     </ThemedView>
   );
 }

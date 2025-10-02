@@ -105,6 +105,16 @@ interface Senia_Info {
     id: number;
     significado: string;
     video_url: string;
+  id_autor: number | undefined;
+  categoria: number | undefined
+}
+
+interface Senia_Info {
+    Categorias: {nombre:string} | null,
+    Users: Logged_User| null,
+    id: number;
+    significado: string;
+    video_url: string;
 }
 
 interface Modulo {
@@ -115,4 +125,4 @@ interface Modulo {
     nombre: String
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,Senia_Info, Modulo}
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo}
