@@ -1,20 +1,105 @@
 import { 
   Pressable, Text, TextInput, View, StyleSheet, SafeAreaView,
-  ScrollView,
+  ScrollView, TouchableOpacity
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useState } from "react";
-import { Image } from 'expo-image';
+import { useState, useEffect, useRef } from "react";
+import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
 import { supabase } from '../../utils/supabase';
 import { error_alert, success_alert } from '@/components/alert';
+import { ThemedText } from '@/components/ThemedText';
+import { ThemedView } from '@/components/ThemedView';
+import { paleta } from '@/components/colores';
+import { estilos } from '@/components/estilos';
+import { BotonLogin } from '@/components/botones';
+import { useUserContext } from '@/context/UserContext';
 
 export default function VideoUploadForm() {
   
+  const insets = useSafeAreaInsets();
   const [meaning, setMeaning] = useState('');
+  const [meaningError, setMeaningError] = useState<string | null>(null);
+  const [checkingMeaning, setCheckingMeaning] = useState(false);
   const [videoFile, setVideoFile] = useState<{ uri: string; name: string; type: string } | null>(null);
   const [subiendo, setSubiendo] = useState(false);
+  const checkTimeoutRef = useRef<any>(null);
+
+  const contexto = useUserContext();
+  const [user,setUser] = useState({ nombre: contexto.user.username, id: contexto.user.id });
+
+  const [categories, setCategories] = useState<{ id: number; nombre: string }[]>([]);
+  const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
+  const [loadingCategories, setLoadingCategories] = useState(false);
+
+  useEffect(() => {
+    const trimmed = meaning.trim();
+
+    if (!trimmed) {
+      setMeaningError(null);
+      setCheckingMeaning(false);
+      return;
+    }
+
+    setCheckingMeaning(true);
+    if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
+
+    checkTimeoutRef.current = setTimeout(async () => {
+      try {
+
+        const { data, error } = await supabase
+          .from('Senias')
+          .select('id')
+          .ilike('significado', trimmed);
+
+        if (error) {
+          console.error('Error checking significado:', error.message);
+
+          setMeaningError(null);
+        } else if (data && data.length > 0) {
+          setMeaningError('La seña ya está creada');
+        } else {
+          setMeaningError(null);
+        }
+      } catch (e) {
+        console.error('Error checking significado:', e);
+        setMeaningError(null);
+      } finally {
+        setCheckingMeaning(false);
+      }
+    }, 500);
+
+    return () => {
+      if (checkTimeoutRef.current) clearTimeout(checkTimeoutRef.current);
+    };
+  }, [meaning]);
+
+  useEffect(() => {
+    const fetchCategories = async () => {
+      setLoadingCategories(true);
+      try {
+        const { data, error } = await supabase
+          .from('Categorias')
+          .select('id,nombre')
+          .order('nombre', { ascending: true });
+
+        if (error) {
+          console.error('Error fetching categorias:', error.message);
+          setCategories([]);
+        } else {
+          setCategories(data || []);
+        }
+      } catch (e) {
+        console.error('Error fetching categorias:', e);
+        setCategories([]);
+      } finally {
+        setLoadingCategories(false);
+      }
+    };
+
+    fetchCategories();
+  }, []);
 
   const handleVideoUpload = (video: { uri: string; name: string; type: string }) => {
     setVideoFile(video);
@@ -26,7 +111,8 @@ export default function VideoUploadForm() {
 
   const getSignedUrl = async (bucketName: string, filePath: string): Promise<string> => {
     try {
-      const expiresIn = 365 * 24 * 60 * 60; // 1 año
+      // Calcular expiración en segundos (1 año = 365 días * 24 horas * 60 minutos * 60 segundos)
+      const expiresIn = 365 * 24 * 60 * 60;
       
       const { data, error } = await supabase.storage
         .from(bucketName)
@@ -46,6 +132,14 @@ export default function VideoUploadForm() {
   const handleSubmit = async () => {
     if (!meaning || !videoFile) {
       error_alert('Completa el significado y sube un video.');
+      return;
+    }
+    if (!selectedCategory) {
+      error_alert('Selecciona una categoría.');
+      return;
+    }
+    if (meaningError) {
+      error_alert('Revisa el significado: ' + meaningError);
       return;
     }
     setSubiendo(true);
@@ -70,36 +164,38 @@ export default function VideoUploadForm() {
       const videoPath = data.path;
       const videoUrl = await getSignedUrl('videos', videoPath);
 
+      // 4. Guardar en la tabla incluyendo autor y categoría
       const { error: insertError } = await supabase
         .from('Senias')
-        .insert([{ significado: meaning, video_url: videoUrl }]);
+        .insert([{
+          significado: meaning,
+          video_url: videoUrl,
+          id_autor: user.id,
+          categoria: selectedCategory
+        }]);
 
       if (insertError) throw insertError;
 
-      success_alert('¡Seña subida con éxito!');
-      setMeaning('');
-      setVideoFile(null);
-    } catch (e: any) {
-      error_alert('Error al subir: ' + e.message);
-    } finally {
-      setSubiendo(false);
-    }
+        success_alert('¡Seña subida con éxito!');
+        setMeaning('');
+        setVideoFile(null);
+        setSelectedCategory(null);
+      } catch (e: any) {
+        error_alert('Error al subir: ' + (e?.message || e));
+      } finally {
+        setSubiendo(false);
+      }
   };
 
   return (
-    <SafeAreaView style={styles.safeArea}>
+    <ThemedView style={[styles.safeArea, { marginBottom: insets.bottom + 12 }]} lightColor={paleta.aqua_bck} darkColor='#333'>
       <ScrollView contentContainerStyle={styles.mainView}>
         <View style={styles.headerContainer}>
-          <Text style={styles.panelTitle}>Subir video de seña</Text>
-          <Text style={styles.subtitle}>Comparte tus videos de LSA con la comunidad</Text>
+          <ThemedText type="title" style={styles.panelTitle}>Subir video de seña</ThemedText>
+          <ThemedText type="defaultSemiBold" lightColor="#666" darkColor="white" style={styles.subtitle}>Comparte tus videos de LSA con la comunidad</ThemedText>
         </View>
 
-        <Image
-          source={require('@/assets/images/LSA.png')}
-          style={styles.logo}
-        />
-
-        <View style={styles.card}>
+        <ThemedView style={[styles.card, estilos.shadow]} lightColor="white" darkColor="#3e9f94ff">
           {videoFile && (
             <VideoPlayer 
               uri={videoFile.uri}
@@ -107,42 +203,75 @@ export default function VideoUploadForm() {
             />
           )}
           
-          <Text style={styles.label}>¿Qué significa la seña?</Text>
+          <ThemedText type="defaultSemiBold" style={styles.label}>¿Qué significa la seña?</ThemedText>
           <TextInput
             placeholder="Ej: Hola, Gracias, etc."
             placeholderTextColor={"#888"}
             value={meaning}
             onChangeText={setMeaning}
-            style={styles.input}
+            style={[styles.input, { backgroundColor: paleta.softgray }]}
           />
+          {meaningError && (
+            <ThemedText style={styles.errorText}>{meaningError}</ThemedText>
+          )}
+
+          <ThemedText type="defaultSemiBold" style={[styles.label, { marginTop: 4 }]}>Categoría</ThemedText>
+          <View style={styles.categoriesRow}>
+            {loadingCategories ? (
+              <ThemedText style={styles.smallMuted}>Cargando categorías...</ThemedText>
+            ) : categories.length === 0 ? (
+              <ThemedText style={styles.smallMuted}>No hay categorías disponibles</ThemedText>
+            ) : (
+              <View style={styles.categoriesWrap}>
+                {categories.map(cat => {
+                  const selected = selectedCategory === cat.id;
+                  return (
+                    <TouchableOpacity
+                      key={String(cat.id)}
+                      onPress={() => setSelectedCategory(cat.id)}
+                      style={[
+                        styles.chip,
+                        selected ? styles.chipSelected : styles.chipIdle
+                      ]}
+                    >
+                      <ThemedText style={[styles.chipText, selected ? { color: '#fff' } : {}]} numberOfLines={1}>{cat.nombre}</ThemedText>
+                    </TouchableOpacity>
+                  );
+                })}
+              </View>
+            )}
+          </View>
 
           {videoFile ? (
-            <View style={styles.fileInfoContainer}>
-              <Ionicons name="videocam" size={22} color="#222" />
-              <Text style={styles.fileName}>{videoFile.name}</Text>
-              <Pressable onPress={handleRemoveVideo} style={styles.removeFileBtn}>
-                <Ionicons name="close-circle" size={20} color="#dc3545" />
-              </Pressable>
-            </View>
+            <ThemedView style={styles.fileInfoContainer} lightColor={paleta.aqua_bck} darkColor={paleta.aqua_bck}>
+              <Ionicons name="videocam" size={22} color={paleta.dark_aqua} />
+              <ThemedText style={styles.fileName}>{videoFile.name}</ThemedText>
+              <TouchableOpacity onPress={handleRemoveVideo} style={styles.removeFileBtn}>
+                <Ionicons name="close-circle" size={20} color="#73d3c8ff" />
+              </TouchableOpacity>
+            </ThemedView>
           ) : (
             <VideoUpload onVideoUpload={handleVideoUpload} />
           )}
 
-          {meaning.trim() !== '' && videoFile && (
-            <Pressable style={styles.cursosBtn} onPress={handleSubmit} disabled={subiendo}>
-              <Text style={styles.cursosBtnText}>{subiendo ? 'Subiendo...' : 'Subir Video'}</Text>
-            </Pressable>
+          {meaning.trim() !== '' && videoFile && !meaningError && selectedCategory && (
+            <BotonLogin 
+              callback={handleSubmit} 
+              textColor="white" 
+              text={subiendo ? 'Subiendo...' : 'Guardar Seña'} 
+              bckColor={paleta.dark_aqua}
+            />
           )}
-        </View>
+        </ThemedView>
 
-        <View style={styles.infoCard}>
-          <Text style={styles.infoTitle}>¿Por qué subir tus videos?</Text>
-          <Text style={styles.infoText}>
+        {/* <ThemedView style={[styles.infoCard, estilos.shadow]} lightColor={paleta.softgray} darkColor="#2a2a2a">
+          <ThemedText type="defaultSemiBold" style={styles.infoTitle}>¿Por qué subir tus videos?</ThemedText>
+          <ThemedText style={styles.infoText}>
             Sube videos cortos de tus prácticas en Lengua de Señas Argentina (LSA) y contribuye a una comunidad de aprendizaje colaborativo. Tus videos ayudarán a otros usuarios a mejorar sus habilidades y a compartir conocimientos.
-          </Text>
-        </View>
+          </ThemedText>
+        </ThemedView> */}
       </ScrollView>
-    </SafeAreaView>
+    </ThemedView>
   );
 }
 
@@ -156,122 +285,63 @@ const styles = StyleSheet.create({
     paddingTop: 40,
     paddingBottom: 40,
     backgroundColor: '#e6f7f2',
+    marginBottom: 60,
+    flexGrow: 1,
   },
   headerContainer: {
     alignItems: 'center',
-    marginBottom: 18,
+    marginBottom: 25,
   },
   panelTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#222',
-    marginBottom: 4,
+    marginBottom: 8,
+    textAlign: 'center',
+    color: paleta.dark_aqua,
   },
   subtitle: {
-    fontSize: 16,
-    color: '#222',
-    fontWeight: '500',
-    marginBottom: 10,
     textAlign: 'center',
-  },
-  logo: {
-    height: 120,
-    width: 120,
-    marginBottom: 18,
-    borderRadius: 60,
-    backgroundColor: '#fff',
-    alignSelf: 'center',
+    marginBottom: 10,
   },
   card: {
-    backgroundColor: '#fff',
-    borderRadius: 32,
-    padding: 24,
+    borderRadius: 16,
+    padding: 22,
     marginBottom: 18,
-    width: '92%',
-    alignItems: 'flex-start',
-    shadowColor: '#222',
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-    borderWidth: 1.5,
-    borderColor: '#e0e0e0',
+    width: '90%',
+    alignItems: 'center',
   },
   label: {
-    fontSize: 16,
-    color: '#222',
-    fontWeight: '600',
     marginBottom: 8,
     alignSelf: 'flex-start',
-    textAlign: 'center',
+    width: '100%',
   },
   input: {
-    borderWidth: 1.5,
-    borderColor: '#e0e0e0',
-    borderRadius: 8,
-    padding: 10,
+    borderWidth: 1,
+    borderColor: '#ccc',
+    borderRadius: 10,
+    padding: 12,
     width: '100%',
     marginBottom: 18,
-    backgroundColor: '#fff',
-    color: '#222',
-  },
-  cursosBtn: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#20bfa9',
-    borderRadius: 32,
-    paddingVertical: 14,
-    paddingHorizontal: 24,
-    marginTop: 18,
-    alignSelf: 'center',
-    width: '92%',
-    shadowColor: '#222',
-    shadowOpacity: 0.08,
-    shadowRadius: 12,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 3,
-  },
-  cursosBtnText: {
-    color: '#222',
-    fontSize: 17,
-    fontWeight: 'bold',
-    textAlign: 'center',
-    letterSpacing: 0.2,
-    fontFamily: 'System',
-    width: '100%',
+    fontSize: 16,
   },
   infoCard: {
-    backgroundColor: '#fff',
-    borderRadius: 14,
-    padding: 18,
-    width: '92%',
-    shadowColor: '#222',
-    shadowOpacity: 0.05,
-    shadowRadius: 6,
-    elevation: 1,
-    marginTop: 8,
-    borderWidth: 1.5,
-    borderColor: '#e0e0e0',
+    borderRadius: 16,
+    padding: 20,
+    width: '90%',
+    marginTop: 12,
   },
   infoTitle: {
-    color: '#222',
-    fontWeight: 'bold',
-    fontSize: 16,
-    marginBottom: 6,
+    marginBottom: 8,
     textAlign: 'center',
   },
   infoText: {
-    color: '#222',
     fontSize: 14,
     textAlign: 'center',
+    lineHeight: 20,
   },
   fileInfoContainer: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#e6f7f2',
-    borderRadius: 8,
-    padding: 10,
+    borderRadius: 10,
+    padding: 12,
     marginBottom: 12,
     marginTop: 4,
     width: '100%',
@@ -284,10 +354,55 @@ const styles = StyleSheet.create({
   },
   removeFileBtn: {
     marginLeft: 8,
-    padding: 2,
+    padding: 4,
   },
   previewVideo: {
     marginBottom: 20,
     width: '100%',
+    borderRadius: 10,
+  },
+  errorText: {
+    color: '#cc0000',
+    fontSize: 12,
+    alignSelf: 'flex-start',
+    marginTop: -12,
+    marginBottom: 12,
+  },
+
+  categoriesRow: {
+    width: '100%',
+    marginBottom: 12,
+    alignItems: 'center',
+    paddingTop: 4,
+    paddingBottom: 4,
+  },
+  chip: {
+    paddingVertical: 8,
+    paddingHorizontal: 14,
+    borderRadius: 20,
+    marginRight: 8,
+    borderWidth: 1,
+  },
+  chipIdle: {
+    backgroundColor: '#fff',
+    borderColor: paleta.softgray,
+  },
+  chipSelected: {
+    backgroundColor: paleta.dark_aqua,
+    borderColor: paleta.dark_aqua,
+  },
+  chipText: {
+    fontSize: 14,
+  },
+  smallMuted: {
+    color: '#666',
+    fontSize: 13,
+  },
+  categoriesWrap: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    width: '100%',
+    alignItems: 'center',
+    justifyContent: 'center',
   },
 });
