@@ -8,35 +8,6 @@ import { ThemedText } from "@/components/ThemedText";
 import VideoPlayer from "@/components/VideoPlayer";
 import { paleta } from "@/components/colores";
 
-const modules = [
-  {
-    id: "1",
-    signs: [
-      { id: "1", nombre: "Pare", video_url: "https://www.example.com/video/pare.mp4" },
-      { id: "2", nombre: "Ceda el paso", video_url: "https://www.example.com/video/ceda.mp4" },
-      { id: "3", nombre: "Velocidad máxima", video_url: "https://www.example.com/video/velocidad.mp4" },
-    ],
-  },
-  {
-    id: "2",
-    signs: [
-      { id: "4", nombre: "Hola", video_url: "https://www.example.com/video/hola.mp4" },
-      { id: "5", nombre: "Gracias", video_url: "https://www.example.com/video/gracias.mp4" },
-    ],
-  },
-  {
-    id: "3",
-    signs: [
-      { id: "6", nombre: "Perro", video_url: "https://www.example.com/video/perro.mp4" },
-      { id: "7", nombre: "Gato", video_url: "https://www.example.com/video/gato.mp4" },
-    ],
-  },
-];
-
-interface SeniaAux {
-  Senias: Senia
-}
-
 export default function ModuloDetalleScreen() {
   const { id=0 } = useLocalSearchParams<{ id: string }>();
   if (id==0) router.back();
@@ -46,6 +17,7 @@ export default function ModuloDetalleScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [modalTeoria,setModalTeoriVisible]= useState(false);
   
    useFocusEffect(
       useCallback(() => {
@@ -75,7 +47,15 @@ export default function ModuloDetalleScreen() {
   
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>Detalle del módulo {id}</Text>
+      <Text style={styles.title}> {modulo?.nombre}</Text>
+
+      {/*Hardcodear ejemplo de teoría*/}
+      <View style={styles.card}>
+        <ThemedText style={styles.cardTitle}>Verbos invertidos</ThemedText>
+        <TouchableOpacity onPress={()=>setModalTeoriVisible(true)} style={styles.button}>
+          <ThemedText lightColor="white">Ver más</ThemedText>
+        </TouchableOpacity>
+      </View>
       <FlatList
         data={senias ? senias : []}
         keyExtractor={(item) => item.id.toString()}
@@ -135,6 +115,37 @@ export default function ModuloDetalleScreen() {
                 :null
               }
 
+              
+            </View>
+          </View>
+        </Modal>
+
+        <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalTeoria}
+          onRequestClose={() => setModalTeoriVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>Verbos invertidos</Text>
+                <Pressable 
+                  onPress={() => setModalTeoriVisible(false)}
+                  style={styles.closeButton}
+                >
+                  <Ionicons name="close" size={24} color="#014f86" />
+                </Pressable>
+              </View>
+                          
+              <ThemedText>En lengua de señas
+                  los verbos invertidos son verbos en los
+                  que la forma negativa del verbo no es
+                  simplemente agregar una negación al
+                  final de la oración. La configuración de la
+                  seña y el movimiento es completamente
+                  diferente a la forma positiva del verbo.
+              </ThemedText>             
               
             </View>
           </View>
