@@ -98,7 +98,7 @@ export default function Diccionario() {
   }
 
   const editar_senia= (senia: Senia_Info) =>{
-    router.push({ pathname: "/tabs/Diccionario/editar_senia", params: { id_senia: senia.id, url: senia.video_url,significado:senia.significado } })
+    router.push({ pathname: "/tabs/Diccionario/editar_senia", params: { id_senia: senia.id, url: senia.video_url,significado:senia.significado, cate:senia.categoria } })
   }
 
   const renderSenia = ({ item }: { item: Senia_Info }) => (
