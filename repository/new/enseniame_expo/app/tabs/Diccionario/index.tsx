@@ -306,7 +306,7 @@ const styles = StyleSheet.create({
     fontSize: 32,
     fontWeight: 'bold',
     color: '#222',
-    marginTop: 48,
+    marginTop: 60,
     marginBottom: 28,
     alignSelf: 'center',
     fontFamily: 'System',

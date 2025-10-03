@@ -141,7 +141,7 @@ export default function DetalleModuloScreen() {
   return (
     <View style={styles.container}>
       <Pressable
-        style={[styles.backBtn, { marginBottom: 10, flexDirection: 'row', alignItems: 'center' }]}
+        style={[styles.backBtn, { marginBottom: 10, marginTop:30, flexDirection: 'row', alignItems: 'center' }]}
         onPress={() => {   contexto.user.gotToModules()   }}
       >
         <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
@@ -278,6 +278,7 @@ const styles = StyleSheet.create({
     color: '#222',
     alignSelf: 'center',
     marginBottom: 18,
+    marginTop:15
   },
   card: {
     backgroundColor: '#fff',

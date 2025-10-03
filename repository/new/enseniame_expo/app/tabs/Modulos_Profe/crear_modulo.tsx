@@ -122,6 +122,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 10,
     padding: 8,
+    marginTop:20  
   },
   backBtnText: {
     color: '#20bfa9',
@@ -134,6 +135,7 @@ const styles = StyleSheet.create({
     color: '#222',
     alignSelf: 'center',
     marginBottom: 18,
+    marginTop:15 
   },
   input: {
     backgroundColor: '#fff',

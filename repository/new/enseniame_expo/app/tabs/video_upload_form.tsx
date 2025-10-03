@@ -293,6 +293,7 @@ const styles = StyleSheet.create({
   headerContainer: {
     alignItems: 'center',
     marginBottom: 25,
+    marginTop:40 
   },
   panelTitle: {
     marginBottom: 8,

@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
     color: "#222",
     alignSelf: "center",
     marginBottom: 18,
+    marginTop: 50
   },
   card: {
     backgroundColor: "#fff",
