@@ -73,7 +73,7 @@ class Logged_Profesor extends Logged_User {
         router.push('/tabs/HomeTeacher');
     }
     gotToModules():void{
-        router.push('/tabs/mis_modulos');
+        router.push('/tabs/Modulos_Profe');
     }
 
 }

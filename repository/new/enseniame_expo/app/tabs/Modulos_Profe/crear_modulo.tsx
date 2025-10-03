@@ -1,14 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { View, Text, StyleSheet, TextInput, Pressable, Alert } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { supabase } from "../../utils/supabase";
+import { useLocalSearchParams } from "expo-router";
+import { supabase } from "../../../utils/supabase";
 import { useUserContext } from "@/context/UserContext";
 
 const iconOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
 
 export default function CrearModuloScreen() {
-  const router = useRouter();
+  
   const params = useLocalSearchParams<{ id?: string; nombre?: string; icon?: string; descripcion?: string }>();
   const isEdit = !!params.id;
   const [nombre, setNombre] = useState("");
@@ -16,7 +16,7 @@ export default function CrearModuloScreen() {
   const [icon, setIcon] = useState("car");
   const [loading, setLoading] = useState(false);
 
-  const contexto = useUserContext()
+  const contexto = useUserContext();
 
   useEffect(() => {
     if (isEdit) {
@@ -49,7 +49,7 @@ export default function CrearModuloScreen() {
           .insert([{ nombre, descripcion, icon }]);
         if (error) throw error;
       }
-      router.replace("/tabs/mis_modulos");
+      contexto.user.gotToModules();
     } catch (e: any) {
       Alert.alert("Error", e.message || "No se pudo guardar el módulo");
     } finally {

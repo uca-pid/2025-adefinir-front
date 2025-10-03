@@ -19,7 +19,7 @@ export default function RootLayout() {
         minWidth: 70, 
       },
     }}>
-      <Tabs.Screen name='index'  options={({ navigation }) =>({title:"Home",
+      <Tabs.Screen name='index'  options={() =>({title:"Home",
         tabBarButton: ((props) => 
           <TouchableOpacity onPress={() => {
             contexto.user.goHome()
@@ -31,7 +31,7 @@ export default function RootLayout() {
       })}
       />
 
-      <Tabs.Screen name={contexto.user.is_prof ? 'mis_modulos' :'Modulos_Alumno' }  options={({ navigation }) =>({title:"Módulos",      
+      <Tabs.Screen name={contexto.user.is_prof ? 'Modulos_Profe' :'Modulos_Alumno' }  options={() =>({title:"Módulos", headerShown:false,     
           tabBarButton: ((props) => 
             <TouchableOpacity onPress={() => contexto.user.gotToModules()}  style={styles.navItem}>
               <Ionicons name="albums-outline" size={22} color="#fff" />
@@ -43,8 +43,8 @@ export default function RootLayout() {
 
       {contexto.user.is_prof ? (
         <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />
-      ): <Tabs.Screen name='mis_modulos'  options={{href:null}} />}
-      {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"Subir video", 
+      ): <Tabs.Screen name='Modulos_Profe'  options={{href:null}} />}
+      {contexto.user.is_prof ? <Tabs.Screen name='video_upload_form'   options={({ navigation }) =>({title:"Subir video", headerShown:false,
           tabBarButton: ((props) => 
             <TouchableOpacity onPress={() => navigation.navigate('video_upload_form')}  style={styles.fabButton}>
               <Ionicons name="add" size={32} color="#fff" />
@@ -55,7 +55,7 @@ export default function RootLayout() {
         <Tabs.Screen name="video_upload_form" options={{href:null}}/>
       }
 
-      <Tabs.Screen name='Diccionario'   options={({ navigation }) =>({title:"Diccionario", 
+      <Tabs.Screen name='Diccionario'   options={({ navigation }) =>({title:"Diccionario", headerShown:false,
         tabBarButton: ((props) => 
           <TouchableOpacity onPress={() => navigation.navigate('Diccionario')}  style={styles.navItem}>
             <Ionicons name="search" size={22} color="#fff" />
@@ -73,15 +73,12 @@ export default function RootLayout() {
           </TouchableOpacity>
         ),
       })}
-      />
-
-      <Tabs.Screen name='crear_modulo'  options={{href:null}} />
-      <Tabs.Screen name='detalle_modulo'  options={{href:null}} />
-      <Tabs.Screen name='modulo_detalle'  options={{href:null}} />
-      <Tabs.Screen name='senia'  options={{href:null}} />
-      <Tabs.Screen name='cursos'  options={{href:null}} />
-      <Tabs.Screen name="HomeStudent" options={{href:null,title:"Home"}}/>
-      <Tabs.Screen name="HomeTeacher" options={{href:null,title:"Home"}}/>
+      />      
+      
+      <Tabs.Screen name='senia'  options={{href:null,headerShown:false}} />
+      <Tabs.Screen name='cursos'  options={{href:null,headerShown:false}} />
+      <Tabs.Screen name="HomeStudent" options={{href:null,title:"Home",headerShown:false}}/>
+      <Tabs.Screen name="HomeTeacher" options={{href:null,title:"Home",headerShown:false}}/>
       
     </Tabs>
   );

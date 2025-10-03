@@ -1,9 +1,14 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, ActivityIndicator, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { supabase } from "../../utils/supabase";
+import { supabase } from "../../../utils/supabase";
 import { useUserContext } from "@/context/UserContext";
+import { ThemedText } from "@/components/ThemedText";
+import VideoPlayer from "@/components/VideoPlayer";
+import { Senia_Info } from "@/components/types";
+import { paleta } from "@/components/colores";
+import { buscar_senias_modulo } from "@/conexiones/modulos";
 
 interface Senia {
   id: number;
@@ -16,11 +21,14 @@ export default function DetalleModuloScreen() {
   const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [seniasModulo, setSeniasModulo] = useState<Senia[]>([]);
+  const [seniasModulo, setSeniasModulo] = useState<Senia_Info[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [diccionario, setDiccionario] = useState<Senia[]>([]);
   const [agregando, setAgregando] = useState(false);
+
+  const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
 
   const contexto = useUserContext()
 
@@ -37,7 +45,7 @@ export default function DetalleModuloScreen() {
   const fetchSeniasModulo = async () => {
     setLoading(true);
     try {
-      const { data: relaciones, error: relError } = await supabase
+      /* const { data: relaciones, error: relError } = await supabase
         .from('Modulo_Video')
         .select('id_video')
         .eq('id_modulo', id);
@@ -52,8 +60,10 @@ export default function DetalleModuloScreen() {
         .from('Senias')
         .select('*')
         .in('id', ids);
-      if (seniaError) throw seniaError;
-      setSeniasModulo(senias || []);
+      if (seniaError) throw seniaError; */
+      const s = await  buscar_senias_modulo(Number(id));
+    
+      setSeniasModulo(s || []);
     } catch (e) {
       Alert.alert('Error', 'No se pudieron cargar las señas del módulo');
     } finally {
@@ -93,8 +103,8 @@ export default function DetalleModuloScreen() {
     fetchSeniasModulo();
   };
 
-  const handleVerSenia = (senia: Senia) => {
-    router.push({
+  const handleVerSenia = (senia: Senia_Info) => {
+    /* router.push({
       pathname: "/tabs/senia",
       params: {
         id: senia.id,
@@ -102,7 +112,9 @@ export default function DetalleModuloScreen() {
         video_url: senia.video_url,
         modulo_id: id
       }
-    });
+    }); */
+    setSelectedSenia(senia);
+    setModalVisible(true)
   };
 
   const handleAgregarSenia = async (senia: Senia) => {
@@ -173,7 +185,7 @@ export default function DetalleModuloScreen() {
           renderItem={({ item }) => (
             <View style={styles.card}>
               <View style={styles.row}>
-                <Image source={{ uri: item.thumbnail || 'https://img.youtube.com/vi/1/default.jpg' }} style={styles.thumbnail} />
+                <Image source={{ uri: /* item.thumbnail || */ 'https://img.youtube.com/vi/1/default.jpg' }} style={styles.thumbnail} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.cardTitle}>{item.significado}</Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -203,6 +215,51 @@ export default function DetalleModuloScreen() {
       >
         <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>Guardar</Text>
       </Pressable>
+
+      <Modal
+          animationType="slide"
+          transparent={true}
+          visible={modalVisible}
+          onRequestClose={() => setModalVisible(false)}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <View style={styles.modalHeader}>
+                <Text style={styles.modalTitle}>{selectedSenia?.significado}</Text>
+                <Pressable 
+                  onPress={() => setModalVisible(false)}
+                  style={styles.closeButton}
+                >
+                  <Ionicons name="close" size={24} color="#014f86" />
+                </Pressable>
+              </View>
+              
+              {selectedSenia && (
+                <VideoPlayer 
+                  uri={selectedSenia.video_url}
+                  style={styles.video}
+                />
+              )}
+              {selectedSenia && selectedSenia.Categorias ?
+              <ThemedText style={{margin:10}}>
+                <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
+                <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
+              </ThemedText>
+                :null
+              }
+              
+              {selectedSenia && selectedSenia.Users  ?
+              <ThemedText style={{margin:10}}>
+                <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
+                <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
+              </ThemedText>
+                :null
+              }
+
+              
+            </View>
+          </View>
+        </Modal>
     </View>
   );
 }
@@ -274,5 +331,36 @@ const styles = StyleSheet.create({
     color: '#20bfa9',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: paleta.dark_aqua
+  },
+  closeButton: {
+    padding: 8,
+  },
+  video: {
+    width: '100%',
+    aspectRatio: 16/9,
+    borderRadius: 12,
   },
 });

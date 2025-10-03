@@ -12,7 +12,7 @@ export default function HomeTeacher() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Panel del Profesor</Text>
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
-        <Pressable style={styles.ctaButtonCursos} onPress={()=>router.push('/tabs/mis_modulos')}>
+        <Pressable style={styles.ctaButtonCursos} onPress={()=>contexto.user.gotToModules()}>
           <Ionicons name="albums-outline" size={24} color="#fff" style={styles.ctaIcon} />
           <Text style={styles.ctaButtonTextCursos}>Mis módulos</Text>
         </Pressable>
@@ -49,8 +49,8 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: 'bold',
     color: '#222',
-    marginTop: 32,
-    marginBottom: 8,
+    marginTop: 100,
+    marginBottom: 10,
     alignSelf: 'center',
     zIndex: 2,
     letterSpacing: 0.5,
@@ -71,7 +71,8 @@ const styles = StyleSheet.create({
     backgroundColor: '#20bfa9',
     borderRadius: 14,
     height: 50,
-    marginBottom: 8,
+    marginBottom: 18,
+    marginTop: 20,
     paddingHorizontal: 18,
     shadowColor: '#000',
     shadowOpacity: 0.08,
