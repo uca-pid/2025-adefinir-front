@@ -75,7 +75,6 @@ export default function RootLayout() {
       })}
       />      
       
-      <Tabs.Screen name='senia'  options={{href:null,headerShown:false}} />
       <Tabs.Screen name='cursos'  options={{href:null,headerShown:false}} />
       <Tabs.Screen name="HomeStudent" options={{href:null,title:"Home",headerShown:false}}/>
       <Tabs.Screen name="HomeTeacher" options={{href:null,title:"Home",headerShown:false}}/>

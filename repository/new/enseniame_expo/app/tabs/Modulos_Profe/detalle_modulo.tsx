@@ -106,15 +106,6 @@ export default function DetalleModuloScreen() {
   };
 
   const handleVerSenia = (senia: Senia_Info) => {
-    /* router.push({
-      pathname: "/tabs/senia",
-      params: {
-        id: senia.id,
-        nombre: senia.significado,
-        video_url: senia.video_url,
-        modulo_id: id
-      }
-    }); */
     setSelectedSenia(senia);
     setModalVisible(true)
   };

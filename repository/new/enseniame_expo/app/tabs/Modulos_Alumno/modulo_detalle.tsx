@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from "react";
 import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator } from "react-native";
-import { useLocalSearchParams, useRouter, router, useFocusEffect } from "expo-router";
+import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Senia,Senia_Info, Modulo } from "@/components/types";
 import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
 import { Ionicons } from "@expo/vector-icons";

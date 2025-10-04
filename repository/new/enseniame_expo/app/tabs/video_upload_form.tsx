@@ -12,7 +12,7 @@ import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { paleta } from '@/components/colores';
+import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { BotonLogin } from '@/components/botones';
 import { useUserContext } from '@/context/UserContext';
@@ -241,6 +241,8 @@ export default function VideoUploadForm() {
                 })}
               </View>
             )}
+
+            <BotonLogin callback={()=>console.log()} textColor='white' bckColor={paleta.yellow} text='Crear nueva categoría'/>
           </View>
 
           {videoFile ? (
