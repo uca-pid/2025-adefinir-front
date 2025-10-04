@@ -3,7 +3,7 @@ import {
   ScrollView, TouchableOpacity
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
@@ -16,6 +16,10 @@ import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { BotonLogin } from '@/components/botones';
 import { useUserContext } from '@/context/UserContext';
+import { SmallPopupModal } from '@/components/modals';
+import { IconTextInput } from '@/components/inputs';
+import { crearNuevaCategoria, traerCategorias } from '@/conexiones/categorias';
+import { router, useFocusEffect } from 'expo-router';
 
 export default function VideoUploadForm() {
   
@@ -33,6 +37,18 @@ export default function VideoUploadForm() {
   const [categories, setCategories] = useState<{ id: number; nombre: string }[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<number | null>(null);
   const [loadingCategories, setLoadingCategories] = useState(false);
+
+  const [modalNuevaCateVisible,setModalNuevaCateVisible] =useState(false);
+  const [nombreNuevaCate,setNombreNuevaCate] = useState("");
+
+  useFocusEffect(
+      useCallback(() => {
+        //console.log('Tab Diccionario enfocada - Recargando señas...');
+        fetchCategories();
+        return () => {
+        };
+      }, [])
+    );
 
   useEffect(() => {
     const trimmed = meaning.trim();
@@ -76,31 +92,20 @@ export default function VideoUploadForm() {
     };
   }, [meaning]);
 
-  useEffect(() => {
-    const fetchCategories = async () => {
+
+  const fetchCategories = async () => {
       setLoadingCategories(true);
       try {
-        const { data, error } = await supabase
-          .from('Categorias')
-          .select('id,nombre')
-          .order('nombre', { ascending: true });
-
-        if (error) {
-          console.error('Error fetching categorias:', error.message);
-          setCategories([]);
-        } else {
-          setCategories(data || []);
-        }
+        const data = await traerCategorias();
+        setCategories(data || []);
+        
       } catch (e) {
         console.error('Error fetching categorias:', e);
         setCategories([]);
       } finally {
         setLoadingCategories(false);
       }
-    };
-
-    fetchCategories();
-  }, []);
+  };
 
   const handleVideoUpload = (video: { uri: string; name: string; type: string }) => {
     setVideoFile(video);
@@ -188,6 +193,30 @@ export default function VideoUploadForm() {
       }
   };
 
+  const crear_categoria = async ()=>{
+    if (nombreNuevaCate) {
+      try {
+        crearNuevaCategoria(nombreNuevaCate)
+          .then(()=>{
+            setModalNuevaCateVisible(false);
+            setNombreNuevaCate("");
+            fetchCategories();
+            success_alert("Categoría creada con éxito");
+          })
+          .catch(reason =>{
+            console.error(reason);
+            error_alert("No se pudo crear la categoría")
+          })
+        
+      } catch (error) {
+        console.error(error);
+        error_alert("No se pudo crear la categoría")
+      }
+      
+    } else error_alert("El nombre no puede estar vacío");
+    
+  }
+
   return (
     <ThemedView style={[styles.safeArea, { marginBottom: insets.bottom + 12 }]} lightColor={paleta.aqua_bck} darkColor='#333'>
       <ScrollView contentContainerStyle={styles.mainView}>
@@ -242,7 +271,10 @@ export default function VideoUploadForm() {
               </View>
             )}
 
-            <BotonLogin callback={()=>console.log()} textColor='white' bckColor={paleta.yellow} text='Crear nueva categoría'/>
+            
+            <TouchableOpacity  style={[styles.uploadButton]} onPress={()=>setModalNuevaCateVisible(true)}>
+              <Text style={styles.buttonText}>Crear nueva categoría</Text>
+            </TouchableOpacity>
           </View>
 
           {videoFile ? (
@@ -274,6 +306,24 @@ export default function VideoUploadForm() {
           </ThemedText>
         </ThemedView> */}
       </ScrollView>
+
+      <SmallPopupModal title="Crear nueva categoría" modalVisible={modalNuevaCateVisible} setVisible={setModalNuevaCateVisible}>
+        <ThemedText type='defaultSemiBold' lightColor={paleta.dark_aqua}>Nombre de la categoría</ThemedText>
+          <TextInput
+            placeholder="Ej: Saludos, Comidas, etc."
+            placeholderTextColor={"#888"}
+            value={nombreNuevaCate}
+            onChangeText={setNombreNuevaCate}
+            style={[styles.input, { backgroundColor: paleta.softgray, marginTop:15 }]}
+          />
+
+        <BotonLogin
+          callback={crear_categoria}
+          textColor='white'
+          bckColor={paleta.yellow}
+          text='Crear'
+        />
+      </SmallPopupModal>
       <Toast/>
     </ThemedView>
   );
@@ -387,6 +437,7 @@ const styles = StyleSheet.create({
     borderRadius: 20,
     marginRight: 8,
     borderWidth: 1,
+    marginBottom: 3
   },
   chipIdle: {
     backgroundColor: '#fff',
@@ -409,5 +460,21 @@ const styles = StyleSheet.create({
     width: '100%',
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  uploadButton: {
+    backgroundColor: paleta.yellow,
+    padding: 15,
+    borderRadius: 10,
+    alignItems: 'center',
+    flexDirection: 'row',
+    justifyContent: 'center',
+    gap: 10,
+    minWidth: 200,
+    marginTop: 25
+  },
+  buttonText: {
+    color: 'white',
+    fontWeight: 'bold',
+    fontSize: 16,
   },
 });
