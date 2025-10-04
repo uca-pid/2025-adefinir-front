@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList, Modal, TouchableOpacity, ActivityIndicator } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator } from "react-native";
 import { useLocalSearchParams, useRouter, router, useFocusEffect } from "expo-router";
 import { Senia,Senia_Info, Modulo } from "@/components/types";
 import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
@@ -8,6 +8,8 @@ import { ThemedText } from "@/components/ThemedText";
 import VideoPlayer from "@/components/VideoPlayer";
 import { paleta } from "@/components/colores";
 import { useUserContext } from "@/context/UserContext";
+import { SmallPopupModal } from "@/components/modals";
+import Toast from "react-native-toast-message";
 
 export default function ModuloDetalleScreen() {
   const { id=0 } = useLocalSearchParams<{ id: string }>();
@@ -18,7 +20,6 @@ export default function ModuloDetalleScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  const [modalTeoria,setModalTeoriVisible]= useState(false);
   
   const contexto = useUserContext();
   
@@ -59,14 +60,7 @@ export default function ModuloDetalleScreen() {
             </Pressable>
       <Text style={styles.title}> {modulo?.nombre}</Text>
 
-      {/*Hardcodear ejemplo de teoría*/}
-      {modulo?.id==10 ? 
-      <View style={styles.card}>
-        <ThemedText style={styles.cardTitle}>Verbos invertidos</ThemedText>
-        <TouchableOpacity onPress={()=>setModalTeoriVisible(true)} style={styles.button}>
-          <ThemedText lightColor="white">Ver más</ThemedText>
-        </TouchableOpacity>
-      </View>: null}
+      
       <FlatList
         data={senias ? senias : []}
         keyExtractor={(item) => item.id.toString()}
@@ -86,81 +80,31 @@ export default function ModuloDetalleScreen() {
         )}
       />
 
-      <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{selectedSenia?.significado}</Text>
-                <Pressable 
-                  onPress={() => setModalVisible(false)}
-                  style={styles.closeButton}
-                >
-                  <Ionicons name="close" size={24} color="#014f86" />
-                </Pressable>
-              </View>
-              
-              {selectedSenia && (
-                <VideoPlayer 
-                  uri={selectedSenia.video_url}
-                  style={styles.video}
-                />
-              )}
-              {selectedSenia && selectedSenia.Categorias ?
-              <ThemedText style={{margin:10}}>
-                <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
-                <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
-              </ThemedText>
-                :null
-              }
-              
-              {selectedSenia && selectedSenia.Users  ?
-              <ThemedText style={{margin:10}}>
-                <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
-                <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
-              </ThemedText>
-                :null
-              }
+        <SmallPopupModal title={selectedSenia?.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
+          {selectedSenia && (
+            <VideoPlayer 
+              uri={selectedSenia.video_url}
+              style={styles.video}
+            />
+          )}
+          {selectedSenia && selectedSenia.Categorias ?
+          <ThemedText style={{margin:10}}>
+            <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
+            <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
+          </ThemedText>
+            :null
+          }
+          
+          {selectedSenia && selectedSenia.Users  ?
+          <ThemedText style={{margin:10}}>
+            <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
+            <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
+          </ThemedText>
+            :null
+          }
+        </SmallPopupModal>
 
-              
-            </View>
-          </View>
-        </Modal>
-
-        <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalTeoria}
-          onRequestClose={() => setModalTeoriVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>Verbos invertidos</Text>
-                <Pressable 
-                  onPress={() => setModalTeoriVisible(false)}
-                  style={styles.closeButton}
-                >
-                  <Ionicons name="close" size={24} color="#014f86" />
-                </Pressable>
-              </View>
-                          
-              <ThemedText>En lengua de señas
-                  los verbos invertidos son verbos en los
-                  que la forma negativa del verbo no es
-                  simplemente agregar una negación al
-                  final de la oración. La configuración de la
-                  seña y el movimiento es completamente
-                  diferente a la forma positiva del verbo.
-              </ThemedText>             
-              
-            </View>
-          </View>
-        </Modal>
+        <Toast/>
     </View>
   );
 }
@@ -208,32 +152,7 @@ const styles = StyleSheet.create({
     fontWeight: "600",
     fontSize: 15,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    minHeight: '70%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: paleta.dark_aqua
-  },
-  closeButton: {
-    padding: 8,
-  },
+  
   video: {
     width: '100%',
     aspectRatio: 16/9,

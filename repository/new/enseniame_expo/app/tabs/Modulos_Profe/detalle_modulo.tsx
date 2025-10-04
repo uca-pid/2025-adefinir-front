@@ -9,6 +9,8 @@ import VideoPlayer from "@/components/VideoPlayer";
 import { Senia_Info } from "@/components/types";
 import { paleta } from "@/components/colores";
 import { buscar_senias_modulo } from "@/conexiones/modulos";
+import Toast from "react-native-toast-message";
+import { SmallPopupModal } from "@/components/modals";
 
 interface Senia {
   id: number;
@@ -216,37 +218,20 @@ export default function DetalleModuloScreen() {
         <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>Guardar</Text>
       </Pressable>
 
-      <Modal
-          animationType="slide"
-          transparent={true}
-          visible={modalVisible}
-          onRequestClose={() => setModalVisible(false)}
-        >
-          <View style={styles.modalContainer}>
-            <View style={styles.modalContent}>
-              <View style={styles.modalHeader}>
-                <Text style={styles.modalTitle}>{selectedSenia?.significado}</Text>
-                <Pressable 
-                  onPress={() => setModalVisible(false)}
-                  style={styles.closeButton}
-                >
-                  <Ionicons name="close" size={24} color="#014f86" />
-                </Pressable>
-              </View>
-              
-              {selectedSenia && (
-                <VideoPlayer 
-                  uri={selectedSenia.video_url}
-                  style={styles.video}
-                />
-              )}
-              {selectedSenia && selectedSenia.Categorias ?
-              <ThemedText style={{margin:10}}>
-                <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
-                <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
-              </ThemedText>
-                :null
-              }
+        <SmallPopupModal title={selectedSenia?.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
+          {selectedSenia && (
+            <VideoPlayer 
+              uri={selectedSenia.video_url}
+              style={styles.video}
+            />
+          )}
+          {selectedSenia && selectedSenia.Categorias ?
+          <ThemedText style={{margin:10}}>
+            <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
+            <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
+          </ThemedText>
+            :null
+          }
               
               {selectedSenia && selectedSenia.Users  ?
               <ThemedText style={{margin:10}}>
@@ -256,10 +241,8 @@ export default function DetalleModuloScreen() {
                 :null
               }
 
-              
-            </View>
-          </View>
-        </Modal>
+        </SmallPopupModal>
+        <Toast/>
     </View>
   );
 }
@@ -333,32 +316,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    minHeight: '70%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: paleta.dark_aqua
-  },
-  closeButton: {
-    padding: 8,
-  },
+ 
   video: {
     width: '100%',
     aspectRatio: 16/9,

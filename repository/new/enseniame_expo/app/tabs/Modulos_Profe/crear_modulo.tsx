@@ -8,6 +8,7 @@ import { paleta, paleta_colores } from "@/components/colores";
 import { error_alert } from "@/components/alert";
 import Toast from "react-native-toast-message";
 import { estilos } from "@/components/estilos";
+import { SmallPopupModal } from "@/components/modals";
 
 const firsticonOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
 const iconOptions:( keyof typeof Ionicons.glyphMap) [] = Object.keys(Ionicons.glyphMap);
@@ -130,43 +131,26 @@ export default function CrearModuloScreen() {
         <Text style={styles.saveBtnText}>{loading ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear módulo"}</Text>
       </TouchableOpacity>
 
-      <Modal 
-          animationType="slide"
-          transparent={true}
-          visible={modalIconVisible}
-          onRequestClose={() => setIconModalVisible(false)}>
-            <View style={styles.modalContainer}>
-              <View style={styles.modalContent}>
-                <View style={styles.modalHeader}>
-                  <Text style={styles.modalTitle}>Seleccionar ícono</Text>
-                  <Pressable 
-                    onPress={() => setIconModalVisible(false)}
-                    style={styles.closeButton}
+      <SmallPopupModal title="Seleccionar ícono" modalVisible={modalIconVisible} setVisible={setIconModalVisible}>
+        <ScrollView style={[{maxHeight:400}]} contentContainerStyle={estilos.centrado}>
+          <View style={[styles.iconRow,estilos.centrado,{flexWrap:"wrap"}]}>
+            {iconOptions.map((ic,index) => (
+                  <Pressable
+                    key={ic}
+                    style={[styles.iconOption, icon === ic && styles.iconSelected,{margin:5}]}
+                    onPress={() => setIcon(ic)}
                   >
-                    <Ionicons name="close" size={24} color="#014f86" />
+                    <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
                   </Pressable>
-                </View>
-                <ScrollView style={[{maxHeight:400}]} contentContainerStyle={estilos.centrado}>
-                <View style={[styles.iconRow,estilos.centrado,{flexWrap:"wrap"}]}>
-                  {iconOptions.map((ic,index) => (
-                        <Pressable
-                          key={ic}
-                          style={[styles.iconOption, icon === ic && styles.iconSelected,{margin:5}]}
-                          onPress={() => setIcon(ic)}
-                        >
-                          <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
-                        </Pressable>
-                      )
-                    
-                    )}
-                </View>
-                </ScrollView>
-                <TouchableOpacity onPress={()=>setIconModalVisible(false)} style={styles.saveBtn}>
-                    <Text style={styles.saveBtnText}>Aceptar</Text>
-                </TouchableOpacity>
-              </View>
-            </View>
-      </Modal>
+                )
+              
+              )}
+          </View>
+          </ScrollView>
+          <TouchableOpacity onPress={()=>setIconModalVisible(false)} style={styles.saveBtn}>
+              <Text style={styles.saveBtnText}>Aceptar</Text>
+          </TouchableOpacity>
+      </SmallPopupModal>
       <Toast/>
     </View>
   );
@@ -243,30 +227,5 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 17,
   },
-  modalContainer: {
-    flex: 1,
-    justifyContent: 'flex-end',
-    backgroundColor: 'rgba(0,0,0,0.5)',
-  },
-  modalContent: {
-    backgroundColor: 'white',
-    borderTopLeftRadius: 20,
-    borderTopRightRadius: 20,
-    padding: 20,
-    minHeight: '70%',
-  },
-  modalHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
-  },
-  modalTitle: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: paleta.dark_aqua
-  },
-  closeButton: {
-    padding: 8,
-  },
+  
 });
