@@ -7,6 +7,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import VideoPlayer from "@/components/VideoPlayer";
 import { paleta } from "@/components/colores";
+import { useUserContext } from "@/context/UserContext";
 
 export default function ModuloDetalleScreen() {
   const { id=0 } = useLocalSearchParams<{ id: string }>();
@@ -18,6 +19,8 @@ export default function ModuloDetalleScreen() {
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
   const [modalTeoria,setModalTeoriVisible]= useState(false);
+  
+  const contexto = useUserContext();
   
    useFocusEffect(
       useCallback(() => {
@@ -47,6 +50,13 @@ export default function ModuloDetalleScreen() {
   
   return (
     <View style={styles.container}>
+      <Pressable
+              style={[styles.backBtn, { marginBottom: 10, marginTop:30, flexDirection: 'row', alignItems: 'center' }]}
+              onPress={() => {   contexto.user.gotToModules()   }}
+            >
+              <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
+              <Text style={styles.backBtnText}>Volver</Text>
+            </Pressable>
       <Text style={styles.title}> {modulo?.nombre}</Text>
 
       {/*Hardcodear ejemplo de teoría*/}
@@ -255,5 +265,18 @@ const styles = StyleSheet.create({
   icon:{
     flex:1,
     marginLeft: 25
-  }
+  },
+  backBtn: {
+    padding: 10,
+    borderRadius: 8,
+    alignSelf: 'flex-start',
+    flexDirection: 'row',
+    alignItems: 'center',
+    elevation: 2,
+  },
+  backBtnText: {
+    color: '#20bfa9',
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
 });

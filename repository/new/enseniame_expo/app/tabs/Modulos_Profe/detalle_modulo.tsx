@@ -30,7 +30,7 @@ export default function DetalleModuloScreen() {
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
 
-  const contexto = useUserContext()
+  const contexto = useUserContext();
 
   useEffect(() => {
     fetchSeniasModulo();
@@ -322,7 +322,7 @@ const styles = StyleSheet.create({
   backBtn: {
     padding: 10,
     borderRadius: 8,
-    backgroundColor: '#fff',
+    
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',

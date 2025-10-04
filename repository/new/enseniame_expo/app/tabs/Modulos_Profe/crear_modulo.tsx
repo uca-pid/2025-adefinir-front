@@ -1,11 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, Pressable, Alert } from "react-native";
+import { View, Text, StyleSheet, TextInput, Pressable, Alert, Modal, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { supabase } from "../../../utils/supabase";
 import { useUserContext } from "@/context/UserContext";
+import { paleta, paleta_colores } from "@/components/colores";
+import { error_alert } from "@/components/alert";
+import Toast from "react-native-toast-message";
+import { estilos } from "@/components/estilos";
 
-const iconOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
+const firsticonOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
+const iconOptions:( keyof typeof Ionicons.glyphMap) [] = Object.keys(Ionicons.glyphMap);
 
 export default function CrearModuloScreen() {
   
@@ -15,6 +20,8 @@ export default function CrearModuloScreen() {
   const [descripcion, setDescripcion] = useState("");
   const [icon, setIcon] = useState("car");
   const [loading, setLoading] = useState(false);
+
+  const [modalIconVisible, setIconModalVisible] = useState(false);
 
   const contexto = useUserContext();
 
@@ -32,7 +39,8 @@ export default function CrearModuloScreen() {
 
   const handleSave = async () => {
     if (!nombre.trim()) {
-      Alert.alert("Error", "El nombre del módulo es obligatorio.");
+      error_alert("El nombre del módulo es obligatorio.")
+      //Alert.alert("Error", "El nombre del módulo es obligatorio.");
       return;
     }
     setLoading(true);
@@ -93,19 +101,73 @@ export default function CrearModuloScreen() {
       />
       <Text style={styles.label}>Icono:</Text>
       <View style={styles.iconRow}>
-        {iconOptions.map((ic) => (
-          <Pressable
-            key={ic}
-            style={[styles.iconOption, icon === ic && styles.iconSelected]}
-            onPress={() => setIcon(ic)}
-          >
-            <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
-          </Pressable>
-        ))}
+        {firsticonOptions.map((ic) =>  (
+              <Pressable
+                key={ic}
+                style={[styles.iconOption, icon === ic && styles.iconSelected]}
+                onPress={() => setIcon(ic)}
+              >
+                <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
+              </Pressable>
+            )
+          
+          )}
       </View>
-      <Pressable style={styles.saveBtn} onPress={handleSave} disabled={loading}>
+      {!firsticonOptions.includes(icon)? 
+        <View style={styles.iconRow}>
+          <Pressable
+                key={icon}
+                style={[styles.iconOption, styles.iconSelected]}
+                onPress={() => setIcon(icon)}
+              >
+                <Ionicons name={icon} size={28} color= "#20bfa9"  />
+              </Pressable>
+        </View>:null}
+      <TouchableOpacity onPress={()=>setIconModalVisible(true)} style={[styles.iconOption,estilos.centrado,{borderRadius:30,borderColor:"white"},paleta_colores.aqua]}>
+        <Ionicons name="add-sharp" size={28} color= "white" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={loading}>
         <Text style={styles.saveBtnText}>{loading ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear módulo"}</Text>
-      </Pressable>
+      </TouchableOpacity>
+
+      <Modal 
+          animationType="slide"
+          transparent={true}
+          visible={modalIconVisible}
+          onRequestClose={() => setIconModalVisible(false)}>
+            <View style={styles.modalContainer}>
+              <View style={styles.modalContent}>
+                <View style={styles.modalHeader}>
+                  <Text style={styles.modalTitle}>Seleccionar ícono</Text>
+                  <Pressable 
+                    onPress={() => setIconModalVisible(false)}
+                    style={styles.closeButton}
+                  >
+                    <Ionicons name="close" size={24} color="#014f86" />
+                  </Pressable>
+                </View>
+                <ScrollView style={[{maxHeight:400}]} contentContainerStyle={estilos.centrado}>
+                <View style={[styles.iconRow,estilos.centrado,{flexWrap:"wrap"}]}>
+                  {iconOptions.map((ic,index) => (
+                        <Pressable
+                          key={ic}
+                          style={[styles.iconOption, icon === ic && styles.iconSelected,{margin:5}]}
+                          onPress={() => setIcon(ic)}
+                        >
+                          <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
+                        </Pressable>
+                      )
+                    
+                    )}
+                </View>
+                </ScrollView>
+                <TouchableOpacity onPress={()=>setIconModalVisible(false)} style={styles.saveBtn}>
+                    <Text style={styles.saveBtnText}>Aceptar</Text>
+                </TouchableOpacity>
+              </View>
+            </View>
+      </Modal>
+      <Toast/>
     </View>
   );
 }
@@ -174,11 +236,37 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 25,
   },
   saveBtnText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 17,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: '70%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 20,
+  },
+  modalTitle: {
+    fontSize: 24,
+    fontWeight: 'bold',
+    color: paleta.dark_aqua
+  },
+  closeButton: {
+    padding: 8,
   },
 });
