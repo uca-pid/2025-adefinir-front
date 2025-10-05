@@ -82,6 +82,8 @@ export default function RootLayout() {
       <Tabs.Screen name='cursos'  options={{href:null}} />
       <Tabs.Screen name="HomeStudent" options={{href:null,title:"Home"}}/>
       <Tabs.Screen name="HomeTeacher" options={{href:null,title:"Home"}}/>
+
+      <Tabs.Screen name='lecciones'  options={{href:null,headerShown:false}} />
       
     </Tabs>
   );
