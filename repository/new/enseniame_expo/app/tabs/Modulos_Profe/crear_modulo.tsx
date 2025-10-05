@@ -9,9 +9,10 @@ import { error_alert } from "@/components/alert";
 import Toast from "react-native-toast-message";
 import { estilos } from "@/components/estilos";
 import { SmallPopupModal } from "@/components/modals";
+import { icon_type } from "@/components/types";
 
 const firsticonOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
-const iconOptions:( keyof typeof Ionicons.glyphMap) [] = Object.keys(Ionicons.glyphMap);
+const iconOptions:( icon_type) [] = Object.keys(Ionicons.glyphMap);
 
 export default function CrearModuloScreen() {
   
@@ -124,7 +125,7 @@ export default function CrearModuloScreen() {
                 <Ionicons name={icon} size={28} color= "#20bfa9"  />
               </Pressable>
         </View>:null}
-      <TouchableOpacity onPress={()=>setIconModalVisible(true)} style={[styles.iconOption,estilos.centrado,{borderRadius:30,borderColor:"white"},paleta_colores.aqua]}>
+      <TouchableOpacity onPress={()=>setIconModalVisible(true)} style={[styles.iconOption,estilos.centrado,{borderRadius:30,borderColor:"white"},paleta_colores.strong_yellow]}>
         <Ionicons name="add-sharp" size={28} color= "white" />
       </TouchableOpacity>
       <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={loading}>

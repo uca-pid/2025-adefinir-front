@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { TextInput, StyleSheet, KeyboardTypeOptions, StyleProp, ViewStyle, View, Pressable } from "react-native";
+import { icon_type } from "./types";
 
 type Icon = {
-    Ionicon_name : keyof typeof Ionicons.glyphMap
+    Ionicon_name : icon_type
 }
 
 

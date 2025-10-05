@@ -91,6 +91,8 @@ class Logged_Alumno extends Logged_User {
     }
 }
 
+type icon_type = keyof typeof Ionicons.glyphMap;
+
 interface Senia {
   id: number;
   significado: string;
@@ -125,4 +127,4 @@ interface Modulo {
     nombre: String
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo}
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo, icon_type}
