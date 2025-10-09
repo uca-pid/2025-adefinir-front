@@ -1,14 +1,21 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, Pressable, Alert } from "react-native";
+import { View, Text, StyleSheet, TextInput, Pressable, Alert, Modal, TouchableOpacity, ScrollView } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
-import { useRouter, useLocalSearchParams } from "expo-router";
-import { supabase } from "../../utils/supabase";
+import { useLocalSearchParams } from "expo-router";
+import { supabase } from "../../../utils/supabase";
 import { useUserContext } from "@/context/UserContext";
+import { paleta, paleta_colores } from "@/components/colores";
+import { error_alert } from "@/components/alert";
+import Toast from "react-native-toast-message";
+import { estilos } from "@/components/estilos";
+import { SmallPopupModal } from "@/components/modals";
+import { icon_type } from "@/components/types";
 
-const iconOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
+const firsticonOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
+const iconOptions:( icon_type) [] = Object.keys(Ionicons.glyphMap);
 
 export default function CrearModuloScreen() {
-  const router = useRouter();
+  
   const params = useLocalSearchParams<{ id?: string; nombre?: string; icon?: string; descripcion?: string }>();
   const isEdit = !!params.id;
   const [nombre, setNombre] = useState("");
@@ -16,7 +23,9 @@ export default function CrearModuloScreen() {
   const [icon, setIcon] = useState("car");
   const [loading, setLoading] = useState(false);
 
-  const contexto = useUserContext()
+  const [modalIconVisible, setIconModalVisible] = useState(false);
+
+  const contexto = useUserContext();
 
   useEffect(() => {
     if (isEdit) {
@@ -32,7 +41,8 @@ export default function CrearModuloScreen() {
 
   const handleSave = async () => {
     if (!nombre.trim()) {
-      Alert.alert("Error", "El nombre del módulo es obligatorio.");
+      error_alert("El nombre del módulo es obligatorio.")
+      //Alert.alert("Error", "El nombre del módulo es obligatorio.");
       return;
     }
     setLoading(true);
@@ -49,7 +59,7 @@ export default function CrearModuloScreen() {
           .insert([{ nombre, descripcion, icon }]);
         if (error) throw error;
       }
-      router.replace("/tabs/mis_modulos");
+      contexto.user.gotToModules();
     } catch (e: any) {
       Alert.alert("Error", e.message || "No se pudo guardar el módulo");
     } finally {
@@ -93,19 +103,56 @@ export default function CrearModuloScreen() {
       />
       <Text style={styles.label}>Icono:</Text>
       <View style={styles.iconRow}>
-        {iconOptions.map((ic) => (
-          <Pressable
-            key={ic}
-            style={[styles.iconOption, icon === ic && styles.iconSelected]}
-            onPress={() => setIcon(ic)}
-          >
-            <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
-          </Pressable>
-        ))}
+        {firsticonOptions.map((ic) =>  (
+              <Pressable
+                key={ic}
+                style={[styles.iconOption, icon === ic && styles.iconSelected]}
+                onPress={() => setIcon(ic)}
+              >
+                <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
+              </Pressable>
+            )
+          
+          )}
       </View>
-      <Pressable style={styles.saveBtn} onPress={handleSave} disabled={loading}>
+      {!firsticonOptions.includes(icon)? 
+        <View style={styles.iconRow}>
+          <Pressable
+                key={icon}
+                style={[styles.iconOption, styles.iconSelected]}
+                onPress={() => setIcon(icon)}
+              >
+                <Ionicons name={icon} size={28} color= "#20bfa9"  />
+              </Pressable>
+        </View>:null}
+      <TouchableOpacity onPress={()=>setIconModalVisible(true)} style={[styles.iconOption,estilos.centrado,{borderRadius:30,borderColor:"white"},paleta_colores.strong_yellow]}>
+        <Ionicons name="add-sharp" size={28} color= "white" />
+      </TouchableOpacity>
+      <TouchableOpacity style={styles.saveBtn} onPress={handleSave} disabled={loading}>
         <Text style={styles.saveBtnText}>{loading ? "Guardando..." : isEdit ? "Guardar cambios" : "Crear módulo"}</Text>
-      </Pressable>
+      </TouchableOpacity>
+
+      <SmallPopupModal title="Seleccionar ícono" modalVisible={modalIconVisible} setVisible={setIconModalVisible}>
+        <ScrollView style={[{maxHeight:400}]} contentContainerStyle={estilos.centrado}>
+          <View style={[styles.iconRow,estilos.centrado,{flexWrap:"wrap"}]}>
+            {iconOptions.map((ic,index) => (
+                  <Pressable
+                    key={ic}
+                    style={[styles.iconOption, icon === ic && styles.iconSelected,{margin:5}]}
+                    onPress={() => setIcon(ic)}
+                  >
+                    <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
+                  </Pressable>
+                )
+              
+              )}
+          </View>
+          </ScrollView>
+          <TouchableOpacity onPress={()=>setIconModalVisible(false)} style={styles.saveBtn}>
+              <Text style={styles.saveBtnText}>Aceptar</Text>
+          </TouchableOpacity>
+      </SmallPopupModal>
+      <Toast/>
     </View>
   );
 }
@@ -122,6 +169,7 @@ const styles = StyleSheet.create({
     alignSelf: 'flex-start',
     marginBottom: 10,
     padding: 8,
+    marginTop:20  
   },
   backBtnText: {
     color: '#20bfa9',
@@ -134,6 +182,7 @@ const styles = StyleSheet.create({
     color: '#222',
     alignSelf: 'center',
     marginBottom: 18,
+    marginTop:15 
   },
   input: {
     backgroundColor: '#fff',
@@ -172,11 +221,12 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     paddingVertical: 14,
     alignItems: 'center',
-    marginTop: 10,
+    marginTop: 25,
   },
   saveBtnText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 17,
   },
+  
 });

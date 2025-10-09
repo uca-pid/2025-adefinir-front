@@ -5,44 +5,6 @@ import { useFocusEffect, useRouter } from "expo-router";
 import { Senia,Senia_Info, Modulo } from "@/components/types";
 import { todos_los_modulos } from "@/conexiones/modulos";
 
-type Sign = { id: string; nombre: string; video_url: string };
-type Module = {
-  id: string;
-  nombre: string;
-  icon: keyof typeof Ionicons.glyphMap;
-  signs: Sign[];
-};
-
-const modules: Module[] = [
-  {
-    id: "1",
-    nombre: "Señas de tránsito",
-    icon: "car",
-    signs: [
-      { id: "1", nombre: "Pare", video_url: "https://www.example.com/video/pare.mp4" },
-      { id: "2", nombre: "Ceda el paso", video_url: "https://www.example.com/video/ceda.mp4" },
-      { id: "3", nombre: "Velocidad máxima", video_url: "https://www.example.com/video/velocidad.mp4" },
-    ],
-  },
-  {
-    id: "2",
-    nombre: "Señas básicas",
-    icon: "hand-left",
-    signs: [
-      { id: "4", nombre: "Hola", video_url: "https://www.example.com/video/hola.mp4" },
-      { id: "5", nombre: "Gracias", video_url: "https://www.example.com/video/gracias.mp4" },
-    ],
-  },
-  {
-    id: "3",
-    nombre: "Animales",
-    icon: "paw",
-    signs: [
-      { id: "6", nombre: "Perro", video_url: "https://www.example.com/video/perro.mp4" },
-      { id: "7", nombre: "Gato", video_url: "https://www.example.com/video/gato.mp4" },
-    ],
-  },
-];
 
 export default function ModulosScreen() {
   const router = useRouter();
@@ -100,6 +62,7 @@ const styles = StyleSheet.create({
     fontSize: 28,
     fontWeight: "bold",
     marginBottom: 20,
+    marginTop:60,
     color: "#222",
     alignSelf: "center",
   },

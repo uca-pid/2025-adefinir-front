@@ -73,7 +73,7 @@ class Logged_Profesor extends Logged_User {
         router.push('/tabs/HomeTeacher');
     }
     gotToModules():void{
-        router.push('/tabs/mis_modulos');
+        router.push('/tabs/Modulos_Profe');
     }
 
 }
@@ -90,6 +90,8 @@ class Logged_Alumno extends Logged_User {
         router.navigate('/tabs/Modulos_Alumno');
     }
 }
+
+type icon_type = keyof typeof Ionicons.glyphMap;
 
 interface Senia {
   id: number;
@@ -125,4 +127,4 @@ interface Modulo {
     nombre: String
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo}
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo, icon_type}

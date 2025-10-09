@@ -1,9 +1,16 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, ActivityIndicator, Modal } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { supabase } from "../../utils/supabase";
+import { supabase } from "../../../utils/supabase";
 import { useUserContext } from "@/context/UserContext";
+import { ThemedText } from "@/components/ThemedText";
+import VideoPlayer from "@/components/VideoPlayer";
+import { Senia_Info } from "@/components/types";
+import { paleta } from "@/components/colores";
+import { buscar_senias_modulo } from "@/conexiones/modulos";
+import Toast from "react-native-toast-message";
+import { SmallPopupModal } from "@/components/modals";
 
 interface Senia {
   id: number;
@@ -16,13 +23,16 @@ export default function DetalleModuloScreen() {
   const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [seniasModulo, setSeniasModulo] = useState<Senia[]>([]);
+  const [seniasModulo, setSeniasModulo] = useState<Senia_Info[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [diccionario, setDiccionario] = useState<Senia[]>([]);
   const [agregando, setAgregando] = useState(false);
 
-  const contexto = useUserContext()
+  const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
+  const [modalVisible, setModalVisible] = useState(false);
+
+  const contexto = useUserContext();
 
   useEffect(() => {
     fetchSeniasModulo();
@@ -37,7 +47,7 @@ export default function DetalleModuloScreen() {
   const fetchSeniasModulo = async () => {
     setLoading(true);
     try {
-      const { data: relaciones, error: relError } = await supabase
+      /* const { data: relaciones, error: relError } = await supabase
         .from('Modulo_Video')
         .select('id_video')
         .eq('id_modulo', id);
@@ -52,8 +62,10 @@ export default function DetalleModuloScreen() {
         .from('Senias')
         .select('*')
         .in('id', ids);
-      if (seniaError) throw seniaError;
-      setSeniasModulo(senias || []);
+      if (seniaError) throw seniaError; */
+      const s = await  buscar_senias_modulo(Number(id));
+    
+      setSeniasModulo(s || []);
     } catch (e) {
       Alert.alert('Error', 'No se pudieron cargar las señas del módulo');
     } finally {
@@ -93,16 +105,9 @@ export default function DetalleModuloScreen() {
     fetchSeniasModulo();
   };
 
-  const handleVerSenia = (senia: Senia) => {
-    router.push({
-      pathname: "/tabs/senia",
-      params: {
-        id: senia.id,
-        nombre: senia.significado,
-        video_url: senia.video_url,
-        modulo_id: id
-      }
-    });
+  const handleVerSenia = (senia: Senia_Info) => {
+    setSelectedSenia(senia);
+    setModalVisible(true)
   };
 
   const handleAgregarSenia = async (senia: Senia) => {
@@ -129,7 +134,7 @@ export default function DetalleModuloScreen() {
   return (
     <View style={styles.container}>
       <Pressable
-        style={[styles.backBtn, { marginBottom: 10, flexDirection: 'row', alignItems: 'center' }]}
+        style={[styles.backBtn, { marginBottom: 10, marginTop:30, flexDirection: 'row', alignItems: 'center' }]}
         onPress={() => {   contexto.user.gotToModules()   }}
       >
         <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
@@ -173,7 +178,7 @@ export default function DetalleModuloScreen() {
           renderItem={({ item }) => (
             <View style={styles.card}>
               <View style={styles.row}>
-                <Image source={{ uri: item.thumbnail || 'https://img.youtube.com/vi/1/default.jpg' }} style={styles.thumbnail} />
+                <Image source={{ uri: /* item.thumbnail || */ 'https://img.youtube.com/vi/1/default.jpg' }} style={styles.thumbnail} />
                 <View style={{ flex: 1 }}>
                   <Text style={styles.cardTitle}>{item.significado}</Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
@@ -203,6 +208,32 @@ export default function DetalleModuloScreen() {
       >
         <Text style={{ color: '#fff', fontWeight: 'bold', fontSize: 18 }}>Guardar</Text>
       </Pressable>
+
+        <SmallPopupModal title={selectedSenia?.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
+          {selectedSenia && (
+            <VideoPlayer 
+              uri={selectedSenia.video_url}
+              style={styles.video}
+            />
+          )}
+          {selectedSenia && selectedSenia.Categorias ?
+          <ThemedText style={{margin:10}}>
+            <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
+            <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
+          </ThemedText>
+            :null
+          }
+              
+              {selectedSenia && selectedSenia.Users  ?
+              <ThemedText style={{margin:10}}>
+                <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
+                <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
+              </ThemedText>
+                :null
+              }
+
+        </SmallPopupModal>
+        <Toast/>
     </View>
   );
 }
@@ -221,6 +252,7 @@ const styles = StyleSheet.create({
     color: '#222',
     alignSelf: 'center',
     marginBottom: 18,
+    marginTop:15
   },
   card: {
     backgroundColor: '#fff',
@@ -264,7 +296,7 @@ const styles = StyleSheet.create({
   backBtn: {
     padding: 10,
     borderRadius: 8,
-    backgroundColor: '#fff',
+    
     alignSelf: 'flex-start',
     flexDirection: 'row',
     alignItems: 'center',
@@ -274,5 +306,11 @@ const styles = StyleSheet.create({
     color: '#20bfa9',
     fontWeight: 'bold',
     fontSize: 16,
+  },
+ 
+  video: {
+    width: '100%',
+    aspectRatio: 16/9,
+    borderRadius: 12,
   },
 });

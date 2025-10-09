@@ -1,8 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { TextInput, StyleSheet, KeyboardTypeOptions, StyleProp, ViewStyle, View, Pressable } from "react-native";
+import { icon_type } from "./types";
 
 type Icon = {
-    Ionicon_name : keyof typeof Ionicons.glyphMap
+    Ionicon_name : icon_type
 }
 
 
@@ -17,8 +18,8 @@ function IconTextInput (props:
             <Ionicons name={props.icon.Ionicon_name} size={24} color="#666" style={styles.inputIcon} />
             <TextInput
                 style={[styles.textInput,{backgroundColor:props.bck_color}]}
-                textContentType="emailAddress"
-                keyboardType="email-address"
+                textContentType="name"
+                keyboardType={props.keyboardType}
                 onChangeText={props.onChange}
                 value={props.value}
                 placeholder={props.placeholder}
@@ -70,7 +71,7 @@ const styles = StyleSheet.create({
         borderWidth: 1,
         justifyContent: 'center',
         maxHeight: 42,
-        minHeight: 40,
+        minHeight: 42,
         width: "100%"
   },
     inputIcon: {

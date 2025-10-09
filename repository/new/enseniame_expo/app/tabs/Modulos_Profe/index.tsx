@@ -3,7 +3,7 @@ import { useFocusEffect } from "expo-router";
 import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { supabase } from "../../utils/supabase";
+import { supabase } from "../../../utils/supabase";
 
 export default function MisModulosScreen() {
   const [modules, setModules] = useState<any[]>([]);
@@ -38,7 +38,7 @@ export default function MisModulosScreen() {
   <Text style={styles.title}>Módulos</Text>
       <Pressable
         style={styles.addBtn}
-        onPress={() => router.push("/tabs/crear_modulo")}
+        onPress={() => router.push("/tabs/Modulos_Profe/crear_modulo")}
       >
         <Ionicons name="add" size={28} color="#fff" />
         <Text style={styles.addBtnText}>Agregar módulo</Text>
@@ -68,7 +68,7 @@ export default function MisModulosScreen() {
                 <Pressable
                   style={styles.viewBtn}
                   onPress={() => router.push({
-                    pathname: "/tabs/detalle_modulo",
+                    pathname: "/tabs/Modulos_Profe/detalle_modulo",
                     params: { id: item.id, nombre: item.nombre }
                   })}
                 >
@@ -104,7 +104,7 @@ export default function MisModulosScreen() {
                       style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
                       onPress={() => {
                         setShowMenu(null);
-                        router.push({ pathname: "/tabs/crear_modulo", params: { id: item.id, nombre: item.nombre, icon: item.icon, descripcion: item.descripcion } });
+                        router.push({ pathname: "/tabs/Modulos_Profe/crear_modulo", params: { id: item.id, nombre: item.nombre, icon: item.icon, descripcion: item.descripcion } });
                       }}
                     >
                       <Ionicons name="create-outline" size={18} color="#20bfa9" style={{ marginRight: 8 }} />
@@ -175,6 +175,7 @@ const styles = StyleSheet.create({
     color: "#222",
     alignSelf: "center",
     marginBottom: 18,
+    marginTop: 50
   },
   card: {
     backgroundColor: "#fff",
