@@ -4,6 +4,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import {  Modulo } from "@/components/types";
 import { todos_los_modulos } from "@/conexiones/modulos";
+import Toast from "react-native-toast-message";
 
 
 export default function ModulosScreen() {
@@ -48,6 +49,7 @@ export default function ModulosScreen() {
           </View>
         )}
       />
+      <Toast/>
     </View>
   );
 }

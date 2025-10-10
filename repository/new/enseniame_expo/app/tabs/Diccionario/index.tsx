@@ -17,6 +17,7 @@ import { ThemedText } from '@/components/ThemedText';
 import { useUserContext } from '@/context/UserContext';
 import { router } from 'expo-router';
 import { SmallPopupModal } from '@/components/modals';
+import Toast from 'react-native-toast-message';
 
 export default function Diccionario() {
   const [senias, setSenias] = useState<Senia_Info[]>([]);
@@ -211,7 +212,7 @@ export default function Diccionario() {
           }
 
         </SmallPopupModal>
-        
+        <Toast/>
       </View>
     
   );

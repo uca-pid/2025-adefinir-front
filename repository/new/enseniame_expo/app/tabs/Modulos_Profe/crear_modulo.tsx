@@ -10,6 +10,7 @@ import Toast from "react-native-toast-message";
 import { estilos } from "@/components/estilos";
 import { SmallPopupModal } from "@/components/modals";
 import { icon_type } from "@/components/types";
+import { crear_modulo, editar_modulo } from "@/conexiones/modulos";
 
 const firsticonOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
 const iconOptions:( icon_type) [] = Object.keys(Ionicons.glyphMap);
@@ -20,8 +21,8 @@ export default function CrearModuloScreen() {
   const isEdit = !!params.id;
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [icon, setIcon] = useState("car");
   const [loading, setLoading] = useState(false);
+  const [icon, setIcon] = useState<icon_type>("car");
 
   const [modalIconVisible, setIconModalVisible] = useState(false);
 
@@ -48,16 +49,9 @@ export default function CrearModuloScreen() {
     setLoading(true);
     try {
       if (isEdit && params.id) {
-        const { error } = await supabase
-          .from("Modulos")
-          .update({ nombre, descripcion, icon })
-          .eq("id", params.id);
-        if (error) throw error;
+        const exito = await editar_modulo(Number(params.id),nombre,descripcion,icon)
       } else {
-        const { error } = await supabase
-          .from("Modulos")
-          .insert([{ nombre, descripcion, icon }]);
-        if (error) throw error;
+        const exito = await crear_modulo(nombre,descripcion,icon,contexto.user.id);
       }
       contexto.user.gotToModules();
     } catch (e: any) {

@@ -1,5 +1,5 @@
 import { supabase } from '../lib/supabase'
-import { Logged_Alumno, Logged_Profesor, Modulo, Profesor, User } from '@/components/types'
+import { icon_type, Logged_Alumno, Logged_Profesor, Modulo, Profesor, User } from '@/components/types'
 import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 
@@ -59,4 +59,25 @@ const mis_modulos = async (id:number)=>{
     if (Modulos && Modulos.length>0) return Modulos         
 }
 
-export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos}
+const eliminar_modulo = async (id:number)=>{
+    const { error } = await supabase.from('Modulos').delete().eq('id', id);
+    if (error) throw error
+}
+
+const crear_modulo = async (nombre: string, descripcion: string, icon: icon_type, autor: number)=>{
+    const { error } = await supabase.from("Modulos")
+        .insert([{ nombre, descripcion, icon, autor }]);
+    if (error) throw error;
+    return true
+}
+
+const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: icon_type)=>{
+    const { error } = await supabase
+        .from("Modulos")
+        .update({ nombre, descripcion, icon })
+        .eq("id", id);
+    if (error) throw error;
+    return true
+}
+
+export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo}

@@ -4,9 +4,10 @@ import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { supabase } from "../../../utils/supabase";
-import { mis_modulos } from "@/conexiones/modulos";
+import { eliminar_modulo, mis_modulos } from "@/conexiones/modulos";
 import { useUserContext } from "@/context/UserContext";
 import { error_alert } from "@/components/alert";
+import Toast from "react-native-toast-message";
 
 export default function MisModulosScreen() {
   const [modules, setModules] = useState<any[]>([]);
@@ -36,8 +37,13 @@ export default function MisModulosScreen() {
 
   const handleDelete = async (id: number) => {
     setShowMenu(null);
-    const { error } = await supabase.from('Modulos').delete().eq('id', id);
-    if (!error) fetchModules();
+    eliminar_modulo(id)
+      .catch(reason=>{
+        console.error(reason);
+        error_alert("No se pudo eliminar el módulo");
+      })
+      .then(()=>fetchModules())
+    
   };
 
   return (
@@ -56,7 +62,7 @@ export default function MisModulosScreen() {
         <FlatList
           data={modules}
           keyExtractor={(item) => item.id.toString()}
-          contentContainerStyle={{ paddingBottom: 40 }}
+          contentContainerStyle={{ paddingBottom: 80 }}
           renderItem={({ item }) => (
             <View style={styles.card}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
@@ -131,6 +137,7 @@ export default function MisModulosScreen() {
           )}
         />
       )}
+      <Toast/>
     </View>
   );
 }

@@ -13,6 +13,7 @@ import { SmallPopupModal } from '@/components/modals';
 import { ThemedText } from '@/components/ThemedText';
 import VideoPlayer from '@/components/VideoPlayer';
 import { estilos } from '@/components/estilos';
+import Toast from 'react-native-toast-message';
 
 type Vistas = {
   id: number,
@@ -161,9 +162,9 @@ export default function Vistas (){
 
             </>
           )}
-          
 
         </SmallPopupModal>
+        <Toast/>
         </View>
     )
 }

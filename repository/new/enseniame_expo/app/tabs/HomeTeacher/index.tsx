@@ -9,6 +9,7 @@ import { error_alert } from '@/components/alert';
 import { paleta } from '@/components/colores';
 import { mis_modulos } from '@/conexiones/modulos';
 import { visualizaciones_profe } from '@/conexiones/visualizaciones';
+import Toast from 'react-native-toast-message';
 
 type Vistas = {
   id: number,
@@ -85,6 +86,7 @@ export default function HomeTeacher() {
           </TouchableOpacity>
         </View>
       </ScrollView>
+      <Toast/>
     </View>
   );
 }
