@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, Pressable, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
@@ -8,12 +8,21 @@ import { mis_senias } from '@/conexiones/videos';
 import { error_alert } from '@/components/alert';
 import { paleta } from '@/components/colores';
 import { mis_modulos } from '@/conexiones/modulos';
+import { visualizaciones_profe } from '@/conexiones/visualizaciones';
+
+type Vistas = {
+  id: number,
+  alumno: number,
+  senia: number,
+  Senias : Senia,
+}
 
 export default function HomeTeacher() {
   const contexto = useUserContext();
   const teacherName = 'Prof. ' + contexto.user.username;
   const [misSenias, setSenias] = useState<Senia[]>();
   const [misModulos, setModulos] = useState<Modulo[]>();
+  const [visualizaciones, setVisualizaciones] = useState<Vistas[]>();
 
   useFocusEffect(
     useCallback(() => {
@@ -30,6 +39,9 @@ export default function HomeTeacher() {
 
       const data_m = await mis_modulos(contexto.user.id);
       setModulos(data_m || []);
+
+      const vistas = await visualizaciones_profe(contexto.user.id);
+      setVisualizaciones(vistas || []);
       
     } catch (error) {
       error_alert("Error al buscar las estadísticas");
@@ -44,34 +56,33 @@ export default function HomeTeacher() {
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
 
         <View style={styles.stackCards}>
-          <View style={[styles.card, styles.cardLeft]}> 
+          <TouchableOpacity style={[styles.card, styles.cardLeft]} onPress={()=>router.push("/tabs/HomeTeacher/vistas")}> 
             <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
-            <Text style={styles.cardTitleCursos}>{misSenias?.length} señas subidas</Text>
-            
-          </View>
-          <View style={[styles.card, styles.cardRight]}> 
+            <Text style={styles.cardTitleCursos}>{visualizaciones?.length} {visualizaciones?.length==1 ? "vista" : "vistas"} en tus videos</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.card, styles.cardRight]}> 
             <Text style={styles.cardTitleCursos}>{misSenias?.length} </Text>
             <Text style={styles.cardTextCursos}> señas subidas</Text>
 
             <Text style={styles.cardTitleCursos}>{misModulos?.length} </Text>
             <Text style={styles.cardTextCursos}> módulos creados</Text>
-            
-          </View>
+          </TouchableOpacity>
         </View>
 
-        <Pressable style={styles.ctaButtonCursos} onPress={()=>contexto.user.gotToModules()}>
+        <TouchableOpacity style={styles.ctaButtonCursos} onPress={()=>contexto.user.gotToModules()}>
           <Ionicons name="albums-outline" size={24} color="#fff" style={styles.ctaIcon} />
           <Text style={styles.ctaButtonTextCursos}>Mis módulos</Text>
-        </Pressable>
+        </TouchableOpacity>
         <View style={styles.cardRow}>
-          <Pressable onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCardCursos}>
+          <TouchableOpacity onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCardCursos}>
             <Ionicons name="videocam-outline" size={22} color="#20bfa9" />
             <Text style={styles.quickActionTextCursos}>Subir video de seña</Text>
-          </Pressable>
-          <Pressable style={styles.quickActionCardCursos}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.quickActionCardCursos}>
             <Ionicons name="school-outline" size={22} color="#20bfa9" />
             <Text style={styles.quickActionTextCursos}>Ver progreso de estudiantes</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </ScrollView>
     </View>

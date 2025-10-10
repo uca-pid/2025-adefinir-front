@@ -62,7 +62,7 @@ export default function Diccionario() {
   const filterSenias = () => {
     var filtered = senias.filter(senia => 
       senia.significado.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      senia.Categorias?.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) 
+      senia.Categorias.nombre?.toLowerCase().includes(searchQuery.toLowerCase()) 
     );
     if (mostrarPropios){
       filtered = filtered.filter(senia =>  esMio(senia))
@@ -115,9 +115,11 @@ export default function Diccionario() {
       <View style={styles.listItemContent}>
         <View>
           <Text style={styles.significadoText}>{item.significado}</Text>
-          {item.Categorias ? <Text style={[styles.significadoText,{fontSize:12,marginTop:5}]}>{item.Categorias?.nombre}</Text>:null }
-          {item.Users && esMio(item) ? <Text style={[styles.significadoText,{fontSize:12,marginTop:5,color:paleta.strong_yellow}]}>{item.Users?.username} (Yo)</Text>:null }
-          {item.Users && !esMio(item) ? <Text style={[styles.significadoText,{fontSize:12,marginTop:5,color:paleta.strong_yellow}]}>{item.Users?.username}</Text>:null }
+          <Text style={[styles.significadoText,{fontSize:12,marginTop:5}]}>{item.Categorias?.nombre}</Text>
+          {item.Users && esMio(item) ? 
+            <Text style={[styles.significadoText,{fontSize:12,marginTop:5,color:paleta.strong_yellow}]}>{item.Users?.username} (Yo)</Text>:
+            <Text style={[styles.significadoText,{fontSize:12,marginTop:5,color:paleta.strong_yellow}]}>{item.Users?.username}</Text> }
+          
           
         </View>
         
@@ -149,7 +151,7 @@ export default function Diccionario() {
             <Text style={styles.countTextCursos}>{filteredSenias.length}</Text>
           </View>
 
-        <View style={[styles.searchContainer,{padding:5}]}>
+        { contexto.user.is_prof && <View style={[styles.searchContainer,{padding:5}]}>
           <Checkbox
             style={styles.checkbox}
             value={mostrarPropios}
@@ -157,7 +159,7 @@ export default function Diccionario() {
             color={mostrarPropios ? paleta.yellow : undefined}
           />
           <ThemedText type='defaultSemiBold' lightColor={paleta.dark_aqua}>Mostrar sólo mis videos</ThemedText>
-        </View>
+        </View>}
 
         <FlatList
           data={filteredSenias}
@@ -169,18 +171,18 @@ export default function Diccionario() {
 
         <SmallPopupModal title={selectedSenia?.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
           {selectedSenia && (
+            <>
             <VideoPlayer 
               uri={selectedSenia.video_url}
               style={styles.video}
             />
+            <ThemedText style={{margin:10}}>
+              <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
+              <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
+            </ThemedText>   
+            </>
           )}
-          {selectedSenia && selectedSenia.Categorias ?
-          <ThemedText style={{margin:10}}>
-            <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
-            <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
-          </ThemedText>
-            :null
-          }
+          
           {selectedSenia && selectedSenia.Users && esMio(selectedSenia) ?
           <ThemedText style={{margin:10}}>
             <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
@@ -202,9 +204,9 @@ export default function Diccionario() {
                 <Ionicons name="create" color={paleta.dark_aqua} size={25} style={styles.icon} />
                 <ThemedText type="subtitle" lightColor={paleta.dark_aqua} style={{flex:2}}>Editar seña</ThemedText>
               </TouchableOpacity>
-              <TouchableOpacity style={[styles.iconButton,estilos.shadow,paleta_colores.yellow]} onPress={()=>{eliminar_senia(selectedSenia)}}   >  
-                <Ionicons name="trash-bin-outline" color='#c91216' size={25} style={styles.icon} />
-                <ThemedText type="subtitle" lightColor='#c91216' style={{flex:2}}>Eliminar seña</ThemedText>
+              <TouchableOpacity style={[styles.iconButton,estilos.shadow,{backgroundColor:"red"}]} onPress={()=>{eliminar_senia(selectedSenia)}}   >  
+                <Ionicons name="trash-bin-outline" color='white' size={25} style={styles.icon} />
+                <ThemedText type="subtitle" lightColor='white' style={{flex:2}}>Eliminar seña</ThemedText>
               </TouchableOpacity></> : null
           }
 
