@@ -144,4 +144,16 @@ const cambiar_nombre_senia = async (nombre_nuevo:string,id_senia:number)=>{
     return true
 }
 
-export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video, borrar_de_bucket as borrar_video_de_storage, cambiar_nombre_senia}
+const mis_senias = async (id:number)=>{
+  
+  let { data: Senias, error } = await supabase
+    .from('Senias')
+    .select('*')
+    .eq('id_autor',id);
+  if (error) throw error;
+
+  if (Senias && Senias.length>0) return Senias     
+}
+
+export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video, borrar_de_bucket as borrar_video_de_storage, 
+    cambiar_nombre_senia, mis_senias }

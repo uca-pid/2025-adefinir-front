@@ -1,17 +1,55 @@
-import React from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
+import { Senia } from '@/components/types';
+import { mis_senias } from '@/conexiones/videos';
+import { error_alert } from '@/components/alert';
+import { paleta } from '@/components/colores';
 
 export default function HomeTeacher() {
   const contexto = useUserContext();
   const teacherName = 'Prof. ' + contexto.user.username;
+  const [misSenias, setSenias] = useState<Senia[]>();
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchStats();
+      return () => {
+      };
+    }, [])
+  );
+
+  const fetchStats = async ()=>{
+    try {
+      const data= await mis_senias(contexto.user.id);
+      setSenias(data || []);
+      
+    } catch (error) {
+      error_alert("Error al buscar las estadísticas");
+      console.error(error);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Panel del Profesor</Text>
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
+
+        <View style={styles.stackCards}>
+          <View style={[styles.card, styles.cardLeft]}> 
+            <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
+            <Text style={styles.cardTitleCursos}>{misSenias?.length} señas subidas</Text>
+          </View>
+          <View style={[styles.card, styles.cardRight]}> 
+            <Text style={styles.cardTitleCursos}>Nivel </Text>
+            <Text style={styles.cardTextCursos}> XP</Text>
+            
+          </View>
+        </View>
+
         <Pressable style={styles.ctaButtonCursos} onPress={()=>contexto.user.gotToModules()}>
           <Ionicons name="albums-outline" size={24} color="#fff" style={styles.ctaIcon} />
           <Text style={styles.ctaButtonTextCursos}>Mis módulos</Text>
@@ -72,7 +110,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     height: 50,
     marginBottom: 18,
-    marginTop: 20,
+    marginTop: 10,
     paddingHorizontal: 18,
     shadowColor: '#000',
     shadowOpacity: 0.08,
@@ -152,5 +190,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 6,
     textAlign: 'center',
+  },
+  stackCards: {
+    flexDirection: 'row',
+    width: '100%',
+    marginBottom: 20,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 32,
+    padding: 24,
+    flex: 1, 
+    alignItems: 'flex-start',
+    shadowColor: '#222',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+  },
+  cardLeft: {
+    marginRight: 6,
+  },
+  cardRight: {
+    marginLeft: 6,
+  },
+  cardTitleCursos: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 2,
+    fontFamily: 'System',
+    letterSpacing: 0.2,
+  },
+  cardTextCursos: {
+    fontSize: 15,
+    color: '#222',
+    opacity: 0.8,
+    marginBottom: 6,
+    fontFamily: 'System',
   },
 });
