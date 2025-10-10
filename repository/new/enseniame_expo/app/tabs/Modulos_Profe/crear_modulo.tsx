@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, Pressable, Alert, Modal, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TextInput, Pressable, Alert, Modal, TouchableOpacity, ScrollView, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
 import { supabase } from "../../../utils/supabase";
@@ -60,6 +60,15 @@ export default function CrearModuloScreen() {
       setLoading(false);
     }
   };
+
+  const renderIcons =  ({ item }: { item: icon_type }) => (
+    <Pressable
+      style={[styles.iconOption, icon === item && styles.iconSelected,{margin:5}]}
+      onPress={() => setIcon(item)}
+    >
+      <Ionicons name={item} size={28} color={icon === item ? "#20bfa9" : "#888"} />
+    </Pressable>
+  )
 
   return (
     <View style={styles.container}>
@@ -127,21 +136,17 @@ export default function CrearModuloScreen() {
       </TouchableOpacity>
 
       <SmallPopupModal title="Seleccionar ícono" modalVisible={modalIconVisible} setVisible={setIconModalVisible}>
-        <ScrollView style={[{maxHeight:400}]} contentContainerStyle={estilos.centrado}>
-          <View style={[styles.iconRow,estilos.centrado,{flexWrap:"wrap"}]}>
-            {iconOptions.map((ic,index) => (
-                  <Pressable
-                    key={ic}
-                    style={[styles.iconOption, icon === ic && styles.iconSelected,{margin:5}]}
-                    onPress={() => setIcon(ic)}
-                  >
-                    <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
-                  </Pressable>
-                )
-              
-              )}
-          </View>
-          </ScrollView>
+        <View style={[styles.iconRow,estilos.centrado]}>
+          <FlatList
+            data={iconOptions}
+            renderItem={renderIcons}
+            keyExtractor={(item) => item.toString()}
+            contentContainerStyle={[estilos.centrado,styles.iconRow,{flexWrap:"wrap"}]}
+            style={[{maxHeight:400}]}
+            numColumns={5}
+          />
+        </View>
+          
           <TouchableOpacity onPress={()=>setIconModalVisible(false)} style={styles.saveBtn}>
               <Text style={styles.saveBtnText}>Aceptar</Text>
           </TouchableOpacity>
