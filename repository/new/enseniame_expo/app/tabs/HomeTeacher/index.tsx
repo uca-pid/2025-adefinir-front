@@ -3,15 +3,17 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
-import { Senia } from '@/components/types';
+import { Modulo, Senia } from '@/components/types';
 import { mis_senias } from '@/conexiones/videos';
 import { error_alert } from '@/components/alert';
 import { paleta } from '@/components/colores';
+import { mis_modulos } from '@/conexiones/modulos';
 
 export default function HomeTeacher() {
   const contexto = useUserContext();
   const teacherName = 'Prof. ' + contexto.user.username;
   const [misSenias, setSenias] = useState<Senia[]>();
+  const [misModulos, setModulos] = useState<Modulo[]>();
 
   useFocusEffect(
     useCallback(() => {
@@ -25,6 +27,9 @@ export default function HomeTeacher() {
     try {
       const data= await mis_senias(contexto.user.id);
       setSenias(data || []);
+
+      const data_m = await mis_modulos(contexto.user.id);
+      setModulos(data_m || []);
       
     } catch (error) {
       error_alert("Error al buscar las estadísticas");
@@ -42,10 +47,14 @@ export default function HomeTeacher() {
           <View style={[styles.card, styles.cardLeft]}> 
             <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
             <Text style={styles.cardTitleCursos}>{misSenias?.length} señas subidas</Text>
+            
           </View>
           <View style={[styles.card, styles.cardRight]}> 
-            <Text style={styles.cardTitleCursos}>Nivel </Text>
-            <Text style={styles.cardTextCursos}> XP</Text>
+            <Text style={styles.cardTitleCursos}>{misSenias?.length} </Text>
+            <Text style={styles.cardTextCursos}> señas subidas</Text>
+
+            <Text style={styles.cardTitleCursos}>{misModulos?.length} </Text>
+            <Text style={styles.cardTextCursos}> módulos creados</Text>
             
           </View>
         </View>

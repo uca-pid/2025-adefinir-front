@@ -50,4 +50,13 @@ const buscar_senias_modulo = async (id:number)=>{
     }
 }
 
-export {todos_los_modulos,buscar_modulo,buscar_senias_modulo}
+const mis_modulos = async (id:number)=>{
+    let { data: Modulos, error } = await supabase
+        .from('Modulos')
+        .select('*')
+        .eq('autor',id);
+    if (error) throw error;
+    if (Modulos && Modulos.length>0) return Modulos         
+}
+
+export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos}
