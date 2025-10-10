@@ -2,7 +2,7 @@ import React, { useCallback, useState } from "react";
 import { View, Text, Pressable, StyleSheet, FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
-import { Senia,Senia_Info, Modulo } from "@/components/types";
+import {  Modulo } from "@/components/types";
 import { todos_los_modulos } from "@/conexiones/modulos";
 
 

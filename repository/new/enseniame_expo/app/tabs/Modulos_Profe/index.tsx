@@ -4,6 +4,9 @@ import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { supabase } from "../../../utils/supabase";
+import { mis_modulos } from "@/conexiones/modulos";
+import { useUserContext } from "@/context/UserContext";
+import { error_alert } from "@/components/alert";
 
 export default function MisModulosScreen() {
   const [modules, setModules] = useState<any[]>([]);
@@ -11,9 +14,8 @@ export default function MisModulosScreen() {
   const [showMenu, setShowMenu] = useState<number | null>(null);
   const router = useRouter();
 
-  useEffect(() => {
-    fetchModules();
-  }, []);
+  const contexto = useUserContext()
+
   useFocusEffect(
     React.useCallback(() => {
       fetchModules();
@@ -22,8 +24,13 @@ export default function MisModulosScreen() {
 
   const fetchModules = async () => {
     setLoading(true);
-    const { data, error } = await supabase.from('Modulos').select('*').order('id', { ascending: true });
-    if (!error && data) setModules(data);
+    try {
+      const data = await mis_modulos(contexto.user.id);
+      setModules(data || [])
+    } catch (error) {
+      console.error(error);
+      error_alert("Se produjo un error al buscar los módulos");
+    }
     setLoading(false);
   };
 
@@ -35,7 +42,7 @@ export default function MisModulosScreen() {
 
   return (
     <View style={styles.container}>
-  <Text style={styles.title}>Módulos</Text>
+  <Text style={styles.title}>Mis módulos</Text>
       <Pressable
         style={styles.addBtn}
         onPress={() => router.push("/tabs/Modulos_Profe/crear_modulo")}
@@ -162,12 +169,14 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.12,
     shadowRadius: 8,
     elevation: 4,
+    marginVertical: 20
   },
   addBtnText: {
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 18,
     marginLeft: 8,
+    
   },
   title: {
     fontSize: 28,
