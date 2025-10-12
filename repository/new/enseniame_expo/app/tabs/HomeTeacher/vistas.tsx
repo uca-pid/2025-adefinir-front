@@ -7,7 +7,6 @@ import { Modulo, Senia, Senia_Info } from '@/components/types';
 import { buscarSenias, mis_senias } from '@/conexiones/videos';
 import { error_alert } from '@/components/alert';
 import { paleta, paleta_colores } from '@/components/colores';
-import { mis_modulos } from '@/conexiones/modulos';
 import { visualizaciones_profe } from '@/conexiones/visualizaciones';
 import { SmallPopupModal } from '@/components/modals';
 import { ThemedText } from '@/components/ThemedText';
@@ -16,7 +15,6 @@ import { estilos } from '@/components/estilos';
 import Toast from 'react-native-toast-message';
 
 type Vistas = {
-  id: number,
   alumno: number,
   senia: number,
   Senias : Senia,

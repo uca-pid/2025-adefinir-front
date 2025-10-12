@@ -12,7 +12,6 @@ import { visualizaciones_profe } from '@/conexiones/visualizaciones';
 import Toast from 'react-native-toast-message';
 
 type Vistas = {
-  id: number,
   alumno: number,
   senia: number,
   Senias : Senia,

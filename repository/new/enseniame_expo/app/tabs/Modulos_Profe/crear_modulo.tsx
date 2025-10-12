@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, Pressable, Alert, Modal, TouchableOpacity, ScrollView, FlatList } from "react-native";
+import { View, Text, StyleSheet, TextInput, Pressable, Alert,  TouchableOpacity,  FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { supabase } from "../../../utils/supabase";
 import { useUserContext } from "@/context/UserContext";
 import { paleta, paleta_colores } from "@/components/colores";
 import { error_alert } from "@/components/alert";
