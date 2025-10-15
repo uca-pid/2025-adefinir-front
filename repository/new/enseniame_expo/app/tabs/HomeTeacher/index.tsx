@@ -61,7 +61,7 @@ export default function HomeTeacher() {
             <Text style={styles.cardTitleCursos}>{visualizaciones?.length} {visualizaciones?.length==1 ? "vista" : "vistas"} en tus videos</Text>
           </TouchableOpacity>
 
-          <TouchableOpacity style={[styles.card, styles.cardRight]}> 
+          <TouchableOpacity style={[styles.card, styles.cardRight]} onPress={()=>contexto.user.gotToModules()}> 
             <Text style={styles.cardTitleCursos}>{misSenias?.length} </Text>
             <Text style={styles.cardTextCursos}> señas subidas</Text>
 

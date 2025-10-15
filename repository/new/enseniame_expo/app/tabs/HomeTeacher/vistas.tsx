@@ -14,11 +14,6 @@ import VideoPlayer from '@/components/VideoPlayer';
 import { estilos } from '@/components/estilos';
 import Toast from 'react-native-toast-message';
 
-type Vistas = {
-  alumno: number,
-  senia: number,
-  Senias : Senia,
-}
 type Senias_Vistas ={
     senia: Senia_Info,
     vistas: number
@@ -32,7 +27,6 @@ export default function Vistas (){
     const [loading, setLoading] = useState(true);
     const [selectedSenia, setSelectedSenia] = useState<Senias_Vistas | null>(null);
     const [modalVisible, setModalVisible] = useState(false);
-    const [visualizaciones, setVisualizaciones] = useState<Vistas[]>();
 
     const contexto = useUserContext();
 
@@ -46,12 +40,11 @@ export default function Vistas (){
 
     useEffect(() => {
         filterSenias();
-      }, [searchQuery, senias,visualizaciones]);
+      }, [searchQuery, senias]);
 
     const fetchVistas = async ()=>{
         try {
             const vistas = await visualizaciones_profe(contexto.user.id);
-            setVisualizaciones(vistas || []);
 
             const data = await mis_senias(contexto.user.id);
 
@@ -71,10 +64,6 @@ export default function Vistas (){
             setFilteredSenias(data_vistas || []);
 
             setLoading(false);
-
-            
-            
-            
         } catch (error) {
             error_alert("Error al buscar las estadísticas");
             console.error(error);

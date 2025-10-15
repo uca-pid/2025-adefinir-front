@@ -211,7 +211,7 @@ export default function Perfil (){
                 placeholder={contexto.user.username} />
                 
               {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null} 
-              <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
+              <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
         </SmallPopupModal>
 
         <SmallPopupModal title='Editar mail' modalVisible={mailModalVisible} setVisible={setMailModalVisible}>
@@ -225,7 +225,7 @@ export default function Perfil (){
             />
             {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
-          <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
+          <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
         </SmallPopupModal>
 
         <SmallPopupModal setVisible={setInstModalVisible} modalVisible={instModalVisible} title="Editar institución">
@@ -239,7 +239,7 @@ export default function Perfil (){
             placeholder={contexto.user.institution} />
             { errorI ? <ThemedText type='error'>{errorI}</ThemedText>:null}
 
-            <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
+            <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
         </SmallPopupModal>
 
         <SmallPopupModal title='Cambiar contraseña' modalVisible={PassModalVisible} setVisible={setPassModalVisible}>
@@ -254,7 +254,7 @@ export default function Perfil (){
           />
           {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
 
-          <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.dark_aqua}/>
+          <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
         </SmallPopupModal>
         
       <Toast/>
