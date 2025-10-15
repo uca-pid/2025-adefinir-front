@@ -148,7 +148,7 @@ const mis_senias = async (id:number)=>{
   
   let { data: Senias, error } = await supabase
     .from('Senias')
-    .select('*')
+    .select(`*,  Categorias (nombre) `)
     .eq('id_autor',id);
   if (error) throw error;
 

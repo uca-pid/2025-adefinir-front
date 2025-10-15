@@ -46,22 +46,35 @@ export default function Vistas (){
 
     useEffect(() => {
         filterSenias();
-      }, [searchQuery, senias]);
+      }, [searchQuery, senias,visualizaciones]);
 
     const fetchVistas = async ()=>{
         try {
             const vistas = await visualizaciones_profe(contexto.user.id);
             setVisualizaciones(vistas || []);
 
-            const data = await buscarSenias();
+            const data = await mis_senias(contexto.user.id);
+
+            const cantidad_vistas = (id_senia: number)=>{
+              let max = 0;
+              vistas?.forEach(each=>{
+                  if (each.senia==id_senia) max++
+              });
+              return max
+            }
+            
             const data_vistas = data?.map(each=>{
-                let vistas = cantidad_vistas(each.id);
-                return {senia:each,vistas:vistas}
+              let vistas = cantidad_vistas(each.id);
+              return {senia:each,vistas:vistas}
             })
             setSenias(data_vistas || []);
             setFilteredSenias(data_vistas || []);
 
-            setLoading(false)
+            setLoading(false);
+
+            
+            
+            
         } catch (error) {
             error_alert("Error al buscar las estadísticas");
             console.error(error);
@@ -79,15 +92,10 @@ export default function Vistas (){
             return b.vistas-a.vistas;
         })
         setFilteredSenias(orderedAndFiltered);
+        
     };
 
-    const cantidad_vistas = (id_senia: number)=>{
-        let max = 0;
-        visualizaciones?.forEach(each=>{
-            if (each.senia==id_senia) max++
-        });
-        return max
-    }
+    
 
     const renderSenia = ({ item }: { item: Senias_Vistas }) => (
         <Pressable 
@@ -139,6 +147,7 @@ export default function Vistas (){
                 keyExtractor={(item) => item.senia.id.toString()}
                 contentContainerStyle={styles.listContent}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
+                ListEmptyComponent={<ThemedText style={estilos.centrado} lightColor='gray'>Aún no subiste ninguna seña</ThemedText>}
             />
             
         <SmallPopupModal title={selectedSenia?.senia.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
