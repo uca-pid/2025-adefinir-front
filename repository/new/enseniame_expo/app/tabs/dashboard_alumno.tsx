@@ -7,6 +7,7 @@ import { supabase } from '@/lib/supabase';
 import ProgressCard from '@/components/ProgressCard';
 import GlobalProgress from '@/components/GlobalProgress';
 import HistorialItem from '@/components/HistorialItem';
+import { useFocusEffect } from '@react-navigation/native';
 
 
 type Modulo = { id: number; nombre: string };
@@ -153,6 +154,13 @@ export default function DashboardAlumnoScreen() {
       try { supabase.removeChannel(channel); } catch {}
     };
   }, [user?.id]);
+
+  // Recargar datos cada vez que la pantalla recibe foco (cuando se entra en la página)
+  useFocusEffect(
+    React.useCallback(() => {
+      fetchData();
+    }, [user?.id])
+  );
 
   const progresoPorModulo = useMemo(() => {
     const byModule: Array<{ id: number; nombre: string; total: number; learned: number }> = [];
