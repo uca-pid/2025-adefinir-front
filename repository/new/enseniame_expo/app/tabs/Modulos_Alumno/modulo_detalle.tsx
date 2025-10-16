@@ -10,12 +10,19 @@ import { paleta } from "@/components/colores";
 import { useUserContext } from "@/context/UserContext";
 import { SmallPopupModal } from "@/components/modals";
 import Toast from "react-native-toast-message";
+import { alumno_ver_senia, visualizaciones_alumno } from "@/conexiones/visualizaciones";
+import { error_alert } from "@/components/alert";
+
+type Senia_Vistas ={
+  senia: Senia_Info;
+  vista: boolean
+}
 
 export default function ModuloDetalleScreen() {
   const { id=0 } = useLocalSearchParams<{ id: string }>();
   if (id==0) router.back();
   const [modulo,setModulo] = useState<Modulo | undefined>();
-  const [senias,setSenias] = useState<Senia_Info[]>();
+  const [senias,setSenias] = useState<Senia_Vistas[]>();
 
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
@@ -37,9 +44,42 @@ export default function ModuloDetalleScreen() {
 
   const fetch_senias = async ()=>{
     const s = await  buscar_senias_modulo(Number(id));
-    setSenias(s || []);
-    setLoading(false)
+    const vistas = await visualizaciones_alumno(contexto.user.id);
+
+    const fue_vista = (senia_id:number)=>{
+      let res = false;
+      vistas?.forEach(each=>{
+        if (each.senia==senia_id) res= true
+      });
+      return res
+    }
+
+    const senias_vistas = s?.map(each=>{
+      let vista = fue_vista(each.id);
+      return {senia:each, vista:vista}
+    })
+    setSenias(senias_vistas || []);
+    setLoading(false);
   }
+
+
+  const ver_senia = async (item: Senia_Vistas)=>{
+    setSelectedSenia(item.senia);
+    setModalVisible(true);
+    //sumar visualización de la seña
+    if (!item.vista){
+      alumno_ver_senia(contexto.user.id,item.senia.id)
+        .catch(reason=>{
+          error_alert("No se pudo guardar tu progreso");
+          console.error(reason);
+        })
+        .then(()=>{
+          item.vista=true
+        })
+    }
+  }
+
+  
   
   if (loading) {
       return (
@@ -63,19 +103,22 @@ export default function ModuloDetalleScreen() {
       
       <FlatList
         data={senias ? senias : []}
-        keyExtractor={(item) => item.id.toString()}
+        keyExtractor={(item) => item.senia.id.toString()}
+        ListFooterComponent={<View style={{marginVertical:28}}></View>}
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Text style={styles.cardTitle}>{item.significado}</Text>
+            <View style={{flexDirection:"row", alignContent: "space-around", justifyContent:"space-between"}}>
+              <Text style={styles.cardTitle}>{item.senia.significado}</Text>
+              {item.vista  && <Ionicons name="checkmark-circle" color={paleta.strong_yellow} size={25}  />}
+            </View>
+           
             <Pressable
-              style={styles.button}
-              onPress={() => {
-                setSelectedSenia(item);
-                setModalVisible(true);
-              }}
+              style={[styles.button]}
+              onPress={() => { ver_senia(item)}}
             >
               <Text style={styles.buttonText}>Ver seña</Text>
             </Pressable>
+            
           </View>
         )}
       />

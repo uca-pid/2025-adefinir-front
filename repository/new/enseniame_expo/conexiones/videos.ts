@@ -1,7 +1,6 @@
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { Profesor, Senia, Senia_Info, User } from '@/components/types'
-import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 
 const traer_tabla_videos = async () => {
@@ -23,7 +22,7 @@ const traer_tabla_videos = async () => {
 
 const buscarSenias = async () => {
     try {        
-        let { data, error } = await supabase.from('Senias').select(`*,  Users (*),  Categorias (nombre) `);        
+        let { data, error } = await supabase.from('Senias').select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `);        
 
         if (error) throw error;
         if (data && data.length>0)  return data
