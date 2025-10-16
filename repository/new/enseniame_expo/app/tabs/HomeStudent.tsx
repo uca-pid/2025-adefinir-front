@@ -87,9 +87,9 @@ export default function HomeStudent() {
               </TouchableOpacity>
             )}
           </View>
-          <View style={{alignItems: 'center', marginBottom: 10}}>
+          <View style={{alignItems: 'center', marginBottom: 10, width: "100%"}}>
           {progresoCategorias.length === 0 && <Text style={{color:'#666'}}>Aún no hay progreso por categoría</Text>}
-          <ScrollView style={{maxHeight: 200, maxWidth: '100%'}}>
+          <ScrollView style={{maxHeight: 200, maxWidth: '100%', width: "100%"}}>
             {topCategorias.map((categoria, idx) => (
               <CategoriaProgressBar key={categoria.categoriaId} categoria={categoria} index={idx} />
             ))}
