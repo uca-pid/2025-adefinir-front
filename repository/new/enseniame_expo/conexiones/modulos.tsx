@@ -33,7 +33,7 @@ const buscar_modulo = async (id:number) =>{
 }
 
 const buscar_senias_modulo = async (id:number)=>{
-    try {
+    //try {
         // Primero obtener los IDs de seña (id_video) del módulo
         //let { data: relaciones, error: relErr } = await supabase.from('Modulo_Video').select('id_video').eq("id_modulo",id);
         //if (relErr) throw relErr;
@@ -43,7 +43,7 @@ const buscar_senias_modulo = async (id:number)=>{
             const ids = id_senias.map(each => Number(each.Senias.id))
             let {data:senias,error} = await supabase.from("Senias").select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `).in("id",ids);
             if (senias && senias.length>0) return senias
-
+        }
        {/* const ids = (relaciones || []).map((r: any) => Number(r.id_video)).filter((n) => !isNaN(n));
         if (ids.length === 0) return [];
 
@@ -231,4 +231,6 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
 
 
 
-export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo}
+export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo,
+    modulos_completados_por_alumno,progreso_por_categoria
+}

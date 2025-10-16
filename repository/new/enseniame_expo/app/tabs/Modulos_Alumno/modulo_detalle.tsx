@@ -34,7 +34,6 @@ export default function ModuloDetalleScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   
   const contexto = useUserContext();
-  const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({});
   
    useFocusEffect(
       useCallback(() => {
@@ -147,7 +146,7 @@ export default function ModuloDetalleScreen() {
     success_alert(value ? 'Marcada como aprendida' : 'Marcada como no aprendida')
     info_senia.aprendida= value;
   }
-
+/* 
   const fetch_aprendidas = async () => {
     try {
       if (!contexto.user?.id) return;
@@ -165,9 +164,9 @@ export default function ModuloDetalleScreen() {
       // Si no existe la tabla o hay error, seguimos sin bloquear la vista
       console.warn('[modulo_detalle] No se pudo cargar Aprendidas:', (e as any)?.message);
     }
-  }
+  } */
 
-  const toggleAprendida = async (seniaId: number, value: boolean) => {
+  /* const toggleAprendida = async (seniaId: number, value: boolean) => {
     try {
       if (!contexto.user?.id) return;
       if (value) {
@@ -192,7 +191,7 @@ export default function ModuloDetalleScreen() {
       console.error(e);
       Toast.show({ type: 'error', text1: 'No se pudo actualizar el estado' });
     }
-  }
+  } */
   
   
   if (loading) {
@@ -379,14 +378,5 @@ const styles = StyleSheet.create({
     fontSize: 16,
   },
   
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    marginHorizontal: 6
-  },
-  checkboxLabel: {
-    fontSize: 16,
-    color: '#222'
-  },
+  
 });
