@@ -182,6 +182,9 @@ const progreso_por_categoria = async (id_alumno:number) =>{
             resultados.push({ categoriaId: categoria.id, nombre: categoria.nombre, porcentaje });
         }
 
+        // Ordenar resultados de mayor a menor porcentaje
+        resultados.sort((a, b) => b.porcentaje - a.porcentaje);
+
         return resultados;
     } catch (error) {
         console.error('Error al obtener progreso por categoría:', error);

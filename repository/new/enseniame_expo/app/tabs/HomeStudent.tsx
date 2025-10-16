@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
@@ -7,6 +7,7 @@ import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexi
   
 export default function HomeStudent() {
   const contexto = useUserContext();
+  const [modalVisible, setModalVisible] = useState(false);
   const [user, setUser] = useState({ 
     id: contexto.user.id,
     nombre: contexto.user.username,
@@ -39,45 +40,66 @@ export default function HomeStudent() {
     return ()=>{ mounted = false }
   }, [contexto.user.id]);
 
+  // Solo mostrar las primeras 3 categorías en la vista principal
+  const topCategorias = progresoCategorias.slice(0, 3);
+  const hayMasCategorias = progresoCategorias.length > 3;
+
+  // Componente para renderizar una barra de categoría
+  const CategoriaProgressBar = ({ categoria, index }: { categoria: any, index: number }) => (
+    <View key={String(categoria.categoriaId || index)} style={styles.categoriaItem}>
+      <View style={styles.categoriaHeader}>
+        <Text style={styles.categoriaNombre}>{categoria.nombre}</Text>
+        <Text style={styles.categoriaPorcentaje}>{categoria.porcentaje}%</Text>
+      </View>
+      <View style={styles.progressBarBg}>
+        <View style={[styles.progressBarFill, {width: `${categoria.porcentaje}%`}]} />
+      </View>
+    </View>
+  );
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Hola, {contexto.user.username} 👋</Text>
-        
         
         <View style={styles.stackCards}>
           <View style={[styles.card, styles.cardLeft]}> 
             <Ionicons name="flame" size={28} color="#20bfa9" style={{marginBottom: 8}} />
             <Text style={styles.cardTitleCursos}>{user.racha} días de racha</Text>
           </View>
-          {/* <View style={[styles.card, styles.cardRight]} >  */}
-            <Pressable style={[styles.card, styles.cardRight]} onPress={() => router.push('/tabs/dashboard_alumno')}>
+          <Pressable style={[styles.card, styles.cardRight]} onPress={() => router.push('/tabs/dashboard_alumno')}>
             <Text style={styles.cardTitleCursos}>{user.modulosCompletados}</Text>
             <Text style={styles.cardTitleCursos}>módulos completos</Text>
-            </Pressable>
-          {/* </View> */}
+          </Pressable>
         </View>
 
         <View style={[styles.card, {marginTop: 8, marginBottom: 20}]}>
-          <Text style={{fontWeight: 'bold', marginBottom: 8}}>Tus categorías más aprendidas</Text>
+          <View style={styles.categoriasHeader}>
+            <Text style={styles.categoriasTitle}>Tus categorías más aprendidas</Text>
+            {hayMasCategorias && (
+              <TouchableOpacity 
+                onPress={() => setModalVisible(true)}
+                style={styles.verTodasButton}
+              >
+                <Text style={styles.verTodasText}>Ver todas</Text>
+              </TouchableOpacity>
+            )}
+          </View>
+          <View style={{alignItems: 'center', marginBottom: 10}}>
           {progresoCategorias.length === 0 && <Text style={{color:'#666'}}>Aún no hay progreso por categoría</Text>}
-          {progresoCategorias.map((c, idx)=> (
-            <View key={String(c.categoriaId||idx)} style={{marginBottom: 10}}>
-              <Text style={{fontWeight:'600', marginBottom: 6}}>{c.nombre} — {c.porcentaje}%</Text>
-              <View style={styles.smallProgressBg}>
-                <View style={[styles.smallProgressFill, {width: `${c.porcentaje}%`}]} />
-              </View>
-            </View>
-          ))}
+          <ScrollView style={{maxHeight: 200, maxWidth: '100%'}}>
+            {topCategorias.map((categoria, idx) => (
+              <CategoriaProgressBar key={categoria.categoriaId} categoria={categoria} index={idx} />
+            ))}
+          </ScrollView>
+          </View>
         </View>
-
         
         <Pressable style={styles.ctaButtonCursos}>
           <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
           <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
         </Pressable>
 
-       
         <View style={styles.shortcutsRow}>
           <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/cursos')}>
             <Ionicons name="book" size={22} color="#20bfa9" />
@@ -89,6 +111,31 @@ export default function HomeStudent() {
           </Pressable>
         </View>
       </ScrollView>
+
+      {/* Modal para mostrar todas las categorías */}
+      <Modal
+        animationType="slide"
+        transparent={true}
+        visible={modalVisible}
+        onRequestClose={() => setModalVisible(false)}
+      >
+        <SafeAreaView style={styles.modalContainer}>
+          <View style={styles.modalContent}>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Todas las categorías</Text>
+              <TouchableOpacity onPress={() => setModalVisible(false)} style={styles.closeButton}>
+                <Ionicons name="close-circle" size={28} color="#20bfa9" />
+              </TouchableOpacity>
+            </View>
+            
+            <ScrollView style={styles.modalScrollView}>
+              {progresoCategorias.map((categoria, idx) => (
+                <CategoriaProgressBar key={categoria.categoriaId} categoria={categoria} index={idx} />
+              ))}
+            </ScrollView>
+          </View>
+        </SafeAreaView>
+      </Modal>
     </View>
   );
 }
@@ -150,26 +197,55 @@ const styles = StyleSheet.create({
     letterSpacing: 0.2,
     textAlign: 'center',
   },
-  cardTextCursos: {
-    fontSize: 15,
-    color: '#222',
-    opacity: 0.8,
-    marginBottom: 6,
-    fontFamily: 'System',
+  categoriasHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 16,
   },
-  progressBarBgCursos: {
+  categoriasTitle: {
+    fontWeight: 'bold',
+    fontSize: 16,
+  },
+  verTodasButton: {
+    paddingVertical: 4,
+    paddingHorizontal: 10,
+  },
+  verTodasText: {
+    color: '#20bfa9',
+    fontWeight: '600',
+    fontSize: 10,
+  },
+  categoriaItem: {
+    marginBottom: 14,
+  },
+  categoriaHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  categoriaNombre: {
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#333',
+  },
+  categoriaPorcentaje: {
+    fontWeight: '600',
+    fontSize: 14,
+    color: '#20bfa9',
+  },
+  progressBarBg: {
     width: '100%',
     height: 12,
-    backgroundColor: '#f5f5f5',
-    borderRadius: 8,
-    marginTop: 12,
-    marginBottom: 4,
+    backgroundColor: '#eee',
+    borderRadius: 6,
     overflow: 'hidden',
   },
-  progressBarFillCursos: {
+  progressBarFill: {
     height: '100%',
-    borderRadius: 8,
     backgroundColor: '#20bfa9',
+    borderRadius: 6,
   },
   ctaButtonCursos: {
     flexDirection: 'row',
@@ -231,5 +307,36 @@ const styles = StyleSheet.create({
     height: '100%',
     backgroundColor: '#20bfa9',
     borderRadius: 6,
+  },
+  // Estilos para el modal
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: '#fff',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    paddingHorizontal: 20,
+    paddingBottom: 30,
+    maxHeight: '80%',
+  },
+  modalHeader: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingVertical: 20,
+  },
+  modalTitle: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+  },
+  closeButton: {
+    padding: 5,
+  },
+  modalScrollView: {
+    paddingBottom: 20,
   },
 });
