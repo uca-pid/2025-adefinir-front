@@ -50,4 +50,17 @@ const buscar_senias_modulo = async (id:number)=>{
     }
 }
 
-export {todos_los_modulos,buscar_modulo,buscar_senias_modulo}
+const modulos_completados_por_alumno = async (id_alumno:number) =>{
+    try {
+        let { data, error } = await supabase.from('Alumno_Modulo').select('id_modulo').eq('id_alumno', id_alumno).eq('completado', true);
+        if (data) return data.length;
+        console.log(data)
+        if (error) throw error;
+    } catch (error) {
+        console.error('Error al obtener módulos completados:', error);
+        return 0;
+    }
+}
+
+
+export {todos_los_modulos,buscar_modulo,buscar_senias_modulo,modulos_completados_por_alumno}

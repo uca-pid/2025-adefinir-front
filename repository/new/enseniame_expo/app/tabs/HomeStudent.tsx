@@ -1,18 +1,43 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
-
+import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexiones/modulos';
+  
 export default function HomeStudent() {
   const contexto = useUserContext();
   const [user, setUser] = useState({ 
-    nombre: contexto.user.username, 
-    racha: 5, 
-    nivel: 2, 
-    xp: 120, 
-    xpMax: 200 
+    id: contexto.user.id,
+    nombre: contexto.user.username,
+    racha: 5,
+    modulosCompletados: 0,
   });
+
+  useEffect(() => {
+    const fetchModulosCompletados = async () => {
+      const completados = await modulos_completados_por_alumno(contexto.user.id);
+      setUser(prev => ({ ...prev, modulosCompletados: completados || 0 }));
+      console.log('Modulos completados actualizados:', completados);
+    };
+
+    fetchModulosCompletados();
+  }, [contexto.user.id]);
+
+  const [progresoCategorias, setProgresoCategorias] = useState<Array<any>>([]);
+
+  useEffect(()=>{
+    let mounted = true;
+    const load = async () =>{
+      try{
+        const data = await progreso_por_categoria(contexto.user.id);
+        if(mounted) setProgresoCategorias(data || []);
+        console.log('Progreso por categoría cargado:', data);
+      }catch(err){ console.error('Error cargando progreso por categoría', err) }
+    }
+    if(contexto.user && contexto.user.id) load();
+    return ()=>{ mounted = false }
+  }, [contexto.user.id]);
 
   return (
     <View style={styles.container}>
@@ -26,12 +51,22 @@ export default function HomeStudent() {
             <Text style={styles.cardTitleCursos}>{user.racha} días de racha</Text>
           </View>
           <View style={[styles.card, styles.cardRight]}> 
-            <Text style={styles.cardTitleCursos}>Nivel {user.nivel}</Text>
-            <Text style={styles.cardTextCursos}>{user.xp}/{user.xpMax} XP</Text>
-            <View style={styles.progressBarBgCursos}>
-              <View style={[styles.progressBarFillCursos, { width: `${(user.xp / user.xpMax) * 100}%` }]} />
-            </View>
+            <Text style={styles.cardTitleCursos}>{user.modulosCompletados}</Text>
+            <Text style={styles.cardTitleCursos}>módulos completos</Text>
           </View>
+        </View>
+
+        <View style={[styles.card, {marginTop: 8, marginBottom: 20}]}>
+          <Text style={{fontWeight: 'bold', marginBottom: 8}}>Tus categorías más aprendidas</Text>
+          {progresoCategorias.length === 0 && <Text style={{color:'#666'}}>Aún no hay progreso por categoría</Text>}
+          {progresoCategorias.map((c, idx)=> (
+            <View key={String(c.categoriaId||idx)} style={{marginBottom: 10}}>
+              <Text style={{fontWeight:'600', marginBottom: 6}}>{c.nombre} — {c.porcentaje}%</Text>
+              <View style={styles.smallProgressBg}>
+                <View style={[styles.smallProgressFill, {width: `${c.porcentaje}%`}]} />
+              </View>
+            </View>
+          ))}
         </View>
 
         
@@ -111,6 +146,7 @@ const styles = StyleSheet.create({
     marginBottom: 2,
     fontFamily: 'System',
     letterSpacing: 0.2,
+    textAlign: 'center',
   },
   cardTextCursos: {
     fontSize: 15,
@@ -181,5 +217,17 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 6,
     fontFamily: 'System',
+  },
+  smallProgressBg: {
+    width: '100%',
+    height: 10,
+    backgroundColor: '#eee',
+    borderRadius: 6,
+    overflow: 'hidden',
+  },
+  smallProgressFill: {
+    height: '100%',
+    backgroundColor: '#20bfa9',
+    borderRadius: 6,
   },
 });
