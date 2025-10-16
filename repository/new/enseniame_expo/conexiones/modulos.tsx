@@ -57,60 +57,137 @@ const buscar_senias_modulo = async (id:number)=>{
 
 const modulos_completados_por_alumno = async (id_alumno:number) =>{
     try {
-        let { data, error } = await supabase.from('Alumno_Modulo').select('id_modulo').eq('id_alumno', id_alumno).eq('completado', true);
-        if (data) return data.length;
-        console.log(data)
+        let { data: senias_aprendidas, error: errorSenias } = await supabase
+            .from('Alumno_Senia')
+            .select('senia_id')
+            .eq('user_id', id_alumno)
+            .eq('aprendida', true);
+        
+        if (errorSenias) throw errorSenias;
+        
+        if (senias_aprendidas && senias_aprendidas.length > 0) {
+            const ids_senias_aprendidas = senias_aprendidas.map((s) => s.senia_id);
+            
+            let { data: modulos, error: errorModulos } = await supabase
+                .from('Modulos')
+                .select('id');
+                
+            if (errorModulos) throw errorModulos;
+            
+            if (modulos) {
+                for (const modulo of modulos) {
+                    let { data: senias_modulo, error: errorModuloSenias } = await supabase
+                        .from('Modulo_Video')
+                        .select('id_video')
+                        .eq('id_modulo', modulo.id);
+                    
+                    if (errorModuloSenias) throw errorModuloSenias;
+                    
+                    if (senias_modulo && senias_modulo.length > 0) {
+                        const ids_senias_modulo = senias_modulo.map((s) => s.id_video);
+                        
+                        const todas_aprendidas = ids_senias_modulo.every(id => 
+                            ids_senias_aprendidas.includes(id)
+                        );
+                        
+                        if (todas_aprendidas) {
+                            let { data: modulo_alumno, error: errorModuloAlumno } = await supabase
+                                .from('Alumno_Modulo')
+                                .select('*')
+                                .eq('id_alumno', id_alumno)
+                                .eq('id_modulo', modulo.id)
+                                .maybeSingle();
+                            
+                            if (errorModuloAlumno && errorModuloAlumno.code !== 'PGRST116') {
+                                throw errorModuloAlumno;
+                            }
+                            
+                            if (!modulo_alumno) {
+                                const { error: errorInsert } = await supabase
+                                    .from('Alumno_Modulo')
+                                    .insert({
+                                        id_alumno: id_alumno,
+                                        id_modulo: modulo.id,
+                                        completado: true
+                                    });
+                                
+                                if (errorInsert) throw errorInsert;
+                            } else if (!modulo_alumno.completado) {
+                                const { error: errorUpdate } = await supabase
+                                    .from('Alumno_Modulo')
+                                    .update({ completado: true })
+                                    .eq('id_alumno', id_alumno)
+                                    .eq('id_modulo', modulo.id);
+                                
+                                if (errorUpdate) throw errorUpdate;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        
+        let { data, error } = await supabase
+            .from('Alumno_Modulo')
+            .select('id_modulo')
+            .eq('id_alumno', id_alumno)
+            .eq('completado', true);
+            
         if (error) throw error;
+        
+        return data ? data.length : 0;
     } catch (error) {
-        console.error('Error al obtener módulos completados:', error);
+        console.error('Error al obtener o actualizar módulos completados:', error);
         return 0;
     }
 }
 
-// Calcular porcentaje aprendido por categoría para un usuario
-const progreso_por_categoria = async (user_id: number) => {
-  try {
-    // Todas las señas con su categoría
-    const { data: senias, error: senErr } = await supabase
-      .from('Senias')
-      .select('id, categoria_id, Categorias (nombre)');
-    if (senErr) throw senErr;
+const progreso_por_categoria = async (id_alumno:number) =>{
 
-    // Aprendidas del usuario
-    const { data: aprendidas, error: aErr } = await supabase
-      .from('Alumno_Senia')
-      .select('senia_id, aprendida')
-      .eq('user_id', user_id)
-      .eq('aprendida', true);
-    if (aErr) throw aErr;
+    try {
+        let { data: categorias, error: errorCategorias } = await supabase
+            .from('Categorias')
+            .select('id, nombre');
+        
+        if (errorCategorias) throw errorCategorias;
+        if (!categorias || categorias.length === 0) return [];
 
-    const learnedSet = new Set<number>((aprendidas || []).map((r: any) => Number(r.senia_id)));
+        const resultados = [];
 
-    // Totales y contadores
-    const totals = new Map<number, { nombre: string; total: number; learned: number }>();
-    (senias || []).forEach((s: any) => {
-      const catId = Number(s.categoria_id) || 0;
-      const nombre = s?.Categorias?.nombre || 'Sin categoría';
-      const entry = totals.get(catId) || { nombre, total: 0, learned: 0 };
-      entry.total += 1;
-      if (learnedSet.has(Number(s.id))) entry.learned += 1;
-      totals.set(catId, entry);
-    });
+        for (const categoria of categorias) {
+            // Traer todas las señas de la categoría
+            let { data: senias_categoria, error: errorSeniasCat } = await supabase
+                .from('Senias')
+                .select('id')
+                .eq('categoria', categoria.id);
+            
+            if (errorSeniasCat) throw errorSeniasCat;
+            if (!senias_categoria || senias_categoria.length === 0) {
+                resultados.push({ categoriaId: categoria.id, nombre: categoria.nombre, porcentaje: 0 });
+                continue;
+            }
 
-    // Resultado con porcentaje
-    const result = Array.from(totals.entries()).map(([categoriaId, v]) => ({
-      categoriaId,
-      nombre: v.nombre,
-      porcentaje: v.total > 0 ? Math.round((v.learned * 100) / v.total) : 0,
-    }));
+            const ids_senias_categoria = senias_categoria.map(s => s.id);
+            
+            // Traer las señas aprendidas por el alumno en esa categoría
+            let { data: senias_aprendidas, error: errorSeniasApr } = await supabase
+                .from('Alumno_Senia')
+                .select('senia_id')
+                .eq('user_id', id_alumno)
+                .in('senia_id', ids_senias_categoria);
+            
+            if (errorSeniasApr) throw errorSeniasApr;
 
-    // Ordenar por porcentaje desc
-    result.sort((a, b) => b.porcentaje - a.porcentaje);
-    return result;
-  } catch (e) {
-    console.error('progreso_por_categoria error', e);
-    return [];
-  }
+            const porcentaje = senias_aprendidas ? Math.ceil((senias_aprendidas.length / ids_senias_categoria.length) * 100) : 0;
+            resultados.push({ categoriaId: categoria.id, nombre: categoria.nombre, porcentaje });
+        }
+
+        return resultados;
+    } catch (error) {
+        console.error('Error al obtener progreso por categoría:', error);
+        return [];
+    }
 }
+
 
 export {todos_los_modulos,buscar_modulo,buscar_senias_modulo,modulos_completados_por_alumno,progreso_por_categoria}
