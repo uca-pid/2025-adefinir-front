@@ -10,6 +10,8 @@ import { paleta } from "@/components/colores";
 import { useUserContext } from "@/context/UserContext";
 import { SmallPopupModal } from "@/components/modals";
 import Toast from "react-native-toast-message";
+import Checkbox from 'expo-checkbox';
+import { supabase } from "@/lib/supabase";
 
 export default function ModuloDetalleScreen() {
   const { id=0 } = useLocalSearchParams<{ id: string }>();
@@ -22,11 +24,13 @@ export default function ModuloDetalleScreen() {
   const [modalVisible, setModalVisible] = useState(false);
   
   const contexto = useUserContext();
+  const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({});
   
    useFocusEffect(
       useCallback(() => {
         fetch_modulo();
         fetch_senias();
+        fetch_aprendidas();
         return () => {};
       }, [])
     );
@@ -39,6 +43,52 @@ export default function ModuloDetalleScreen() {
     const s = await  buscar_senias_modulo(Number(id));
     setSenias(s || []);
     setLoading(false)
+  }
+
+  const fetch_aprendidas = async () => {
+    try {
+      if (!contexto.user?.id) return;
+      const { data, error } = await supabase
+        .from('Alumno_Senia')
+        .select('senia_id, aprendida')
+        .eq('user_id', contexto.user.id);
+      if (error) throw error;
+      const map: Record<number, boolean> = {};
+      (data || []).forEach((row: any) => {
+        map[Number(row.senia_id)] = !!row.aprendida;
+      });
+      setAprendidasMap(map);
+    } catch (e) {
+      // Si no existe la tabla o hay error, seguimos sin bloquear la vista
+      console.warn('[modulo_detalle] No se pudo cargar Aprendidas:', (e as any)?.message);
+    }
+  }
+
+  const toggleAprendida = async (seniaId: number, value: boolean) => {
+    try {
+      if (!contexto.user?.id) return;
+      if (value) {
+        const { error } = await supabase
+          .from('Alumno_Senia')
+          .upsert(
+            [{ user_id: contexto.user.id, senia_id: seniaId, aprendida: true }],
+            { onConflict: 'user_id,senia_id' }
+          );
+        if (error) throw error;
+      } else {
+        const { error } = await supabase
+          .from('Alumno_Senia')
+          .update({ aprendida: false })
+          .eq('user_id', contexto.user.id)
+          .eq('senia_id', seniaId);
+        if (error) throw error;
+      }
+      setAprendidasMap((prev) => ({ ...prev, [seniaId]: value }));
+      Toast.show({ type: 'success', text1: value ? 'Marcada como aprendida' : 'Marcada como no aprendida' });
+    } catch (e) {
+      console.error(e);
+      Toast.show({ type: 'error', text1: 'No se pudo actualizar el estado' });
+    }
   }
   
   if (loading) {
@@ -102,6 +152,19 @@ export default function ModuloDetalleScreen() {
           </ThemedText>
             :null
           }
+
+          {/* Toggle Aprendida */}
+          {selectedSenia && (
+            <View style={styles.row}>
+              <Checkbox
+                value={!!aprendidasMap[selectedSenia.id]}
+                onValueChange={(v) => toggleAprendida(selectedSenia.id, v)}
+                color={aprendidasMap[selectedSenia.id] ? '#20bfa9' : undefined}
+                style={styles.checkbox}
+              />
+              <Text style={styles.checkboxLabel}>Aprendida</Text>
+            </View>
+          )}
         </SmallPopupModal>
 
         <Toast/>
@@ -168,6 +231,16 @@ const styles = StyleSheet.create({
     margin: 8,
     borderRadius:10,
     borderColor: paleta.strong_yellow 
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginHorizontal: 6
+  },
+  checkboxLabel: {
+    fontSize: 16,
+    color: '#222'
   },
    iconButton: {
     borderRadius: 10,
