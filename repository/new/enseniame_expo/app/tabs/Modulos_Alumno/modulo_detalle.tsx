@@ -13,7 +13,6 @@ import Toast from "react-native-toast-message";
 import { alumno_ver_senia, senias_aprendidas_alumno, visualizaciones_alumno } from "@/conexiones/visualizaciones";
 import { error_alert, success_alert } from "@/components/alert";
 import Checkbox from "expo-checkbox";
-import { supabase } from "@/lib/supabase";
 import { marcar_aprendida, marcar_no_aprendida } from "@/conexiones/aprendidas";
 
 type Senia_Aprendida ={
@@ -146,53 +145,6 @@ export default function ModuloDetalleScreen() {
     success_alert(value ? 'Marcada como aprendida' : 'Marcada como no aprendida')
     info_senia.aprendida= value;
   }
-/* 
-  const fetch_aprendidas = async () => {
-    try {
-      if (!contexto.user?.id) return;
-      const { data, error } = await supabase
-        .from('Alumno_Senia')
-        .select('senia_id, aprendida')
-        .eq('user_id', contexto.user.id);
-      if (error) throw error;
-      const map: Record<number, boolean> = {};
-      (data || []).forEach((row: any) => {
-        map[Number(row.senia_id)] = !!row.aprendida;
-      });
-      setAprendidasMap(map);
-    } catch (e) {
-      // Si no existe la tabla o hay error, seguimos sin bloquear la vista
-      console.warn('[modulo_detalle] No se pudo cargar Aprendidas:', (e as any)?.message);
-    }
-  } */
-
-  /* const toggleAprendida = async (seniaId: number, value: boolean) => {
-    try {
-      if (!contexto.user?.id) return;
-      if (value) {
-        const { error } = await supabase
-          .from('Alumno_Senia')
-          .upsert(
-            [{ user_id: contexto.user.id, senia_id: seniaId, aprendida: true }],
-            { onConflict: 'user_id,senia_id' }
-          );
-        if (error) throw error;
-      } else {
-        const { error } = await supabase
-          .from('Alumno_Senia')
-          .update({ aprendida: false })
-          .eq('user_id', contexto.user.id)
-          .eq('senia_id', seniaId);
-        if (error) throw error;
-      }
-      setAprendidasMap((prev) => ({ ...prev, [seniaId]: value }));
-      Toast.show({ type: 'success', text1: value ? 'Marcada como aprendida' : 'Marcada como no aprendida' });
-    } catch (e) {
-      console.error(e);
-      Toast.show({ type: 'error', text1: 'No se pudo actualizar el estado' });
-    }
-  } */
-  
   
   if (loading) {
       return (
@@ -287,8 +239,8 @@ const styles = StyleSheet.create({
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 20,
-    marginTop:60,
+    marginBottom: 30,
+    marginTop:20,
     color: "#222",
     alignSelf: "center",
   },
