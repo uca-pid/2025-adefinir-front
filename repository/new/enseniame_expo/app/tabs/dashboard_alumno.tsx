@@ -8,7 +8,6 @@ import ProgressCard from '@/components/ProgressCard';
 import GlobalProgress from '@/components/GlobalProgress';
 import HistorialItem from '@/components/HistorialItem';
 
-// Mantener dashboard actual y añadir historial sin romperlo
 
 type Modulo = { id: number; nombre: string };
 type RelacionModuloVideo = { id_modulo: number; id_video: number };
@@ -30,7 +29,7 @@ export default function DashboardAlumnoScreen() {
   const [refreshing, setRefreshing] = useState(false);
   const [modulos, setModulos] = useState<Modulo[]>([]);
   const [relaciones, setRelaciones] = useState<RelacionModuloVideo[]>([]);
-  const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({}); // senia_id -> aprendida
+  const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({}); 
   const [error, setError] = useState<string | null>(null);
   const [historial, setHistorial] = useState<HistorialRow[]>([]);
 
@@ -39,7 +38,6 @@ export default function DashboardAlumnoScreen() {
     setLoading(true);
     try {
       if (!user?.id) {
-        // Sin usuario, evitar queries con filtros undefined
         setModulos([]);
         setRelaciones([]);
         setAprendidasMap({});
@@ -60,7 +58,7 @@ export default function DashboardAlumnoScreen() {
       const aprendidas: Record<number, boolean> = {};
       try {
         const { data: as, error: asErr } = await supabase
-          .from('Alumno_Senia') // Si no existe, seguimos con vacío
+          .from('Alumno_Senia') 
           .select('senia_id, aprendida')
           .eq('user_id', user.id);
         if (!asErr && as) {
@@ -74,7 +72,6 @@ export default function DashboardAlumnoScreen() {
         console.warn('[dashboard] Alumno_Senia no disponible (aprendidasMap try/catch):', e?.message);
       }
 
-      // Historial de señas aprendidas por el alumno (orden desc por fecha)
       let historialRows: HistorialRow[] = [];
       try {
         const { data: hist, error: histErr } = await supabase
@@ -116,7 +113,6 @@ export default function DashboardAlumnoScreen() {
           });
         }
       } catch (e: any) {
-        // Si la tabla no existe, no rompemos el dashboard: historial vacío
         console.warn('[dashboard] Historial no disponible:', e?.message);
       }
 
@@ -126,7 +122,6 @@ export default function DashboardAlumnoScreen() {
       setHistorial(historialRows);
     } catch (e: any) {
       console.error('[dashboard] fetch error:', e?.message);
-      // No bloquear la pantalla por fallas parciales; mostramos mensaje suave
       setError('Ocurrió un problema al cargar algunos datos. Parte del contenido puede no estar disponible.');
     } finally {
       setLoading(false);
