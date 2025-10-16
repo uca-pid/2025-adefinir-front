@@ -176,6 +176,14 @@ export default function DashboardAlumnoScreen() {
       const learned = senias.reduce((acc, sid) => acc + (aprendidasMap[sid] ? 1 : 0), 0);
       byModule.push({ id: m.id, nombre: m.nombre, total, learned });
     });
+    // Ordenado por porcentaje completado; y luego nombre ascendente
+    byModule.sort((a, b) => {
+      const pa = a.total ? a.learned / a.total : 0;
+      const pb = b.total ? b.learned / b.total : 0;
+      if (pb !== pa) return pb - pa;
+      if (b.learned !== a.learned) return b.learned - a.learned;
+      return a.nombre.localeCompare(b.nombre);
+    });
     return byModule;
   }, [modulos, relaciones, aprendidasMap]);
 
