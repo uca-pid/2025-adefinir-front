@@ -17,6 +17,15 @@ const visualizaciones_alumno = async (id:number)=>{
     if (Visualizaciones_Senias && Visualizaciones_Senias.length>0) return Visualizaciones_Senias
 }
 
+const senias_aprendidas_alumno = async (id: number) =>{
+    const { data, error } = await supabase
+        .from('Alumno_Senia')
+        .select('senia_id, aprendida')
+        .eq('user_id', id);
+      if (error) throw error;
+    if (data && data.length>0) return data
+}
+
 const alumno_ver_senia = async (user_id:number,senia_id:number)=>{
     
     const { data, error } = await supabase
@@ -74,4 +83,4 @@ const modulo_completo = async (id_modulo:number, user_id: number)=>{
     }
 }
 
-export {visualizaciones_profe, visualizaciones_alumno,alumno_ver_senia}
+export {visualizaciones_profe, visualizaciones_alumno,alumno_ver_senia, senias_aprendidas_alumno}
