@@ -202,7 +202,7 @@ export default function DashboardAlumnoScreen() {
 
   const sections: DashboardSection[] = [
     { title: 'Progreso por módulo', type: 'modules', data: progresoPorModulo },
-    { title: 'Historial de señas aprendidas', type: 'history', data: historial },
+    { title: 'Historial de señas aprendidas', type: 'history', data: historial.slice(0, 3) },
   ];
 
   return (
