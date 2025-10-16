@@ -1,7 +1,6 @@
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { Profesor, Senia, Senia_Info, User } from '@/components/types'
-import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 
 const traer_tabla_videos = async () => {
@@ -23,7 +22,7 @@ const traer_tabla_videos = async () => {
 
 const buscarSenias = async () => {
     try {        
-        let { data, error } = await supabase.from('Senias').select(`*,  Users (*),  Categorias (nombre) `);        
+        let { data, error } = await supabase.from('Senias').select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `);        
 
         if (error) throw error;
         if (data && data.length>0)  return data
@@ -144,4 +143,16 @@ const cambiar_nombre_senia = async (nombre_nuevo:string,id_senia:number)=>{
     return true
 }
 
-export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video, borrar_de_bucket as borrar_video_de_storage, cambiar_nombre_senia}
+const mis_senias = async (id:number)=>{
+  
+  let { data: Senias, error } = await supabase
+    .from('Senias')
+    .select(`*,  Categorias (nombre) `)
+    .eq('id_autor',id);
+  if (error) throw error;
+
+  if (Senias && Senias.length>0) return Senias     
+}
+
+export {traer_tabla_videos,buscarSenias,eliminar_video, subir_senia , cambiar_video, borrar_de_bucket as borrar_video_de_storage, 
+    cambiar_nombre_senia, mis_senias }

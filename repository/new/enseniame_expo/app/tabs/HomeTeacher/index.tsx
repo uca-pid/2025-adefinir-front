@@ -1,32 +1,91 @@
-import React from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView } from 'react-native';
+import React, { useCallback, useState } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, TouchableOpacity } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
+import { Modulo, Senia } from '@/components/types';
+import { mis_senias } from '@/conexiones/videos';
+import { error_alert } from '@/components/alert';
+import { paleta } from '@/components/colores';
+import { mis_modulos } from '@/conexiones/modulos';
+import { visualizaciones_profe } from '@/conexiones/visualizaciones';
+import Toast from 'react-native-toast-message';
+
+type Vistas = {
+  alumno: number,
+  senia: number,
+  Senias : Senia,
+}
 
 export default function HomeTeacher() {
   const contexto = useUserContext();
   const teacherName = 'Prof. ' + contexto.user.username;
+  const [misSenias, setSenias] = useState<Senia[]>();
+  const [misModulos, setModulos] = useState<Modulo[]>();
+  const [visualizaciones, setVisualizaciones] = useState<Vistas[]>();
+
+  useFocusEffect(
+    useCallback(() => {
+      fetchStats();
+      return () => {
+      };
+    }, [])
+  );
+
+  const fetchStats = async ()=>{
+    try {
+      const data= await mis_senias(contexto.user.id);
+      setSenias(data || []);
+
+      const data_m = await mis_modulos(contexto.user.id);
+      setModulos(data_m || []);
+
+      const vistas = await visualizaciones_profe(contexto.user.id);
+      setVisualizaciones(vistas || []);
+      
+    } catch (error) {
+      error_alert("Error al buscar las estadísticas");
+      console.error(error);
+    }
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Panel del Profesor</Text>
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
-        <Pressable style={styles.ctaButtonCursos} onPress={()=>contexto.user.gotToModules()}>
+
+        <View style={styles.stackCards}>
+          <TouchableOpacity style={[styles.card, styles.cardLeft]} onPress={()=>router.push("/tabs/HomeTeacher/vistas")}> 
+            <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
+            <Text style={styles.cardTitleCursos}>{visualizaciones?.length} {visualizaciones?.length==1 ? "vista" : "vistas"} en tus videos</Text>
+          </TouchableOpacity>
+
+          <TouchableOpacity style={[styles.card, styles.cardRight]} onPress={()=>contexto.user.gotToModules()}> 
+            <Text style={styles.cardTitleCursos}>{misSenias?.length} </Text>
+            <Text style={styles.cardTextCursos}> señas subidas</Text>
+
+            <Text style={styles.cardTitleCursos}>{misModulos?.length} </Text>
+            <Text style={styles.cardTextCursos}> módulos creados</Text>
+          </TouchableOpacity>
+        </View>
+
+        <TouchableOpacity style={styles.ctaButtonCursos} onPress={()=>contexto.user.gotToModules()}>
           <Ionicons name="albums-outline" size={24} color="#fff" style={styles.ctaIcon} />
           <Text style={styles.ctaButtonTextCursos}>Mis módulos</Text>
-        </Pressable>
+        </TouchableOpacity>
         <View style={styles.cardRow}>
-          <Pressable onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCardCursos}>
+          <TouchableOpacity onPress={()=>{router.push('/tabs/video_upload_form');}} style={styles.quickActionCardCursos}>
             <Ionicons name="videocam-outline" size={22} color="#20bfa9" />
             <Text style={styles.quickActionTextCursos}>Subir video de seña</Text>
-          </Pressable>
-          <Pressable style={styles.quickActionCardCursos}>
+          </TouchableOpacity>
+          <TouchableOpacity style={styles.quickActionCardCursos}>
             <Ionicons name="school-outline" size={22} color="#20bfa9" />
             <Text style={styles.quickActionTextCursos}>Ver progreso de estudiantes</Text>
-          </Pressable>
+          </TouchableOpacity>
         </View>
       </ScrollView>
+      <Toast/>
     </View>
   );
 }
@@ -72,7 +131,7 @@ const styles = StyleSheet.create({
     borderRadius: 14,
     height: 50,
     marginBottom: 18,
-    marginTop: 20,
+    marginTop: 10,
     paddingHorizontal: 18,
     shadowColor: '#000',
     shadowOpacity: 0.08,
@@ -152,5 +211,45 @@ const styles = StyleSheet.create({
     fontSize: 14,
     marginTop: 6,
     textAlign: 'center',
+  },
+  stackCards: {
+    flexDirection: 'row',
+    width: '100%',
+    marginBottom: 20,
+  },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 32,
+    padding: 24,
+    flex: 1, 
+    alignItems: 'flex-start',
+    shadowColor: '#222',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+  },
+  cardLeft: {
+    marginRight: 6,
+  },
+  cardRight: {
+    marginLeft: 6,
+  },
+  cardTitleCursos: {
+    fontSize: 20,
+    fontWeight: 'bold',
+    color: '#222',
+    marginBottom: 2,
+    fontFamily: 'System',
+    letterSpacing: 0.2,
+  },
+  cardTextCursos: {
+    fontSize: 15,
+    color: '#222',
+    opacity: 0.8,
+    marginBottom: 6,
+    fontFamily: 'System',
   },
 });

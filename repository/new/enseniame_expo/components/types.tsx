@@ -102,17 +102,17 @@ interface Senia {
 }
 
 interface Senia_Info {
-    Categorias: {nombre:string} | null,
+    Categorias: {nombre:string} ,
     Users: Logged_User| null,
     id: number;
     significado: string;
     video_url: string;
   id_autor: number | undefined;
-  categoria: number | undefined
+  categoria: number 
 }
 
 interface Senia_Info {
-    Categorias: {nombre:string} | null,
+    Categorias: {nombre:string},
     Users: Logged_User| null,
     id: number;
     significado: string;

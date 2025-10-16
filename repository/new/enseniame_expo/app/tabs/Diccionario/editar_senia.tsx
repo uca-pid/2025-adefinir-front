@@ -124,10 +124,10 @@ export default function VideoUploadForm() {
           <Text style={styles.subtitle}>Mantén tus videos actualizados para una mejor experiencia de aprendizaje</Text>
         </View>
 
-        <Image
+        {/* <Image
           source={require('@/assets/images/LSA.png')}
           style={styles.logo}
-        />
+        /> */}
 
         <View style={styles.card}>
           {videoFile && (

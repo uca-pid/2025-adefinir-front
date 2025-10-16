@@ -1,7 +1,8 @@
 import { supabase } from '../lib/supabase'
-import { Logged_Alumno, Logged_Profesor, Modulo, Profesor, User } from '@/components/types'
+import { icon_type, Logged_Alumno, Logged_Profesor, Modulo, Profesor, User } from '@/components/types'
 import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
+import { visualizaciones_alumno } from './visualizaciones';
 
 const todos_los_modulos = async () =>{
     try {
@@ -37,7 +38,7 @@ const buscar_senias_modulo = async (id:number)=>{
         let { data: id_senias, error } = await supabase.from('Modulo_Video').select(`Senias (id)`).eq("id_modulo",id);
         if (id_senias && id_senias.length>0) {
             const ids = id_senias.map(each => Number(each.Senias.id))
-            let {data:senias,error} = await supabase.from("Senias").select(`*,  Users (*),  Categorias (nombre) `).in("id",ids);
+            let {data:senias,error} = await supabase.from("Senias").select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `).in("id",ids);
             if (senias && senias.length>0) return senias
 
             if (error) throw error
@@ -50,4 +51,36 @@ const buscar_senias_modulo = async (id:number)=>{
     }
 }
 
-export {todos_los_modulos,buscar_modulo,buscar_senias_modulo}
+const mis_modulos = async (id:number)=>{
+    let { data: Modulos, error } = await supabase
+        .from('Modulos')
+        .select('*')
+        .eq('autor',id);
+    if (error) throw error;
+    if (Modulos && Modulos.length>0) return Modulos         
+}
+
+const eliminar_modulo = async (id:number)=>{
+    const { error } = await supabase.from('Modulos').delete().eq('id', id);
+    if (error) throw error
+}
+
+const crear_modulo = async (nombre: string, descripcion: string, icon: icon_type, autor: number)=>{
+    const { error } = await supabase.from("Modulos")
+        .insert([{ nombre, descripcion, icon, autor }]);
+    if (error) throw error;
+    return true
+}
+
+const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: icon_type)=>{
+    const { error } = await supabase
+        .from("Modulos")
+        .update({ nombre, descripcion, icon })
+        .eq("id", id);
+    if (error) throw error;
+    return true
+}
+
+
+
+export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo}

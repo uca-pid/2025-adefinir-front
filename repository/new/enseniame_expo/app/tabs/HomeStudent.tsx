@@ -3,6 +3,7 @@ import { View, Text, StyleSheet, Pressable, ScrollView } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { router } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
+import Toast from 'react-native-toast-message';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -52,6 +53,7 @@ export default function HomeStudent() {
           </Pressable>
         </View>
       </ScrollView>
+      <Toast/>
     </View>
   );
 }
