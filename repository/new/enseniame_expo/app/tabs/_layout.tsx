@@ -41,7 +41,7 @@ export default function RootLayout() {
         })}
         />
 
-      {!contexto.user.is_prof && (
+      {!contexto.user.is_prof ? (
         <Tabs.Screen name='dashboard_alumno' options={({ navigation }) => ({ title: 'Dashboard', headerShown: false,
           tabBarButton: ((props) => (
             <TouchableOpacity onPress={() => navigation.navigate('dashboard_alumno')} style={styles.navItem}>
@@ -50,7 +50,9 @@ export default function RootLayout() {
             </TouchableOpacity>
           )),
         })} />
-      )}
+      ) :
+    <Tabs.Screen name='dashboard_alumno'  options={{href:null}} />
+    }
 
       {contexto.user.is_prof ? (
         <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />
