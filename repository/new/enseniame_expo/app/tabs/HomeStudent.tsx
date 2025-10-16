@@ -5,6 +5,8 @@ import { router } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
 import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexiones/modulos';
   
+import Toast from 'react-native-toast-message';
+
 export default function HomeStudent() {
   const contexto = useUserContext();
   const [modalVisible, setModalVisible] = useState(false);
@@ -136,6 +138,7 @@ export default function HomeStudent() {
           </View>
         </SafeAreaView>
       </Modal>
+      <Toast/>
     </View>
   );
 }

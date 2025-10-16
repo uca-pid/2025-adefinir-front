@@ -1,8 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, TextInput, Pressable, Alert, Modal, TouchableOpacity, ScrollView } from "react-native";
+import { View, Text, StyleSheet, TextInput, Pressable, Alert,  TouchableOpacity,  FlatList } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams } from "expo-router";
-import { supabase } from "../../../utils/supabase";
 import { useUserContext } from "@/context/UserContext";
 import { paleta, paleta_colores } from "@/components/colores";
 import { error_alert } from "@/components/alert";
@@ -10,6 +9,7 @@ import Toast from "react-native-toast-message";
 import { estilos } from "@/components/estilos";
 import { SmallPopupModal } from "@/components/modals";
 import { icon_type } from "@/components/types";
+import { crear_modulo, editar_modulo } from "@/conexiones/modulos";
 
 const firsticonOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
 const iconOptions:( icon_type) [] = Object.keys(Ionicons.glyphMap);
@@ -20,8 +20,8 @@ export default function CrearModuloScreen() {
   const isEdit = !!params.id;
   const [nombre, setNombre] = useState("");
   const [descripcion, setDescripcion] = useState("");
-  const [icon, setIcon] = useState("car");
   const [loading, setLoading] = useState(false);
+  const [icon, setIcon] = useState<icon_type>("car");
 
   const [modalIconVisible, setIconModalVisible] = useState(false);
 
@@ -48,16 +48,9 @@ export default function CrearModuloScreen() {
     setLoading(true);
     try {
       if (isEdit && params.id) {
-        const { error } = await supabase
-          .from("Modulos")
-          .update({ nombre, descripcion, icon })
-          .eq("id", params.id);
-        if (error) throw error;
+        const exito = await editar_modulo(Number(params.id),nombre,descripcion,icon)
       } else {
-        const { error } = await supabase
-          .from("Modulos")
-          .insert([{ nombre, descripcion, icon }]);
-        if (error) throw error;
+        const exito = await crear_modulo(nombre,descripcion,icon,contexto.user.id);
       }
       contexto.user.gotToModules();
     } catch (e: any) {
@@ -66,6 +59,15 @@ export default function CrearModuloScreen() {
       setLoading(false);
     }
   };
+
+  const renderIcons =  ({ item }: { item: icon_type }) => (
+    <Pressable
+      style={[styles.iconOption, icon === item && styles.iconSelected,{margin:5}]}
+      onPress={() => setIcon(item)}
+    >
+      <Ionicons name={item} size={28} color={icon === item ? "#20bfa9" : "#888"} />
+    </Pressable>
+  )
 
   return (
     <View style={styles.container}>
@@ -133,21 +135,17 @@ export default function CrearModuloScreen() {
       </TouchableOpacity>
 
       <SmallPopupModal title="Seleccionar ícono" modalVisible={modalIconVisible} setVisible={setIconModalVisible}>
-        <ScrollView style={[{maxHeight:400}]} contentContainerStyle={estilos.centrado}>
-          <View style={[styles.iconRow,estilos.centrado,{flexWrap:"wrap"}]}>
-            {iconOptions.map((ic,index) => (
-                  <Pressable
-                    key={ic}
-                    style={[styles.iconOption, icon === ic && styles.iconSelected,{margin:5}]}
-                    onPress={() => setIcon(ic)}
-                  >
-                    <Ionicons name={ic} size={28} color={icon === ic ? "#20bfa9" : "#888"} />
-                  </Pressable>
-                )
-              
-              )}
-          </View>
-          </ScrollView>
+        <View style={[styles.iconRow,estilos.centrado]}>
+          <FlatList
+            data={iconOptions}
+            renderItem={renderIcons}
+            keyExtractor={(item) => item.toString()}
+            contentContainerStyle={[estilos.centrado,styles.iconRow,{flexWrap:"wrap"}]}
+            style={[{maxHeight:400}]}
+            numColumns={5}
+          />
+        </View>
+          
           <TouchableOpacity onPress={()=>setIconModalVisible(false)} style={styles.saveBtn}>
               <Text style={styles.saveBtnText}>Aceptar</Text>
           </TouchableOpacity>
