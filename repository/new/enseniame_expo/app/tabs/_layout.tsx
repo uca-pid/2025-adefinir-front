@@ -18,7 +18,7 @@ export default function RootLayout() {
         justifyContent: 'center',
         minWidth: 70, 
       },
-    }}>
+  }}>
       <Tabs.Screen name='index'  options={() =>({title:"Home",
         tabBarButton: ((props) => 
           <TouchableOpacity onPress={() => {
@@ -40,6 +40,17 @@ export default function RootLayout() {
           ),
         })}
         />
+
+      {!contexto.user.is_prof && (
+        <Tabs.Screen name='dashboard_alumno' options={({ navigation }) => ({ title: 'Dashboard', headerShown: false,
+          tabBarButton: ((props) => (
+            <TouchableOpacity onPress={() => navigation.navigate('dashboard_alumno')} style={styles.navItem}>
+              <Ionicons name="stats-chart-outline" size={22} color="#fff" />
+              <Text style={styles.navText}>Dashboard</Text>
+            </TouchableOpacity>
+          )),
+        })} />
+      )}
 
       {contexto.user.is_prof ? (
         <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />
