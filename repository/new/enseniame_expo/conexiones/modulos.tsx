@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase'
 import { icon_type, Logged_Alumno, Logged_Profesor, Modulo, Profesor, User } from '@/components/types'
 import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
+import { visualizaciones_alumno } from './visualizaciones';
 
 const todos_los_modulos = async () =>{
     try {
@@ -79,5 +80,7 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
     if (error) throw error;
     return true
 }
+
+
 
 export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo}
