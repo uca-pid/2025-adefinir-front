@@ -50,10 +50,12 @@ export default function HomeStudent() {
             <Ionicons name="flame" size={28} color="#20bfa9" style={{marginBottom: 8}} />
             <Text style={styles.cardTitleCursos}>{user.racha} días de racha</Text>
           </View>
-          <View style={[styles.card, styles.cardRight]}> 
+          {/* <View style={[styles.card, styles.cardRight]} >  */}
+            <Pressable style={[styles.card, styles.cardRight]} onPress={() => router.push('/tabs/dashboard_alumno')}>
             <Text style={styles.cardTitleCursos}>{user.modulosCompletados}</Text>
             <Text style={styles.cardTitleCursos}>módulos completos</Text>
-          </View>
+            </Pressable>
+          {/* </View> */}
         </View>
 
         <View style={[styles.card, {marginTop: 8, marginBottom: 20}]}>
