@@ -1,47 +1,48 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { useFocusEffect } from '@react-navigation/native';
 import { 
-  View, Text, StyleSheet, FlatList, Pressable, 
-  ActivityIndicator, Modal, TextInput,
-  TouchableOpacity, Alert,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView
+  View, Text, StyleSheet,   TextInput,  
+  KeyboardAvoidingView,  Platform,  ScrollView
 } from 'react-native';
-import { Checkbox } from 'expo-checkbox';
-import { Ionicons } from '@expo/vector-icons';
+import DropDownPicker from 'react-native-dropdown-picker';
 import VideoPlayer from '@/components/VideoPlayer';
-import {  Senia_Info } from '@/components/types';
 import { success_alert,error_alert } from '@/components/alert';
 import { paleta,paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
-import {  buscarSenias, eliminar_video } from '@/conexiones/videos';
 import { ThemedText } from '@/components/ThemedText';
 import { useUserContext } from '@/context/UserContext';
 import { router,useLocalSearchParams } from 'expo-router';
-import { SmallPopupModal } from '@/components/modals';
 import Toast from 'react-native-toast-message';
 import { traerCategorias } from '@/conexiones/categorias';
 import { BotonLogin } from '@/components/botones';
+import { crearReporte, traerMotivosReporte } from '@/conexiones/reportes';
 
 type Cate ={
      id: number; nombre: string
 }
+type Motivos = {
+    id:number; descripcion: string
+}
 
+DropDownPicker.setListMode("SCROLLVIEW");
 export default function Reportar_senia() {
     const {id_senia=0,url,significado,cate} =useLocalSearchParams();
     if (id_senia==0) router.back();
 
     const {name,type}= getNameAndTypeFromURL(String(url));
+    const contexto= useUserContext()
 
     const videoFile = {uri:String(url),name:name,type:type};
     const selectedCategory = Number(cate);
 
-    
     const [categories, setCategories] = useState<Cate[]>([]);
     const [loadingCategories, setLoadingCategories] = useState(false);
     const [categoria,setCategoria] = useState<Cate>()
+    const [comentario,setComentario] = useState("");
     
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState<{value:number,label:string}[]>([]);
     
     useEffect(() => {
         const fetchCategories = async () => {
@@ -61,11 +62,44 @@ export default function Reportar_senia() {
             setLoadingCategories(false)
         }
         };
+
+        const fetchMotivos = async ()=>{
+            try {
+                const motivos = await traerMotivosReporte();
+                let itms = motivos?.map(each=>{
+                    return {value: each.id,label: each.descripcion}
+                });
+                setItems(itms || [])
+
+            } catch (error) {
+                error_alert("No se pudieron obtener los motivos");
+                console.error(error)
+            }
+        }
     
         fetchCategories();
+        fetchMotivos();
     }, []);
 
-    const submit = async ()=>{}
+    const submit = async ()=>{
+        if (value){
+            console.log(value);
+            let my_id = contexto.user.id;
+            crearReporte(my_id,value,comentario,Number(id_senia))
+            .catch(reason=>{
+                error_alert("No se pudo crear el reporte");
+                console.error(reason)
+            })
+            .then(()=>{
+                success_alert("¡Reporte creado con éxito!");
+                setTimeout(()=> {
+                    router.dismiss();
+                    router.replace("/tabs/Diccionario");}, 700);
+            })
+        } else{
+            error_alert("Seleccione un motivo");
+        }
+    }
 
     return (
         <View style={styles.safeArea}>
@@ -91,8 +125,8 @@ export default function Reportar_senia() {
                         <ThemedText type='default'>{String(significado)}</ThemedText>
                     </ThemedText>
 
-                    <ThemedText style={[{marginVertical: 10,alignSelf:"flex-start"}]}>
-                    <ThemedText type="defaultSemiBold" style={[styles.label, { marginTop: 4 }]}>Categoría:</ThemedText>{' '}
+                    <ThemedText style={[{alignSelf:"flex-start"}]}>
+                    <ThemedText type="subtitle" style={[styles.label, { marginTop: 4 }]}>Categoría:</ThemedText>{' '}
                     {loadingCategories ? (
                         <ThemedText style={styles.smallMuted}>Cargando categorías...</ThemedText>
                         ) : categories.length === 0 ? (
@@ -102,7 +136,29 @@ export default function Reportar_senia() {
                         )}
                     </ThemedText>
 
-                    <ThemedText type='subtitle'>¿Por qué deseas reportar este contenido?</ThemedText>
+                    <ThemedText type='subtitle' style={[styles.label,{marginTop:20}]}>¿Por qué deseas reportar este contenido?</ThemedText>
+                    
+
+                    <DropDownPicker
+                        open={open}
+                        value={value}
+                        items={items}
+                        setOpen={setOpen}
+                        setValue={setValue}
+                        setItems={setItems}
+                        placeholder={'Elige un motivo'}
+                        placeholderStyle={{color:"#888"}}
+                        style={styles.input}
+                    />
+
+                    <Text style={[styles.label,{marginVertical:10}]}>Comentarios</Text>
+                    <TextInput
+                        placeholder="Consideraciones adicionales"
+                        placeholderTextColor={"#888"}
+                        value={comentario}
+                        onChangeText={setComentario}
+                        style={styles.input}
+                    />
                     
                     <BotonLogin callback={submit} textColor={'white'} bckColor={paleta.dark_aqua} text={'Reportar'}                    
                     />
@@ -188,6 +244,7 @@ const styles = StyleSheet.create({
     width: '100%',
     marginBottom: 18,
     backgroundColor: paleta.aqua_bck,
+    marginTop:10
   },
   ctaButton: {
     flexDirection: 'row',
