@@ -34,7 +34,6 @@ export default function Diccionario() {
 
   useFocusEffect(
     useCallback(() => {
-      //console.log('Tab Diccionario enfocada - Recargando señas...');
       fetchSenias();
       return () => {
       };
@@ -101,7 +100,12 @@ export default function Diccionario() {
 
   const editar_senia= (senia: Senia_Info) =>{
     router.push({ pathname: "/tabs/Diccionario/editar_senia", params: { id_senia: senia.id, url: senia.video_url,significado:senia.significado, cate:senia.categoria } });
-    setModalVisible(false)
+    setModalVisible(false);
+  }
+
+  const reportar_senia = (senia: Senia_Info) =>{
+    router.push({ pathname: "/tabs/Diccionario/reportar_senia", params: { id_senia: senia.id, url: senia.video_url,significado:senia.significado, cate:senia.categoria } });
+    setModalVisible(false);
   }
 
   const renderSenia = ({ item }: { item: Senia_Info }) => (
@@ -192,10 +196,10 @@ export default function Diccionario() {
             :null
           }
           {selectedSenia && selectedSenia.Users && !esMio(selectedSenia) ?
-          <ThemedText style={{margin:10}}>
-            <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
-            <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
-          </ThemedText>
+            <ThemedText style={{margin:10}}>
+              <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
+              <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
+            </ThemedText>                    
             :null
           }
 
@@ -209,6 +213,13 @@ export default function Diccionario() {
                 <Ionicons name="trash-bin-outline" color='white' size={25} style={styles.icon} />
                 <ThemedText type="subtitle" lightColor='white' style={{flex:2}}>Eliminar seña</ThemedText>
               </TouchableOpacity></> : null
+          }
+
+          {selectedSenia && !esMio(selectedSenia) ?
+            <TouchableOpacity style={[styles.iconButton,estilos.shadow]} onPress={()=>{reportar_senia(selectedSenia)}}   >  
+              <Ionicons name="alert-circle-outline" color={paleta.dark_aqua} size={25} style={styles.icon} />
+              <ThemedText type="subtitle" lightColor={paleta.dark_aqua} style={{flex:2}}>Reportar seña</ThemedText>
+            </TouchableOpacity>: null
           }
 
         </SmallPopupModal>
