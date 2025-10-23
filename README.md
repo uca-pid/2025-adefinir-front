@@ -21,3 +21,4 @@ Metacello new
 * npx expo install expo-crypto
 * npx expo install @supabase/supabase-js @react-native-async-storage/async-storage @rneui/themed
 * npm i @react-native-picker/picker
+* npm install react-native-dropdown-picker
