@@ -11,6 +11,7 @@ import { paleta } from "@/components/colores";
 import { buscar_senias_modulo } from "@/conexiones/modulos";
 import Toast from "react-native-toast-message";
 import { SmallPopupModal } from "@/components/modals";
+import { calificacionesModulo } from "@/conexiones/calificaciones";
 
 interface Senia {
   id: number;
@@ -47,25 +48,9 @@ export default function DetalleModuloScreen() {
   const fetchSeniasModulo = async () => {
     setLoading(true);
     try {
-      /* const { data: relaciones, error: relError } = await supabase
-        .from('Modulo_Video')
-        .select('id_video')
-        .eq('id_modulo', id);
-      if (relError) throw relError;
-      const ids = relaciones?.map((r: any) => r.id_video) || [];
-      if (ids.length === 0) {
-        setSeniasModulo([]);
-        setLoading(false);
-        return;
-      }
-      const { data: senias, error: seniaError } = await supabase
-        .from('Senias')
-        .select('*')
-        .in('id', ids);
-      if (seniaError) throw seniaError; */
-      const s = await  buscar_senias_modulo(Number(id));
-    
+      const s = await  buscar_senias_modulo(Number(id));    
       setSeniasModulo(s || []);
+      calificacionesModulo(Number(id))
     } catch (e) {
       Alert.alert('Error', 'No se pudieron cargar las señas del módulo');
     } finally {
