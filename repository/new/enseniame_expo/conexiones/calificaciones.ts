@@ -21,5 +21,32 @@ const calificacionesProfe = async (id_profe:number) => {
     return data
 }
 
+const getRanking = async () => {
+    // Buscar todos los profes, sus módulos y calificaciones    
+    let { data: profes, error } = await supabase.from('Users') 
+        .select('id, username, Modulos!Modulos_autor_fkey(id, Calificaciones_Modulos(*))')
+        .eq("is_prof",true);
+    if (error) throw error;
+    if (profes && profes.length>0) {
+        // Buscar las calificaciones de cada profe
+        const res = profes.map(profe=>{
+            let promedio = 0;
+            let cant=0;
+            profe.Modulos.forEach(modulo=>{
+                modulo.Calificaciones_Modulos.forEach(calificaciones=>{
+                    promedio+= calificaciones.puntaje;
+                    cant++
+                })
+            });
+            if (cant!=0) return {id: profe.id, username: profe.username, promedio: promedio / cant}
+            else return {id: profe.id,username: profe.username, promedio:0}
+        });
+        return res
+    } else {
+        throw new Error("No hay datos de profesores");
+    }
+          
+}
 
-export {traerTodasCalificaciones, calificacionesModulo, calificacionesProfe}
+
+export {traerTodasCalificaciones, calificacionesModulo, calificacionesProfe, getRanking}

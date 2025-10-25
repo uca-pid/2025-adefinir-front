@@ -106,7 +106,7 @@ export default function HomeTeacher() {
           </TouchableOpacity>
         </View>
 
-        <TouchableOpacity style={[styles.card, {marginTop: 8, marginBottom: 20}]}>
+        <TouchableOpacity style={[styles.card, {marginVertical: 8}]} onPress={()=>{router.push("/tabs/HomeTeacher/ranking")}} >
           <ThemedText type='defaultSemiBold'>Tus calificaciones:</ThemedText>
           {calificaciones_profe && calificaciones_profe.length>0?
           <>
