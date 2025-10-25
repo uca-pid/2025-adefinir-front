@@ -11,6 +11,7 @@ import { estilos } from '@/components/estilos';
 import Toast from 'react-native-toast-message';
 import { getRanking } from '@/conexiones/calificaciones';
 import { RatingStars } from '@/components/review';
+import { useUserContext } from '@/context/UserContext';
 
 type DatosRanking ={
     id: number;
@@ -22,6 +23,8 @@ export default function RankingProfes (){
 
     const [loading, setLoading] = useState(false);
     const [dataRanking,setDataRanking] = useState<DatosRanking[]>()
+
+    const contexto = useUserContext();
 
     useFocusEffect(
             useCallback(() => {
@@ -72,7 +75,7 @@ export default function RankingProfes (){
                     
                     <View style={styles.card}>
                          <ThemedText>
-                            <ThemedText type='subtitle'>{item.username}:</ThemedText>{' '}
+                            <ThemedText type='subtitle'>{item.username}{item.id==contexto.user.id ? " (Yo)":""}:</ThemedText>{' '}
                             <ThemedText type='defaultSemiBold'>{ item.promedio}</ThemedText>
                          </ThemedText>
                          <RatingStars puntaje={item.promedio} color={paleta.strong_yellow}/>
