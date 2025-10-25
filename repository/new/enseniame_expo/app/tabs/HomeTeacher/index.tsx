@@ -10,11 +10,26 @@ import { paleta } from '@/components/colores';
 import { mis_modulos } from '@/conexiones/modulos';
 import { visualizaciones_profe } from '@/conexiones/visualizaciones';
 import Toast from 'react-native-toast-message';
+import { ThemedText } from '@/components/ThemedText';
+import { calificacionesProfe } from '@/conexiones/calificaciones';
+import { estilos } from '@/components/estilos';
 
 type Vistas = {
   alumno: number,
   senia: number,
   Senias : Senia,
+}
+
+type Calificaciones = {
+  id_alumno: number;
+  id_modulo: number;
+  puntaje: number;
+  comentario? : string;
+  created_at: string
+}
+type aux={
+  id:number;
+  Calificaciones_Modulos: Calificaciones[];
 }
 
 export default function HomeTeacher() {
@@ -23,6 +38,9 @@ export default function HomeTeacher() {
   const [misSenias, setSenias] = useState<Senia[]>();
   const [misModulos, setModulos] = useState<Modulo[]>();
   const [visualizaciones, setVisualizaciones] = useState<Vistas[]>();
+  const [calificaciones_profe,setCalificacionesProfe] = useState<aux[]>()
+  const [promedio,setPromedio] = useState(0);
+  const [cant_reviews,setCantReviews] = useState(0);
 
   useFocusEffect(
     useCallback(() => {
@@ -42,11 +60,29 @@ export default function HomeTeacher() {
 
       const vistas = await visualizaciones_profe(contexto.user.id);
       setVisualizaciones(vistas || []);
+
+      const reviews = await calificacionesProfe(contexto.user.id);
+      setCalificacionesProfe(reviews || []);
+      if (reviews) calcularPromedio(reviews)
       
     } catch (error) {
       error_alert("Error al buscar las estadísticas");
       console.error(error);
     }
+  }
+
+  const calcularPromedio = (reviews: aux[])=>{
+    let promedio = 0;
+    let cantidad_reviews =0;
+    reviews?.forEach(each=>{
+      each.Calificaciones_Modulos.forEach(each=>{
+        promedio+=each.puntaje;
+        cantidad_reviews++
+      })
+    })
+    promedio=promedio/ cantidad_reviews;
+    setPromedio(promedio);
+    setCantReviews(cantidad_reviews);
   }
 
   return (
@@ -69,6 +105,18 @@ export default function HomeTeacher() {
             <Text style={styles.cardTextCursos}> módulos creados</Text>
           </TouchableOpacity>
         </View>
+
+        <TouchableOpacity style={[styles.card, {marginTop: 8, marginBottom: 20}]}>
+          <ThemedText type='defaultSemiBold'>Tus calificaciones:</ThemedText>
+          {calificaciones_profe && calificaciones_profe.length>0?
+          <>
+          <ThemedText style={[estilos.centrado,{margin:5}]} type='title'>{promedio}</ThemedText>
+          <ThemedText>{cant_reviews} reseñas en tus módulos</ThemedText>
+          </>:
+          <ThemedText lightColor='gray'>Todavía no tienes ninguna calificación</ThemedText>
+        }
+          
+        </TouchableOpacity>
 
         <TouchableOpacity style={styles.ctaButtonCursos} onPress={()=>contexto.user.gotToModules()}>
           <Ionicons name="albums-outline" size={24} color="#fff" style={styles.ctaIcon} />

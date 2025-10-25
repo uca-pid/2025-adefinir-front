@@ -16,7 +16,7 @@ const calificacionesModulo = async (id_modulo:number) => {
 }
 
 const calificacionesProfe = async (id_profe:number) => {
-    let {data, error} = await supabase.from("Modulos").select("*, Calificaciones_Modulos(*)").eq("autor",id_profe);
+    let {data, error} = await supabase.from("Modulos").select("id, Calificaciones_Modulos(*)").eq("autor",id_profe);
     if (error) throw error
     return data
 }
