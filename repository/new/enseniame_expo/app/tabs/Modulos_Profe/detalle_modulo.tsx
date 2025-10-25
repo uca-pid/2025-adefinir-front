@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, ActivityIndicator, Modal } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, ActivityIndicator, Modal, Touchable, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "../../../utils/supabase";
@@ -19,12 +19,19 @@ interface Senia {
   video_url: string;
   thumbnail?: string;
 }
+type Calificaciones = {
+  id_alumno: number;
+  id_modulo: number;
+  puntaje: number;
+  comentario? : string
+}
 
 export default function DetalleModuloScreen() {
   const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [seniasModulo, setSeniasModulo] = useState<Senia_Info[]>([]);
+  const [calificaciones_modulo,setCalificacionesModulo] = useState<Calificaciones[]>()
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [diccionario, setDiccionario] = useState<Senia[]>([]);
@@ -32,6 +39,8 @@ export default function DetalleModuloScreen() {
 
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [modalCalificaciones,setModalCalificaciones] = useState(false);
 
   const contexto = useUserContext();
 
@@ -50,7 +59,9 @@ export default function DetalleModuloScreen() {
     try {
       const s = await  buscar_senias_modulo(Number(id));    
       setSeniasModulo(s || []);
-      calificacionesModulo(Number(id))
+      const calificaciones =await calificacionesModulo(Number(id));
+      setCalificacionesModulo(calificaciones || []);
+      console.log(calificaciones)
     } catch (e) {
       Alert.alert('Error', 'No se pudieron cargar las señas del módulo');
     } finally {
@@ -116,6 +127,14 @@ export default function DetalleModuloScreen() {
       !seniasModulo.some(sm => sm.id === s.id)
   );
 
+  const promedio_reseñas = ()=>{
+    let promedio =0;
+    calificaciones_modulo?.forEach(each=>{
+      promedio+= each.puntaje;
+    });
+    return calificaciones_modulo? promedio / calificaciones_modulo.length : 0
+  }
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -151,6 +170,25 @@ export default function DetalleModuloScreen() {
           <Text style={{ color: '#888', fontStyle: 'italic' }}>No se encontraron coincidencias.</Text>
         )}
       </View>
+      <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
+        {calificaciones_modulo && calificaciones_modulo.length>0 ? 
+        <>
+          <ThemedText>
+            <ThemedText style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</ThemedText> {' '}
+            <ThemedText type="defaultSemiBold">{promedio_reseñas()}</ThemedText>
+          </ThemedText>
+          
+          <ThemedText>
+            <ThemedText>{calificaciones_modulo.length}</ThemedText>{' '}
+            <ThemedText>{calificaciones_modulo.length == 1 ? "calificación" : "calificaciones"} </ThemedText>
+          </ThemedText>
+          </>
+          : <>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</Text>
+          <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
+          </>
+        }
+      </TouchableOpacity>
       {/* Lista de señas agregadas al módulo */}
       {loading ? (
         <ActivityIndicator size="large" color="#20bfa9" style={{ marginTop: 40 }} />
@@ -217,6 +255,14 @@ export default function DetalleModuloScreen() {
                 :null
               }
 
+        </SmallPopupModal>
+
+        <SmallPopupModal title={"Reseñas "} modalVisible={modalCalificaciones}  setVisible={setModalCalificaciones}>
+              {calificaciones_modulo && calificaciones_modulo.length>0 ?
+              <View></View> 
+              :
+              <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
+              }
         </SmallPopupModal>
         <Toast/>
     </View>
