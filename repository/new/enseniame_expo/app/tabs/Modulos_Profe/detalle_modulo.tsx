@@ -12,6 +12,10 @@ import { buscar_senias_modulo } from "@/conexiones/modulos";
 import Toast from "react-native-toast-message";
 import { SmallPopupModal } from "@/components/modals";
 import { calificacionesModulo } from "@/conexiones/calificaciones";
+import { estilos } from "@/components/estilos";
+import { get_antiguedad } from "@/components/validaciones";
+import { nombre_usuario } from "@/conexiones/gestion_usuarios";
+import { RatingStars } from "@/components/review";
 
 interface Senia {
   id: number;
@@ -21,10 +25,13 @@ interface Senia {
 }
 type Calificaciones = {
   id_alumno: number;
+  Users: {username:string};
   id_modulo: number;
   puntaje: number;
-  comentario? : string
+  comentario? : string;
+  created_at: string
 }
+
 
 export default function DetalleModuloScreen() {
   const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
@@ -61,7 +68,6 @@ export default function DetalleModuloScreen() {
       setSeniasModulo(s || []);
       const calificaciones =await calificacionesModulo(Number(id));
       setCalificacionesModulo(calificaciones || []);
-      console.log(calificaciones)
     } catch (e) {
       Alert.alert('Error', 'No se pudieron cargar las señas del módulo');
     } finally {
@@ -134,6 +140,17 @@ export default function DetalleModuloScreen() {
     });
     return calificaciones_modulo? promedio / calificaciones_modulo.length : 0
   }
+  const get_nombre_autor = async (uid:number) => {
+    let res = "";
+    try {
+      res = await nombre_usuario(uid);
+    } catch (error) {
+      console.error(error)
+    } finally {
+      return res
+    }
+  }
+  
 
   return (
     <View style={styles.container}>
@@ -145,6 +162,27 @@ export default function DetalleModuloScreen() {
         <Text style={styles.backBtnText}>Volver</Text>
       </Pressable>
       <Text style={styles.title}>Módulo: {nombre ? nombre : ''}</Text>
+
+      <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
+        {calificaciones_modulo && calificaciones_modulo.length>0 ? 
+        <>
+          <ThemedText>
+            <ThemedText style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</ThemedText> {' '}
+            <ThemedText type="defaultSemiBold">{promedio_reseñas()}</ThemedText>
+          </ThemedText>
+          
+          <ThemedText>
+            <ThemedText>{calificaciones_modulo.length}</ThemedText>{' '}
+            <ThemedText>{calificaciones_modulo.length == 1 ? "calificación" : "calificaciones"} </ThemedText>
+          </ThemedText>
+          </>
+          : <>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</Text>
+          <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
+          </>
+        }
+      </TouchableOpacity>
+
       {/* Barra de búsqueda fija */}
       <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }}>
         <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Buscar seña en el diccionario</Text>
@@ -170,25 +208,7 @@ export default function DetalleModuloScreen() {
           <Text style={{ color: '#888', fontStyle: 'italic' }}>No se encontraron coincidencias.</Text>
         )}
       </View>
-      <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
-        {calificaciones_modulo && calificaciones_modulo.length>0 ? 
-        <>
-          <ThemedText>
-            <ThemedText style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</ThemedText> {' '}
-            <ThemedText type="defaultSemiBold">{promedio_reseñas()}</ThemedText>
-          </ThemedText>
-          
-          <ThemedText>
-            <ThemedText>{calificaciones_modulo.length}</ThemedText>{' '}
-            <ThemedText>{calificaciones_modulo.length == 1 ? "calificación" : "calificaciones"} </ThemedText>
-          </ThemedText>
-          </>
-          : <>
-          <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</Text>
-          <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
-          </>
-        }
-      </TouchableOpacity>
+      
       {/* Lista de señas agregadas al módulo */}
       {loading ? (
         <ActivityIndicator size="large" color="#20bfa9" style={{ marginTop: 40 }} />
@@ -259,7 +279,25 @@ export default function DetalleModuloScreen() {
 
         <SmallPopupModal title={"Reseñas "} modalVisible={modalCalificaciones}  setVisible={setModalCalificaciones}>
               {calificaciones_modulo && calificaciones_modulo.length>0 ?
-              <View></View> 
+              <View>
+
+                <FlatList
+                  keyExtractor={(item)=>item.id_alumno.toString()}
+                  data={calificaciones_modulo}
+                  renderItem={({ item }) => (
+                    <View style={[styles.card,estilos.shadow, {marginBottom:5,marginHorizontal:5}]}>
+                      <RatingStars color={paleta.strong_yellow} puntaje={item.puntaje} />
+                      <ThemedText>
+                        <ThemedText lightColor="gray">{get_antiguedad(item.created_at)}</ThemedText>{' - '}
+                        <ThemedText lightColor="gray">{item.Users.username}</ThemedText>
+                      </ThemedText>
+                      <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario}</ThemedText>
+                    </View> 
+                  )}
+
+                  
+                />
+              </View> 
               :
               <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
               }
