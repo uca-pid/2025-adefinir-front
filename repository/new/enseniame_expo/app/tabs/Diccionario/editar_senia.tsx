@@ -1,6 +1,5 @@
 import { 
-  Pressable, Text, TextInput, View, StyleSheet,  SafeAreaView,
-  ScrollView,  KeyboardAvoidingView,  Platform,
+  Pressable, Text, TextInput, View, StyleSheet, ScrollView,  KeyboardAvoidingView,  Platform,
   TouchableOpacity,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
@@ -106,7 +105,7 @@ export default function VideoUploadForm() {
     } catch (e: any) {
       error_alert('Error al subir: ' + e.message);
       //atrapar error de videos/señas repetidas
-      console.log("Atrapé!!!");
+      console.error(e);
     } finally {
       setSubiendo(false);
     }
@@ -289,9 +288,6 @@ const styles = StyleSheet.create({
     paddingHorizontal: 24,
     marginTop: 8,
     width: '100%',
-  },
-  ctaIcon: {
-    marginRight: 10,
   },
   ctaButtonText: {
     color: '#fff',

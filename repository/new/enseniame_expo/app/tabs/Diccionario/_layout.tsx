@@ -17,6 +17,7 @@ export default function Layout(){
           }}>
             <Stack.Screen name='index' options={{headerShown:false}}/>
             <Stack.Screen name='editar_senia' options={{presentation:"modal",headerShown:false }}   />
+            <Stack.Screen name='reportar_senia' options={{presentation:"modal",headerShown:false }}   />
 
     </Stack>)
 }

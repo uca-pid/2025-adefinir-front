@@ -1,7 +1,6 @@
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { Logged_Alumno, Logged_Profesor, Profesor, User } from '@/components/types'
-import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 import { validateEmail } from '@/components/validaciones';
 import * as Crypto from 'expo-crypto';
@@ -125,4 +124,10 @@ const eliminar_usuario = async (id:number)=>{
   }
 }
 
-export {ingresar, registrarse, cuenta_existe , entrar, eliminar_usuario}
+const nombre_usuario = async (uid:number) => {
+  const {data,error} = await supabase.from('Users').select("username").eq('id', uid);
+  if (error) throw error
+  if (data && data.length>0) return data[0].username
+}
+
+export {ingresar, registrarse, cuenta_existe , entrar, eliminar_usuario, nombre_usuario}

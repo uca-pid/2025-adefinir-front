@@ -3,11 +3,11 @@ import { useFocusEffect } from "expo-router";
 import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { supabase } from "../../../utils/supabase";
 import { eliminar_modulo, mis_modulos } from "@/conexiones/modulos";
 import { useUserContext } from "@/context/UserContext";
 import { error_alert } from "@/components/alert";
 import Toast from "react-native-toast-message";
+import { calificacionesProfe, traerTodasCalificaciones } from "@/conexiones/calificaciones";
 
 export default function MisModulosScreen() {
   const [modules, setModules] = useState<any[]>([]);
@@ -27,7 +27,9 @@ export default function MisModulosScreen() {
     setLoading(true);
     try {
       const data = await mis_modulos(contexto.user.id);
-      setModules(data || [])
+      setModules(data || []);
+      traerTodasCalificaciones();
+      calificacionesProfe(contexto.user.id);
     } catch (error) {
       console.error(error);
       error_alert("Se produjo un error al buscar los módulos");

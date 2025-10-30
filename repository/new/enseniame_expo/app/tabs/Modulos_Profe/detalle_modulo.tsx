@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, ActivityIndicator, Modal } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, Image, TextInput, Alert, ActivityIndicator, Modal, Touchable, TouchableOpacity } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "../../../utils/supabase";
@@ -11,6 +11,11 @@ import { paleta } from "@/components/colores";
 import { buscar_senias_modulo } from "@/conexiones/modulos";
 import Toast from "react-native-toast-message";
 import { SmallPopupModal } from "@/components/modals";
+import { calificacionesModulo } from "@/conexiones/calificaciones";
+import { estilos } from "@/components/estilos";
+import { get_antiguedad } from "@/components/validaciones";
+import { nombre_usuario } from "@/conexiones/gestion_usuarios";
+import { RatingStars } from "@/components/review";
 
 interface Senia {
   id: number;
@@ -18,12 +23,22 @@ interface Senia {
   video_url: string;
   thumbnail?: string;
 }
+type Calificaciones = {
+  id_alumno: number;
+  Users: {username:string};
+  id_modulo: number;
+  puntaje: number;
+  comentario? : string;
+  created_at: string
+}
+
 
 export default function DetalleModuloScreen() {
   const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
   const router = useRouter();
   const [search, setSearch] = useState("");
   const [seniasModulo, setSeniasModulo] = useState<Senia_Info[]>([]);
+  const [calificaciones_modulo,setCalificacionesModulo] = useState<Calificaciones[]>()
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [diccionario, setDiccionario] = useState<Senia[]>([]);
@@ -31,6 +46,8 @@ export default function DetalleModuloScreen() {
 
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+
+  const [modalCalificaciones,setModalCalificaciones] = useState(false);
 
   const contexto = useUserContext();
 
@@ -47,25 +64,10 @@ export default function DetalleModuloScreen() {
   const fetchSeniasModulo = async () => {
     setLoading(true);
     try {
-      /* const { data: relaciones, error: relError } = await supabase
-        .from('Modulo_Video')
-        .select('id_video')
-        .eq('id_modulo', id);
-      if (relError) throw relError;
-      const ids = relaciones?.map((r: any) => r.id_video) || [];
-      if (ids.length === 0) {
-        setSeniasModulo([]);
-        setLoading(false);
-        return;
-      }
-      const { data: senias, error: seniaError } = await supabase
-        .from('Senias')
-        .select('*')
-        .in('id', ids);
-      if (seniaError) throw seniaError; */
-      const s = await  buscar_senias_modulo(Number(id));
-    
+      const s = await  buscar_senias_modulo(Number(id));    
       setSeniasModulo(s || []);
+      const calificaciones =await calificacionesModulo(Number(id));
+      setCalificacionesModulo(calificaciones || []);
     } catch (e) {
       Alert.alert('Error', 'No se pudieron cargar las señas del módulo');
     } finally {
@@ -131,6 +133,25 @@ export default function DetalleModuloScreen() {
       !seniasModulo.some(sm => sm.id === s.id)
   );
 
+  const promedio_reseñas = ()=>{
+    let promedio =0;
+    calificaciones_modulo?.forEach(each=>{
+      promedio+= each.puntaje;
+    });
+    return calificaciones_modulo? promedio / calificaciones_modulo.length : 0
+  }
+  const get_nombre_autor = async (uid:number) => {
+    let res = "";
+    try {
+      res = await nombre_usuario(uid);
+    } catch (error) {
+      console.error(error)
+    } finally {
+      return res
+    }
+  }
+  
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -141,6 +162,27 @@ export default function DetalleModuloScreen() {
         <Text style={styles.backBtnText}>Volver</Text>
       </Pressable>
       <Text style={styles.title}>Módulo: {nombre ? nombre : ''}</Text>
+
+      <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
+        {calificaciones_modulo && calificaciones_modulo.length>0 ? 
+        <>
+          <ThemedText>
+            <ThemedText style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</ThemedText> {' '}
+            <ThemedText type="defaultSemiBold">{promedio_reseñas()}</ThemedText>
+          </ThemedText>
+          
+          <ThemedText>
+            <ThemedText>{calificaciones_modulo.length}</ThemedText>{' '}
+            <ThemedText>{calificaciones_modulo.length == 1 ? "calificación" : "calificaciones"} </ThemedText>
+          </ThemedText>
+          </>
+          : <>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</Text>
+          <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
+          </>
+        }
+      </TouchableOpacity>
+
       {/* Barra de búsqueda fija */}
       <View style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }}>
         <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Buscar seña en el diccionario</Text>
@@ -166,6 +208,7 @@ export default function DetalleModuloScreen() {
           <Text style={{ color: '#888', fontStyle: 'italic' }}>No se encontraron coincidencias.</Text>
         )}
       </View>
+      
       {/* Lista de señas agregadas al módulo */}
       {loading ? (
         <ActivityIndicator size="large" color="#20bfa9" style={{ marginTop: 40 }} />
@@ -232,6 +275,32 @@ export default function DetalleModuloScreen() {
                 :null
               }
 
+        </SmallPopupModal>
+
+        <SmallPopupModal title={"Reseñas "} modalVisible={modalCalificaciones}  setVisible={setModalCalificaciones}>
+              {calificaciones_modulo && calificaciones_modulo.length>0 ?
+              <View>
+
+                <FlatList
+                  keyExtractor={(item)=>item.id_alumno.toString()}
+                  data={calificaciones_modulo}
+                  renderItem={({ item }) => (
+                    <View style={[styles.card,estilos.shadow, {marginBottom:5,marginHorizontal:5}]}>
+                      <RatingStars color={paleta.strong_yellow} puntaje={item.puntaje} />
+                      <ThemedText>
+                        <ThemedText lightColor="gray">{get_antiguedad(item.created_at)}</ThemedText>{' - '}
+                        <ThemedText lightColor="gray">{item.Users.username}</ThemedText>
+                      </ThemedText>
+                      <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario}</ThemedText>
+                    </View> 
+                  )}
+
+                  
+                />
+              </View> 
+              :
+              <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
+              }
         </SmallPopupModal>
         <Toast/>
     </View>
