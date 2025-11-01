@@ -7,7 +7,6 @@ import { eliminar_modulo, mis_modulos, mis_modulos_calificados } from "@/conexio
 import { useUserContext } from "@/context/UserContext";
 import { error_alert } from "@/components/alert";
 import Toast from "react-native-toast-message";
-import {  calificacionesProfe } from "@/conexiones/calificaciones";
 import { ThemedText } from "@/components/ThemedText";
 
 type Calificaciones = {
@@ -36,7 +35,7 @@ export default function MisModulosScreen() {
   const fetchModules = async () => {
     setLoading(true);
     try {      
-      const data2 = await mis_modulos_calificados(contexto.user.id);      
+      const data2 = await mis_modulos_calificados(contexto.user.id);         
 
       const res =data2?.map(e=>{        
         let prom = promedio_reseñas(e.Calificaciones_Modulos)        
@@ -68,7 +67,7 @@ export default function MisModulosScreen() {
     calificaciones_modulo?.forEach(each=>{
       promedio+= each.puntaje;
     });
-    return calificaciones_modulo? promedio / calificaciones_modulo.length : 0
+    return calificaciones_modulo.length>0 ? promedio / calificaciones_modulo.length : 0
   }
 
   return (
@@ -105,8 +104,10 @@ export default function MisModulosScreen() {
               <View>
                 <ThemedText lightColor="gray">
                   <ThemedText type="defaultSemiBold" lightColor="gray">Calificación: </ThemedText>
-                  {item.promedio} / 5
+                  {item.promedio==0 ? <ThemedText>-</ThemedText> : <ThemedText>{item.promedio} / 5</ThemedText> }
+                  
                 </ThemedText>
+                  
               </View>
               <View style={styles.cardActions}>
                 <Pressable

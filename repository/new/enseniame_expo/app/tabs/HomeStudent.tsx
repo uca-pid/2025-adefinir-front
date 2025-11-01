@@ -21,7 +21,7 @@ export default function HomeStudent() {
     const fetchModulosCompletados = async () => {
       const completados = await modulos_completados_por_alumno(contexto.user.id);
       setUser(prev => ({ ...prev, modulosCompletados: completados || 0 }));
-      console.log('Modulos completados actualizados:', completados);
+      //console.log('Modulos completados actualizados:', completados);
     };
 
     fetchModulosCompletados();
@@ -35,7 +35,7 @@ export default function HomeStudent() {
       try{
         const data = await progreso_por_categoria(contexto.user.id);
         if(mounted) setProgresoCategorias(data || []);
-        console.log('Progreso por categoría cargado:', data);
+        //console.log('Progreso por categoría cargado:', data);
       }catch(err){ console.error('Error cargando progreso por categoría', err) }
     }
     if(contexto.user && contexto.user.id) load();

@@ -32,7 +32,6 @@ type Calificaciones = {
   created_at: string
 }
 
-
 export default function DetalleModuloScreen() {
   const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
   const router = useRouter();
