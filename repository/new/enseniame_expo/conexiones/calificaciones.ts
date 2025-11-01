@@ -40,8 +40,8 @@ const getRanking = async () => {
                     cant++
                 })
             });
-            if (cant!=0) return {id: profe.id, username: profe.username, promedio: promedio / cant}
-            else return {id: profe.id,username: profe.username, promedio:0}
+            if (cant!=0) return {id: profe.id, username: profe.username, promedio: promedio / cant, cant_reviews:cant}
+            else return {id: profe.id,username: profe.username, promedio:0, cant_reviews:0}
         });
         return res
     } else {

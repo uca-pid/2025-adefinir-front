@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, SectionList, RefreshControl, SafeAreaView } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, SectionList, RefreshControl, SafeAreaView, Modal, FlatList, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserContext } from '@/context/UserContext';
@@ -8,13 +8,26 @@ import ProgressCard from '@/components/ProgressCard';
 import GlobalProgress from '@/components/GlobalProgress';
 import HistorialItem from '@/components/HistorialItem';
 import { useFocusEffect } from '@react-navigation/native';
+import Toast from 'react-native-toast-message';
+import { ThemedText } from '@/components/ThemedText';
+import { RatingStars, RatingCard } from '@/components/review';
+import { paleta } from '@/components/colores';
+import { estilos } from '@/components/estilos';
+import { error_alert } from '@/components/alert';
+import { getRanking } from '@/conexiones/calificaciones';
 
+type DatosRanking ={
+    id: number;
+    username: string;
+    promedio: number;
+    cant_reviews: number
+}
 
 type Modulo = { id: number; nombre: string };
 type RelacionModuloVideo = { id_modulo: number; id_video: number };
 type HistorialRow = { senia_id: number; aprendida: boolean; created_at: string; modulo_nombre: string; senia_nombre: string };
 
-type SectionType = 'modules' | 'history';
+type SectionType = 'modules' | 'history' | 'ranking';
 
 type DashboardSection = {
   title: string;
@@ -33,6 +46,9 @@ export default function DashboardAlumnoScreen() {
   const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({}); 
   const [error, setError] = useState<string | null>(null);
   const [historial, setHistorial] = useState<HistorialRow[]>([]);
+
+  const [modalRanking, setOpenRanking] = useState(false);
+  const [dataRanking,setDataRanking] = useState<DatosRanking[]>([])
 
   const fetchData = async () => {
     setError(null);
@@ -130,6 +146,24 @@ export default function DashboardAlumnoScreen() {
     }
   };
 
+  const fetchRanking = async () => {
+    setLoading(true);
+    try {
+      const d = await getRanking();
+      //ordenar por mayor ranking
+      const ordered = d.sort(function(a,b){
+          return b.promedio-a.promedio
+      })
+
+      setDataRanking(ordered || [])
+    } catch (error) {
+        error_alert("No se pudo cargar el ranking");
+        console.error(error)
+    } finally{
+        setLoading(false);
+    }
+  }
+
   useEffect(() => {
     fetchData();
   }, [user?.id]);
@@ -158,6 +192,7 @@ export default function DashboardAlumnoScreen() {
   // Recargar datos cada vez que la pantalla recibe foco (cuando se entra en la página)
   useFocusEffect(
     React.useCallback(() => {
+      fetchRanking();
       fetchData();
     }, [user?.id])
   );
@@ -211,6 +246,7 @@ export default function DashboardAlumnoScreen() {
   const sections: DashboardSection[] = [
     { title: 'Progreso por módulo', type: 'modules', data: progresoPorModulo },
     { title: 'Historial de señas aprendidas', type: 'history', data: historial.slice(0, 3) },
+    {title: "Ranking profesores", type: "ranking", data: dataRanking?.slice(0,3)}
   ];
 
   return (
@@ -221,6 +257,7 @@ export default function DashboardAlumnoScreen() {
         refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
         stickySectionHeadersEnabled={false}
         contentContainerStyle={styles.listContent}
+        SectionSeparatorComponent={() => <View style={styles.separator} />}
         ListHeaderComponent={() => (
           <View style={styles.headerBox}>
             <Text style={styles.titleCursos}>Dashboard de Aprendizaje</Text>
@@ -236,14 +273,20 @@ export default function DashboardAlumnoScreen() {
         ListHeaderComponentStyle={{ paddingHorizontal: 18 }}
         ListFooterComponent={<View style={{ height: 24 }} />}
         renderSectionHeader={({ section }) => (
-          <Text style={styles.sectionTitle}>{section.title}</Text>
+          <Text style={styles.sectionTitle}>{section.title}</Text>          
         )}
         renderSectionFooter={({ section }) => (
           section.data.length === 0 ? (
             <Text style={styles.emptyText}>
               {section.type === 'modules' ? 'No hay módulos disponibles.' : 'Aún no hay señas aprendidas.'}
             </Text>
-          ) : null
+          ) : 
+          section.type=== 'ranking' ? (
+            <TouchableOpacity style={[styles.badge,estilos.centrado]} onPress={()=>router.navigate("/tabs/Dashboard_Alumno/ranking")}>
+              <ThemedText type='defaultSemiBold' lightColor='white'>Ver ranking completo</ThemedText>
+            </TouchableOpacity>
+            
+          ):null
         )}
         renderItem={({ item, section }) => (
           section.type === 'modules' ? (
@@ -253,15 +296,22 @@ export default function DashboardAlumnoScreen() {
               total={item.total}
               onPress={() => router.push({ pathname: '/tabs/Modulos_Alumno/modulo_detalle', params: { id: String(item.id) } })}
             />
-          ) : (
+          ) : 
+            section.type === 'history'?
+          (
             <HistorialItem
               nombre={item.senia_nombre}
               modulo={item.modulo_nombre}
               fechaISO={item.created_at}
             />
+          ): (
+            <RatingCard nombre={item.username} rating={item.promedio} cant_reviews={item.cant_reviews}/>
           )
         )}
-      />
+      />        
+
+       
+      <Toast/>
     </SafeAreaView>
   );
 }
@@ -284,4 +334,51 @@ const styles = StyleSheet.create({
   errorBox: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fdecea', borderRadius: 8, padding: 10, marginTop: 6, marginBottom: 10, borderWidth: 1, borderColor: '#f5c2c0' },
   errorText: { color: '#e74c3c', marginLeft: 6 },
   emptyText: { color: '#777', alignSelf: 'center', marginVertical: 6 },
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 32,
+    padding: 24,
+    flex: 1, 
+    alignItems: 'flex-start',
+    shadowColor: '#222',
+    shadowOpacity: 0.08,
+    shadowRadius: 12,
+    shadowOffset: { width: 0, height: 4 },
+    elevation: 3,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+  },
+  title: {
+    fontSize: 28,
+    fontWeight: 'bold',
+    color: paleta.dark_aqua,
+    marginTop: 50,
+    marginBottom: 40,
+    alignSelf: 'center',
+    zIndex: 2,
+    letterSpacing: 0.5,
+  },
+  separator: {
+    height: 10,
+  },
+  modalContainer: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'rgba(0,0,0,0.5)',
+  },
+  modalContent: {
+    backgroundColor: 'white',
+    borderTopLeftRadius: 20,
+    borderTopRightRadius: 20,
+    padding: 20,
+    minHeight: '70%',
+  },
+  badge: {
+    backgroundColor: paleta.aqua,    
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    fontWeight: '600',
+    
+  },
 });

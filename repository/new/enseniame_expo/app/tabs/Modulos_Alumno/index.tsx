@@ -26,7 +26,7 @@ export default function ModulosScreen() {
 
   const fetch_modulos = async ()=>{
     const m2 = await modulosCalificados();
-    console.log(m2);
+    
     const res =m2?.map(e=>{        
         let prom = promedio_reseñas(e.Calificaciones_Modulos)        
         return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor}
