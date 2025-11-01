@@ -8,6 +8,8 @@ import { useUserContext } from "@/context/UserContext";
 import { error_alert } from "@/components/alert";
 import Toast from "react-native-toast-message";
 import { ThemedText } from "@/components/ThemedText";
+import { Modulo } from "@/components/types";
+import { promedio_reseñas } from "@/conexiones/calificaciones";
 
 type Calificaciones = {
   id_alumno: number;
@@ -17,9 +19,12 @@ type Calificaciones = {
   comentario? : string;
   created_at: string
 }
+interface ModuloCalificado extends Modulo {
+  promedio: number
+}
 
 export default function MisModulosScreen() {
-  const [modules, setModules] = useState<any[]>([]);
+  const [modules, setModules] = useState<ModuloCalificado[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMenu, setShowMenu] = useState<number | null>(null);
   const router = useRouter();
@@ -39,7 +44,7 @@ export default function MisModulosScreen() {
 
       const res =data2?.map(e=>{        
         let prom = promedio_reseñas(e.Calificaciones_Modulos)        
-        return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom}
+        return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor}
       });
         
       setModules(res || []);
@@ -62,13 +67,6 @@ export default function MisModulosScreen() {
     
   };
 
-  const promedio_reseñas = (calificaciones_modulo: Calificaciones[])=>{
-    let promedio =0;
-    calificaciones_modulo?.forEach(each=>{
-      promedio+= each.puntaje;
-    });
-    return calificaciones_modulo.length>0 ? promedio / calificaciones_modulo.length : 0
-  }
 
   return (
     <View style={styles.container}>
@@ -114,7 +112,7 @@ export default function MisModulosScreen() {
                   style={styles.viewBtn}
                   onPress={() => router.push({
                     pathname: "/tabs/Modulos_Profe/detalle_modulo",
-                    params: { id: item.id, nombre: item.nombre }
+                    params: { id: item.id, nombre: String(item.nombre) }
                   })}
                 >
                   <Text style={styles.viewBtnText}>Ver señas</Text>
@@ -149,7 +147,7 @@ export default function MisModulosScreen() {
                       style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
                       onPress={() => {
                         setShowMenu(null);
-                        router.push({ pathname: "/tabs/Modulos_Profe/crear_modulo", params: { id: item.id, nombre: item.nombre, icon: item.icon, descripcion: item.descripcion } });
+                        router.push({ pathname: "/tabs/Modulos_Profe/crear_modulo", params: { id: item.id, nombre: String(item.nombre), icon: item.icon, descripcion: String(item.descripcion) } });
                       }}
                     >
                       <Ionicons name="create-outline" size={18} color="#20bfa9" style={{ marginRight: 8 }} />

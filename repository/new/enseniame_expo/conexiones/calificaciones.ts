@@ -1,3 +1,4 @@
+import { Calificaciones } from '@/components/types';
 import { supabase } from '../lib/supabase'
 
 const traerTodasCalificaciones = async () => {
@@ -49,5 +50,20 @@ const getRanking = async () => {
           
 }
 
+const modulosCalificados = async () =>{
+    let { data: Modulos, error } = await supabase
+        .from('Modulos')
+        .select('*, Calificaciones_Modulos (*)')        
+    if (error) throw error;
+    if (Modulos && Modulos.length>0) return Modulos 
+}
 
-export {traerTodasCalificaciones, calificacionesModulo, calificacionesProfe, getRanking}
+const promedio_reseñas = (calificaciones_modulo: Calificaciones[])=>{
+    let promedio =0;
+    calificaciones_modulo?.forEach(each=>{
+      promedio+= each.puntaje;
+    });
+    return calificaciones_modulo.length>0 ? promedio / calificaciones_modulo.length : 0
+  }
+
+export {traerTodasCalificaciones, calificacionesModulo, calificacionesProfe, getRanking, modulosCalificados, promedio_reseñas}

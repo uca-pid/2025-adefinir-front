@@ -5,12 +5,17 @@ import { useFocusEffect, useRouter } from "expo-router";
 import {  Modulo } from "@/components/types";
 import { todos_los_modulos } from "@/conexiones/modulos";
 import Toast from "react-native-toast-message";
+import { modulosCalificados, promedio_reseñas } from "@/conexiones/calificaciones";
+import { ThemedText } from "@/components/ThemedText";
 
+interface ModuloCalificado extends Modulo {
+  promedio: number
+}
 
 export default function ModulosScreen() {
   const router = useRouter();
 
-  const [modulos,setModulos] = useState<Modulo[]>();
+  const [modulos,setModulos] = useState<ModuloCalificado[]>();
 
   useFocusEffect(
       useCallback(() => {
@@ -20,9 +25,13 @@ export default function ModulosScreen() {
     );
 
   const fetch_modulos = async ()=>{
-    const m = await todos_los_modulos();
-    setModulos(m || [])
-    //console.log(m)
+    const m2 = await modulosCalificados();
+    console.log(m2);
+    const res =m2?.map(e=>{        
+        let prom = promedio_reseñas(e.Calificaciones_Modulos)        
+        return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor}
+      });
+    setModulos(res || []);    
   }
 
   return (
@@ -39,7 +48,17 @@ export default function ModulosScreen() {
             <Text style={styles.cardTitle}>{item.nombre}</Text>
             <Text style={styles.cardSubtitle}>
               {/* {item.length} señas incluidas */}
+              {item.descripcion}
             </Text>
+            <View>
+                            
+              <ThemedText lightColor="gray">
+                <ThemedText type="defaultSemiBold" lightColor="gray">Calificación: </ThemedText>
+                {item.promedio==0 ? <ThemedText>-</ThemedText> : <ThemedText>{item.promedio} / 5</ThemedText> }
+                
+              </ThemedText>
+                
+            </View>
             <Pressable
               style={styles.button}
               onPress={() => router.push({ pathname: '/tabs/Modulos_Alumno/modulo_detalle', params: { id: item.id } })}

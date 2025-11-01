@@ -126,5 +126,13 @@ interface Modulo {
     icon: keyof typeof Ionicons.glyphMap,
     nombre: String
 }
+type Calificaciones = {
+  id_alumno: number;
+  Users: {username:string};
+  id_modulo: number;
+  puntaje: number;
+  comentario? : string;
+  created_at: string
+}
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo, icon_type}
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo, icon_type, Calificaciones}
