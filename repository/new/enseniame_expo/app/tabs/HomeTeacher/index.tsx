@@ -102,13 +102,13 @@ export default function HomeTeacher() {
             <Text style={styles.cardTextCursos}> señas subidas</Text>
 
             <Text style={styles.cardTitleCursos}>{misModulos?.length} </Text>
-            <Text style={styles.cardTextCursos}> módulos creados</Text>
+            <Text style={styles.cardTextCursos}> {misModulos && misModulos.length > 1 ? "módulos creados":"módulo creado"} </Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={[styles.card, {marginVertical: 8}]} onPress={()=>{router.push("/tabs/HomeTeacher/ranking")}} >
           <ThemedText type='defaultSemiBold'>Tus calificaciones:</ThemedText>
-          {calificaciones_profe && calificaciones_profe.length>0?
+          {cant_reviews>0?
           <>
           <ThemedText style={[estilos.centrado,{margin:5}]} type='title'>{promedio}</ThemedText>
           <ThemedText>{cant_reviews} reseñas en tus módulos</ThemedText>

@@ -46,8 +46,7 @@ export default function DashboardAlumnoScreen() {
   const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({}); 
   const [error, setError] = useState<string | null>(null);
   const [historial, setHistorial] = useState<HistorialRow[]>([]);
-
-  const [modalRanking, setOpenRanking] = useState(false);
+  
   const [dataRanking,setDataRanking] = useState<DatosRanking[]>([])
 
   const fetchData = async () => {
