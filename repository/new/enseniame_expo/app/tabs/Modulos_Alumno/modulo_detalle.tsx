@@ -26,11 +26,12 @@ type Senia_Aprendida ={
 }
 type Calificaciones = {
   id_alumno: number;
-  Users: {username:string};
+  Users?: {username:string};
   id_modulo: number;
   puntaje: number;
   comentario? : string;
-  created_at: string
+  created_at: string;
+  id: number
 }
 
 export default function ModuloDetalleScreen() {
@@ -272,16 +273,16 @@ export default function ModuloDetalleScreen() {
             <View>
 
               <FlatList
-                keyExtractor={(item)=>item.id_alumno.toString()}
+                keyExtractor={(item)=>item.id.toString()}
                 data={calificaciones_modulo}
                 renderItem={({ item }) => (
                   <View style={[styles.card,estilos.shadow, {marginBottom:5,marginHorizontal:5}]}>
                     <RatingStars color={paleta.strong_yellow} puntaje={item.puntaje} />
                     <ThemedText>
                       <ThemedText lightColor="gray">{get_antiguedad(item.created_at)}</ThemedText>{' - '}
-                      <ThemedText lightColor="gray">{item.Users.username}</ThemedText>
+                      <ThemedText lightColor="gray">{item.Users? item.Users.username: "Anónimo"}</ThemedText>
                     </ThemedText>
-                    <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario}</ThemedText>
+                    <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario ? item.comentario : null}</ThemedText>
                   </View> 
                 )}
 
