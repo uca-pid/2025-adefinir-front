@@ -232,6 +232,12 @@ export default function DashboardAlumnoScreen() {
               >
                 Ver objetivos activos
               </Text>
+              <Text
+                onPress={() => router.push('/tabs/reporte_historico' as any)}
+                style={{ color: '#0a7ea4', fontWeight: 'bold', marginTop: 6 }}
+              >
+                Ver reporte histórico
+              </Text>
             </View>
             {error && (
               <View style={styles.errorBox}>
