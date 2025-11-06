@@ -99,7 +99,7 @@ export default function ModulosScreen() {
                             
               <ThemedText lightColor="gray">
                 <ThemedText type="defaultSemiBold" lightColor="gray">Calificación: </ThemedText>
-                {item.promedio==0 ? <ThemedText>-</ThemedText> : <ThemedText>{item.promedio} / 5</ThemedText> }
+                {item.promedio==0 ? <ThemedText>-</ThemedText> : <ThemedText>{item.promedio.toFixed(2)} / 5</ThemedText> }
                 
               </ThemedText>
                 

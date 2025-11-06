@@ -90,6 +90,9 @@ export default function HomeTeacher() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Panel del Profesor</Text>
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
+        {contexto.user.id==1 && (
+          <ThemedText style={[styles.subtitle,{marginBottom:10}]} >(Admin)</ThemedText>
+        )}
 
         <View style={styles.stackCards}>
           <TouchableOpacity style={[styles.card, styles.cardLeft]} onPress={()=>router.push("/tabs/HomeTeacher/vistas")}> 
@@ -110,7 +113,7 @@ export default function HomeTeacher() {
           <ThemedText type='defaultSemiBold'>Tus calificaciones:</ThemedText>
           {cant_reviews>0?
           <>
-          <ThemedText style={[estilos.centrado,{margin:5}]} type='title'>{promedio}</ThemedText>
+          <ThemedText style={[estilos.centrado,{margin:5}]} type='title'>{promedio.toFixed(2)}</ThemedText>
           <ThemedText>{cant_reviews} reseñas en tus módulos</ThemedText>
           </>:
           <ThemedText lightColor='gray'>Todavía no tienes ninguna calificación</ThemedText>
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#20bfa9',
     fontWeight: '500',
-    marginBottom: 18,
+    marginBottom: 7,
     alignSelf: 'center',
     zIndex: 2,
   },

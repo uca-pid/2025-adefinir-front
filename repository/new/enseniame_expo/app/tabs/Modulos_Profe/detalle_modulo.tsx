@@ -168,7 +168,7 @@ export default function DetalleModuloScreen() {
         <>
           <ThemedText>
             <ThemedText style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</ThemedText> {' '}
-            <ThemedText type="defaultSemiBold">{promedio_reseñas()}</ThemedText>
+            <ThemedText type="defaultSemiBold">{promedio_reseñas().toFixed(2)}</ThemedText>
           </ThemedText>
           
           <ThemedText>

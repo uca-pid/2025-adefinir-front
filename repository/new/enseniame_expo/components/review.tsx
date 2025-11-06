@@ -27,7 +27,7 @@ function RatingCard({ nombre, rating, cant_reviews }: Props){
     <View style={styles.card}>
         <ThemedText>
             <ThemedText style={styles.nombre}>{nombre}:</ThemedText>{' '}
-            <ThemedText style={styles.badge}>{rating}</ThemedText>
+            <ThemedText style={styles.badge}>{rating.toFixed(2)}</ThemedText>
         </ThemedText>
         <View style={styles.row}>            
             <RatingStars puntaje={rating} color={paleta.yellow}/>

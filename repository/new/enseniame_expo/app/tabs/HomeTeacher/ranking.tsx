@@ -71,7 +71,7 @@ export default function RankingProfes (){
                 renderItem={({ item }: { item: DatosRanking }) =>{
                     if (item.promedio==0) return <></>
                     return (
-                    <RatingCard nombre={item.id==contexto.user.id ? item.username+ " (Yo)":item.username} rating={item.promedio} cant_reviews={item.cant_reviews}/>
+                    <RatingCard nombre={item.id==contexto.user.id ? item.username+ " (Yo)":item.username} rating={  item.promedio} cant_reviews={item.cant_reviews}/>
                     
                 )}}
             />
