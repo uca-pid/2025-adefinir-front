@@ -1,5 +1,7 @@
 import { Ionicons } from "@expo/vector-icons";
-import { View } from "react-native";
+import { View, StyleSheet, Text } from "react-native";
+import { ThemedText } from "./ThemedText";
+import { paleta } from "./colores";
 
 
 function RatingStars (props: {puntaje:number, color:string}){
@@ -14,4 +16,60 @@ function RatingStars (props: {puntaje:number, color:string}){
     )
 }
 
-export {RatingStars}
+type Props = {
+  nombre: string;
+  rating: number;
+  cant_reviews: number
+};
+function RatingCard({ nombre, rating, cant_reviews }: Props){
+    if (rating==0) return <></>
+    return (
+    <View style={styles.card}>
+        <ThemedText>
+            <ThemedText style={styles.nombre}>{nombre}:</ThemedText>{' '}
+            <ThemedText style={styles.badge}>{rating}</ThemedText>
+        </ThemedText>
+        <View style={styles.row}>            
+            <RatingStars puntaje={rating} color={paleta.yellow}/>
+            <ThemedText style={[{alignSelf:"flex-end"},styles.fecha]}>{cant_reviews} {cant_reviews==1 ? "calificación": "calificaciones"}</ThemedText>
+        </View>
+    </View>
+    );
+}
+export {RatingStars, RatingCard}
+
+const styles = StyleSheet.create({
+  card: {
+    backgroundColor: '#fff',
+    borderRadius: 12,
+    padding: 14,
+    marginBottom: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 8,
+    shadowOffset: { width: 0, height: 3 },
+    elevation: 2,
+  },
+  nombre: {
+    fontSize: 16,
+    fontWeight: '700',
+    color: '#222',
+    marginBottom: 6,
+  },
+  row: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+  },
+  badge: {
+    //backgroundColor: '#e6f7f2',
+    color: '#20bfa9',
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    paddingVertical: 4,
+    fontWeight: '600',
+  },
+  fecha: {
+    color: '#555',
+  },
+});
