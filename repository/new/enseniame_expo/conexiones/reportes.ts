@@ -19,4 +19,11 @@ const crearReporte = async (id_autor:number,id_motivo:number,comentario:string,i
     if (error) throw error
 }
 
-export {traerMotivosReporte, crearReporte}
+const todosReportes = async () => {
+    
+    let { data: Reportes, error } = await supabase.from('Reportes').select('*, Motivos_reporte(*), Senias (*, Users: Users!id_autor (*),  Categorias (nombre))');
+    if (error) throw error
+    return Reportes
+}
+
+export {traerMotivosReporte, crearReporte, todosReportes}

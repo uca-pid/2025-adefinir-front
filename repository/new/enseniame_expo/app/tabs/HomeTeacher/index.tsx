@@ -127,9 +127,9 @@ export default function HomeTeacher() {
             <Ionicons name="videocam-outline" size={22} color="#20bfa9" />
             <Text style={styles.quickActionTextCursos}>Subir video de seña</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickActionCardCursos}>
-            <Ionicons name="school-outline" size={22} color="#20bfa9" />
-            <Text style={styles.quickActionTextCursos}>Ver progreso de estudiantes</Text>
+          <TouchableOpacity style={styles.quickActionCardCursos} onPress={()=>{if (contexto.user.id==1)router.push("/tabs/HomeTeacher/moderar")}}>
+            <Ionicons name={contexto.user.id==1 ? "alert-circle-outline" : "school-outline"} size={22} color="#20bfa9" />
+            <Text style={styles.quickActionTextCursos}>{contexto.user.id==1 ? "Moderar" :"Ver progreso de estudiantes"}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>

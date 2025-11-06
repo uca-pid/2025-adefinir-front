@@ -1,5 +1,4 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { useFocusEffect } from '@react-navigation/native';
 import { 
   View, Text, StyleSheet,   TextInput,  
   KeyboardAvoidingView,  Platform,  ScrollView
@@ -20,11 +19,9 @@ import { crearReporte, traerMotivosReporte } from '@/conexiones/reportes';
 type Cate ={
      id: number; nombre: string
 }
-type Motivos = {
-    id:number; descripcion: string
-}
 
 DropDownPicker.setListMode("SCROLLVIEW");
+
 export default function Reportar_senia() {
     const {id_senia=0,url,significado,cate} =useLocalSearchParams();
     if (id_senia==0) router.back();

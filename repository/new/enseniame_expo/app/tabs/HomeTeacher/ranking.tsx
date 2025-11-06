@@ -1,12 +1,10 @@
-import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, TouchableOpacity, FlatList, ActivityIndicator, TextInput } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
+import React, { useCallback, useState } from 'react';
+import { View, Text, StyleSheet,  FlatList, ActivityIndicator, } from 'react-native';
 import { router, useFocusEffect } from 'expo-router';
 import { error_alert } from '@/components/alert';
 import { paleta, paleta_colores } from '@/components/colores';
 
 import { ThemedText } from '@/components/ThemedText';
-import VideoPlayer from '@/components/VideoPlayer';
 import { estilos } from '@/components/estilos';
 import Toast from 'react-native-toast-message';
 import { getRanking } from '@/conexiones/calificaciones';

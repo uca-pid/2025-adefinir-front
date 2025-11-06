@@ -15,6 +15,7 @@ export default function Layout(){
             <Stack.Screen name='index' options={{headerShown:false}}/>
             <Stack.Screen name='vistas' options={{headerShown:false , presentation: "modal"}}   />
             <Stack.Screen name='ranking' options={{headerShown:false , presentation: "modal"}}   />
+            <Stack.Screen name='moderar' options={{headerShown:false , presentation: "modal"}}   />
 
     </Stack>)
 }
