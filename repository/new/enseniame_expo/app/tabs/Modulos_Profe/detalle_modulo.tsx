@@ -25,13 +25,13 @@ interface Senia {
 }
 type Calificaciones = {
   id_alumno: number;
-  Users: {username:string};
+  Users?: {username:string};
   id_modulo: number;
   puntaje: number;
   comentario? : string;
-  created_at: string
+  created_at: string;
+  id:number;
 }
-
 
 export default function DetalleModuloScreen() {
   const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
@@ -168,7 +168,7 @@ export default function DetalleModuloScreen() {
         <>
           <ThemedText>
             <ThemedText style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</ThemedText> {' '}
-            <ThemedText type="defaultSemiBold">{promedio_reseñas()}</ThemedText>
+            <ThemedText type="defaultSemiBold">{promedio_reseñas().toFixed(2)}</ThemedText>
           </ThemedText>
           
           <ThemedText>
@@ -289,9 +289,9 @@ export default function DetalleModuloScreen() {
                       <RatingStars color={paleta.strong_yellow} puntaje={item.puntaje} />
                       <ThemedText>
                         <ThemedText lightColor="gray">{get_antiguedad(item.created_at)}</ThemedText>{' - '}
-                        <ThemedText lightColor="gray">{item.Users.username}</ThemedText>
+                        <ThemedText lightColor="gray">{item.Users? item.Users.username: "Anónimo"}</ThemedText>
                       </ThemedText>
-                      <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario}</ThemedText>
+                      <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario ? item.comentario : null}</ThemedText>
                     </View> 
                   )}
 

@@ -75,7 +75,7 @@ export default function ObjetivoModal({
   };
 
   return (
-  <SmallPopupModal title={initialData ? 'Editar objetivo' : 'Nuevo objetivo'} modalVisible={visible} setVisible={(v: React.SetStateAction<boolean>) => onClose()}>
+  <SmallPopupModal title={initialData ? 'Editar objetivo' : 'Nuevo objetivo'} modalVisible={visible} setVisible={(v) => onClose()}>
       <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
         <Text style={styles.label}>Título *</Text>
         <TextInput

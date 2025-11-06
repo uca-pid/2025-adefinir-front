@@ -2,12 +2,11 @@ import React, { useEffect, useState } from 'react';
 import { View, Text, StyleSheet, FlatList, ActivityIndicator, TouchableOpacity, Alert, SafeAreaView } from 'react-native';
 import { supabase } from '@/lib/supabase';
 import { useUserContext } from '@/context/UserContext';
+import ObjetivoCard from '@/components/ObjetivoCard';
 import ObjetivoModal from '@/components/ObjetivoModal';
 import { Ionicons } from '@expo/vector-icons';
 import { paleta } from '@/components/colores';
 import { useBottomTabBarHeight } from '@react-navigation/bottom-tabs';
-
-import ObjetivoCard from '@/components/ObjetivoCard';
 
 type Objetivo = {
   id: number;
@@ -28,7 +27,7 @@ export default function AlumnoObjetivosScreen() {
   const [editing, setEditing] = useState<Objetivo | null>(null);
   const [refreshing, setRefreshing] = useState(false);
 
-  
+  // Reload when the logged user changes (fixes empty list after login)
   useEffect(() => {
     if ((user as any)?.id && (user as any).id !== 0) {
       loadObjetivos();

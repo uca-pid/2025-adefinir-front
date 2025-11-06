@@ -1,19 +1,21 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, StyleSheet, Pressable, ScrollView, TouchableOpacity, Modal, Alert, TextInput } from 'react-native';
 import { Ionicons, MaterialIcons  } from '@expo/vector-icons';
-import { Link , router} from 'expo-router';
+import { Link , router, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { useUserContext } from '@/context/UserContext';
 import { validateEmail, validatePassword } from '@/components/validaciones';
 import { eliminar_usuario } from '@/conexiones/gestion_usuarios';
+import { traerReportesProfe } from '@/conexiones/reportes';
 import { paleta, paleta_colores } from '@/components/colores';
 import { IconTextInput, PasswordInput } from '@/components/inputs';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
 import { BotonLogin } from '@/components/botones';
 import { SmallPopupModal } from '@/components/modals';
+import VideoPlayer from '@/components/VideoPlayer';
 
 export default function Perfil (){
     const [name,setName]= useState<string>();
@@ -26,6 +28,7 @@ export default function Perfil (){
     const [PassModalVisible, setPassModalVisible] = useState(false);
     const [instModalVisible, setInstModalVisible] = useState(false);
     const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [reportesModalVisible, setReportesModalVisible] = useState(false);
 
     const [errorEmail, setErrorEmail] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
@@ -33,10 +36,23 @@ export default function Perfil (){
     const [errorI, setErrorI] = useState('');
 
     const [showPassword, setShowPassword] = useState(false);
+    const [reportes, setReportes] = useState<any[]>([]);
+    const [loadingReportes, setLoadingReportes] = useState(false);
 
     const contexto = useUserContext();
 
     const img = require("../../assets/images/pfp.jpg");
+
+    useFocusEffect(
+      useCallback(() => {
+          const fetchData = async () => {
+              const reportes = await traerReportesProfe(contexto.user.id);
+              setReportes(reportes);
+          };
+          fetchData();
+        return () => {};
+      }, [])
+    );
 
     const eliminar_cuenta = ()=>{
       Alert.alert('Eliminar cuenta', '¿Estás seguro de que querés eliminar la cuenta?', [
@@ -133,132 +149,194 @@ export default function Perfil (){
         
     }
 
+    const abrirModalReportes = async () => {
+      setLoadingReportes(true);
+      try {
+        const data = await traerReportesProfe(contexto.user.id);
+        setReportes(data || []);
+        console.log(data);
+      } catch (e) {
+        error_alert("No se pudieron cargar los reportes");
+      }
+      setLoadingReportes(false);
+      setReportesModalVisible(true);
+    };
+
     return(
-        <View
-      style={[styles.mainView,{backgroundColor:"#ebfbfbff"}]}
-    >
-       
-      <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
-        <View style={styles.formAndImg}>
+        <View style={[styles.mainView,{backgroundColor:"#ebfbfbff"}]}>
+          <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+            <View style={styles.formAndImg}>
+              <Image
+                style={[styles.image,{borderColor:paleta.aqua}]}
+                source={img}
+                contentFit="contain"
+                transition={1000}
+              />
+              
+                <View style={{marginTop:25}}>
+                  <ThemedText type='title'>{contexto.user.username}</ThemedText>
+                </View>
 
-          <Image
-            style={[styles.image,{borderColor:paleta.aqua}]}
-            source={img}
-            contentFit="contain"
-            transition={1000}
-          />
-          
-            <View style={{marginTop:25}}>
-              <ThemedText type='title'>{contexto.user.username}</ThemedText>
-            </View>
-         
-            <View style={styles.formContainer}>
-             <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Actualizar datos</ThemedText>
-                <TouchableOpacity onPress={()=>{setNameModalVisible(true)}} style={[styles.infoContainer,estilos.shadow,{borderTopRightRadius:15, borderTopLeftRadius:15,}]}>
-                  <ThemedText >Nombre</ThemedText>
-                  <View style={{flexDirection:"row"}}>
-                    <ThemedText lightColor='gray'>{contexto.user.username}</ThemedText>
-                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                <View style={styles.formContainer}>
+                 <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Actualizar datos</ThemedText>
+                    <TouchableOpacity onPress={()=>{setNameModalVisible(true)}} style={[styles.infoContainer,estilos.shadow,{borderTopRightRadius:15, borderTopLeftRadius:15,}]}>
+                      <ThemedText >Nombre</ThemedText>
+                      <View style={{flexDirection:"row"}}>
+                        <ThemedText lightColor='gray'>{contexto.user.username}</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                      </View>
+                    </TouchableOpacity>
+
+                    <TouchableOpacity onPress={()=>{setMailModalVisible(true)}} style={[styles.infoContainer]}>
+                      <ThemedText >Mail</ThemedText>
+                      <View style={{flexDirection:"row"}}>
+                        <ThemedText lightColor='gray'>{contexto.user.mail}</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                      </View>
+                    </TouchableOpacity>
+
+                    {contexto.user.is_prof ? 
+                    <TouchableOpacity onPress={()=>{setInstModalVisible(true)}} style={[styles.infoContainer]}>
+                      <ThemedText >Institución</ThemedText>
+                      <View style={{flexDirection:"row"}}>
+                        <ThemedText lightColor='gray'>{contexto.user.institution}</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                      </View>
+                    </TouchableOpacity> : null
+                  }
+
+                    <TouchableOpacity onPress={()=>{setPassModalVisible(true)}} style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
+                      <ThemedText >Cambiar contraseña</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                    </TouchableOpacity>
+
+                {contexto.user.is_prof ? (
+                  <View>
+                    <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Reportes</ThemedText>
+                    <TouchableOpacity onPress={abrirModalReportes} style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
+                      <ThemedText >Videos Reportados</ThemedText>
+                      <View style={{flexDirection:"row", alignSelf:"flex-end"}}>
+                        <ThemedText lightColor='gray'>{reportes.length}</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray"/>
+                      </View>
+                    </TouchableOpacity>
                   </View>
-                </TouchableOpacity>
+                ) : null}
 
-                <TouchableOpacity onPress={()=>{setMailModalVisible(true)}} style={[styles.infoContainer]}>
-                  <ThemedText >Mail</ThemedText>
-                  <View style={{flexDirection:"row"}}>
-                    <ThemedText lightColor='gray'>{contexto.user.mail}</ThemedText>
-                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
-                  </View>
-                </TouchableOpacity>
 
-                {contexto.user.is_prof ? 
-                <TouchableOpacity onPress={()=>{setInstModalVisible(true)}} style={[styles.infoContainer]}>
-                  <ThemedText >Institución</ThemedText>
-                  <View style={{flexDirection:"row"}}>
-                    <ThemedText lightColor='gray'>{contexto.user.institution}</ThemedText>
-                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
-                  </View>
-                </TouchableOpacity> : null
-              }
+                    <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Cuenta</ThemedText>
+                    <TouchableOpacity onPress={eliminar_cuenta} style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
+                      <ThemedText >Eliminar cuenta</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                    </TouchableOpacity>
 
-                <TouchableOpacity onPress={()=>{setPassModalVisible(true)}} style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
-                  <ThemedText >Cambiar contraseña</ThemedText>
-                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
-                </TouchableOpacity>
+                    <TouchableOpacity style={[styles.iconButton,estilos.shadow]} onPress={salir}   >  
+                      <ThemedText type="subtitle" lightColor='red'>Salir</ThemedText>
+                    </TouchableOpacity>
+                </View>            
+              </View>
+            </ScrollView>
 
-                <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Cuenta</ThemedText>
-                <TouchableOpacity onPress={eliminar_cuenta} style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
-                  <ThemedText >Eliminar cuenta</ThemedText>
-                    <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
-                </TouchableOpacity>
+           
+            <SmallPopupModal title='Editar nombre' modalVisible={nameModalVisible} setVisible={setNameModalVisible}>
+              <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nombre </ThemedText>
+                <IconTextInput 
+                    icon={{Ionicon_name: "person-outline"}} 
+                    value={name} 
+                    bck_color="white"
+                    onChange={handleNameChange}
+                    keyboardType='default'
+                    placeholder={contexto.user.username} />
+                    
+                  {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null} 
+                  <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
+            </SmallPopupModal>
 
-                <TouchableOpacity style={[styles.iconButton,estilos.shadow]} onPress={salir}   >  
-                  <ThemedText type="subtitle" lightColor='red'>Salir</ThemedText>
-                </TouchableOpacity>
+            <SmallPopupModal title='Editar mail' modalVisible={mailModalVisible} setVisible={setMailModalVisible}>
+               <IconTextInput 
+                  icon={{Ionicon_name: "mail-outline"}} 
+                  value={mail} 
+                  bck_color="white"
+                  onChange={handleEmailChange}
+                  keyboardType='email-address'
+                  placeholder={contexto.user.mail}
+                />
+                {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
-            </View>            
-          </View>
-        </ScrollView>
-
-       
-        <SmallPopupModal title='Editar nombre' modalVisible={nameModalVisible} setVisible={setNameModalVisible}>
-          <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nombre </ThemedText>
-            <IconTextInput 
-                icon={{Ionicon_name: "person-outline"}} 
-                value={name} 
-                bck_color="white"
-                onChange={handleNameChange}
-                keyboardType='default'
-                placeholder={contexto.user.username} />
-                
-              {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null} 
               <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
-        </SmallPopupModal>
+            </SmallPopupModal>
 
-        <SmallPopupModal title='Editar mail' modalVisible={mailModalVisible} setVisible={setMailModalVisible}>
-           <IconTextInput 
-              icon={{Ionicon_name: "mail-outline"}} 
-              value={mail} 
-              bck_color="white"
-              onChange={handleEmailChange}
-              keyboardType='email-address'
-              placeholder={contexto.user.mail}
-            />
-            {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
+            <SmallPopupModal setVisible={setInstModalVisible} modalVisible={instModalVisible} title="Editar institución">
+              <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Institución </ThemedText>
+              <IconTextInput 
+                icon={{Ionicon_name: "business-outline"}} 
+                value={institucion} 
+                bck_color="white"
+                onChange={handleInstitutionChange}
+                keyboardType='default'
+                placeholder={contexto.user.institution} />
+                { errorI ? <ThemedText type='error'>{errorI}</ThemedText>:null}
 
-          <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
-        </SmallPopupModal>
+                <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
+            </SmallPopupModal>
 
-        <SmallPopupModal setVisible={setInstModalVisible} modalVisible={instModalVisible} title="Editar institución">
-          <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Institución </ThemedText>
-          <IconTextInput 
-            icon={{Ionicon_name: "business-outline"}} 
-            value={institucion} 
-            bck_color="white"
-            onChange={handleInstitutionChange}
-            keyboardType='default'
-            placeholder={contexto.user.institution} />
-            { errorI ? <ThemedText type='error'>{errorI}</ThemedText>:null}
+            <SmallPopupModal title='Cambiar contraseña' modalVisible={PassModalVisible} setVisible={setPassModalVisible}>
+              <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nueva contraseña </ThemedText>
+              <PasswordInput 
+                value={pass}
+                bck_color={paleta.soft_yellow}
+                onChange={handlePasswordChange}
+                showPassword={showPassword}
+                setShowPassword={()=> setShowPassword(!showPassword)}
+                placeholder='Nueva contraseña'
+              />
+              {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
 
-            <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
-        </SmallPopupModal>
+              <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
+            </SmallPopupModal>
 
-        <SmallPopupModal title='Cambiar contraseña' modalVisible={PassModalVisible} setVisible={setPassModalVisible}>
-          <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nueva contraseña </ThemedText>
-          <PasswordInput 
-            value={pass}
-            bck_color={paleta.soft_yellow}
-            onChange={handlePasswordChange}
-            showPassword={showPassword}
-            setShowPassword={()=> setShowPassword(!showPassword)}
-            placeholder='Nueva contraseña'
-          />
-          {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
+            <SmallPopupModal title='Reportes recibidos' modalVisible={reportesModalVisible} setVisible={setReportesModalVisible}>
+              {loadingReportes ? (
+                <ThemedText>Cargando...</ThemedText>
+              ) : reportes.length === 0 ? (
+                <ThemedText>No tienes reportes.</ThemedText>
+              ) : (
+                <ScrollView style={{maxHeight: 500}}>
+                  {reportes.map((rep, idx) => (
+                    <View key={rep.id || idx} style={{marginBottom: 15, padding: 10, backgroundColor: "#f6f6f6", borderRadius: 10}}>
+                      <ThemedText type='defaultSemiBold'>Motivo: {rep.Motivos_reporte?.descripcion || rep.motivo}</ThemedText>
+                      <ThemedText>Comentario: {rep.comentario || "Sin comentario"}</ThemedText>
+                      {rep.Senias && (
+                        <>
+                          <ThemedText style={{marginTop: 8}}>Seña reportada: <ThemedText type='defaultSemiBold'>{rep.Senias.significado}</ThemedText></ThemedText>
+                          <VideoPlayer uri={rep.Senias.video_url} style={{height: 120, borderRadius: 8, marginVertical: 8}} />
+                          <TouchableOpacity
+                            style={[estilos.shadow, {backgroundColor: "#ffe066", borderRadius: 8, padding: 8, marginTop: 10, alignSelf: "flex-start"}]}
+                            onPress={() => {
+                              router.push({
+                                pathname: "/tabs/Diccionario/editar_senia",
+                                params: {
+                                  id_senia: rep.Senias.id,
+                                  url: rep.Senias.video_url,
+                                  significado: rep.Senias.significado,
+                                  cate: rep.Senias.categoria
+                                }
+                              });
+                              setReportesModalVisible(false);
+                            }}
+                          >
+                            <ThemedText type='defaultSemiBold'>Editar seña</ThemedText>
+                          </TouchableOpacity>
+                        </>
+                      )}
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
+            </SmallPopupModal>
 
-          <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
-        </SmallPopupModal>
-        
-      <Toast/>
-    </View>
+          <Toast/>
+        </View>
     )
 }
 
@@ -343,7 +421,8 @@ const styles = StyleSheet.create({
   },
   image: {
     flex: 1,
-    width: '28%',
+    width: 100,
+    height: 100,
     borderRadius: 20,
     borderWidth: 1,
   },

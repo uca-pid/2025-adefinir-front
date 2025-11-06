@@ -42,17 +42,29 @@ export default function RootLayout() {
         />
 
       {!contexto.user.is_prof ? (
-        <Tabs.Screen name='dashboard_alumno' options={({ navigation }) => ({ title: 'Dashboard', headerShown: false,
+        <Tabs.Screen name='Dashboard_Alumno' options={({ navigation }) => ({ title: 'Dashboard', headerShown: false,
           tabBarButton: ((props) => (
-            <TouchableOpacity onPress={() => navigation.navigate('dashboard_alumno')} style={styles.navItem}>
+            <TouchableOpacity onPress={() => navigation.navigate('Dashboard_Alumno')} style={styles.navItem}>
               <Ionicons name="stats-chart-outline" size={22} color="#fff" />
               <Text style={styles.navText}>Dashboard</Text>
             </TouchableOpacity>
           )),
         })} />
       ) :
-    <Tabs.Screen name='dashboard_alumno'  options={{href:null}} />
+    <Tabs.Screen name='Dashboard_Alumno'  options={{href:null}} />
     }
+
+      {/* Alumno: mis objetivos tab */}
+      {!contexto.user.is_prof ? (
+        <Tabs.Screen name='alumno_objetivos' options={({ navigation }) => ({ title: 'Objetivos', headerShown: false,
+          tabBarButton: ((props) => (
+            <TouchableOpacity onPress={() => navigation.navigate('alumno_objetivos')} style={styles.navItem}>
+              <Ionicons name="flag" size={22} color="#fff" />
+              <Text style={styles.navText}>Objetivos</Text>
+            </TouchableOpacity>
+          )),
+        })} />
+      ) : <Tabs.Screen name='alumno_objetivos' options={{href:null}} />}
 
       {contexto.user.is_prof ? (
         <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />

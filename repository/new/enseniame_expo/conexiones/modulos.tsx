@@ -40,26 +40,11 @@ const buscar_senias_modulo = async (id:number)=>{
         
         let { data: id_senias, error } = await supabase.from('Modulo_Video').select(`Senias (id)`).eq("id_modulo",id);
         if (id_senias && id_senias.length>0) {
-            const ids = id_senias.map(each => Number(each.Senias.id))
+            const ids = (id_senias as any).map((each: any) => Number((each.Senias && each.Senias.id) ? each.Senias.id : each.id));
             let {data:senias,error} = await supabase.from("Senias").select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `).in("id",ids);
             if (senias && senias.length>0) return senias
         }
-       {/* const ids = (relaciones || []).map((r: any) => Number(r.id_video)).filter((n) => !isNaN(n));
-        if (ids.length === 0) return [];
-
-        // Luego traer las señas con relaciones desambiguadas
-        let {data: senias, error: senErr} = await supabase
-          .from("Senias")
-          .select(`*,  Users!Senias_id_autor_fkey (*),  Categorias (nombre) `)
-          .in("id", ids);
-        if (senErr) throw senErr;
-
-        return senias || [];
-    } catch (error) {
-        error_alert("No se pudieron cargar las señas");
-        console.error(error)
-        return []
-    }*/}
+       
 }
 
 const modulos_completados_por_alumno = async (id_alumno:number) =>{
@@ -208,6 +193,15 @@ const mis_modulos = async (id:number)=>{
     if (Modulos && Modulos.length>0) return Modulos         
 }
 
+const mis_modulos_calificados= async (id:number)=>{
+    let { data: Modulos, error } = await supabase
+        .from('Modulos')
+        .select('*, Calificaciones_Modulos (*)')
+        .eq('autor',id);
+    if (error) throw error;
+    if (Modulos && Modulos.length>0) return Modulos 
+}
+
 const eliminar_modulo = async (id:number)=>{
     const { error } = await supabase.from('Modulos').delete().eq('id', id);
     if (error) throw error
@@ -232,5 +226,5 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
 
 
 export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo,
-    modulos_completados_por_alumno,progreso_por_categoria
+    modulos_completados_por_alumno,progreso_por_categoria, mis_modulos_calificados
 }

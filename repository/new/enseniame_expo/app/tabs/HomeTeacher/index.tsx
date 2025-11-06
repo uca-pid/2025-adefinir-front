@@ -90,6 +90,9 @@ export default function HomeTeacher() {
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
         <Text style={styles.title}>Panel del Profesor</Text>
         <Text style={styles.subtitle}>Bienvenido, {teacherName}</Text>
+        {contexto.user.id==1 && (
+          <ThemedText style={[styles.subtitle,{marginBottom:10}]} >(Admin)</ThemedText>
+        )}
 
         <View style={styles.stackCards}>
           <TouchableOpacity style={[styles.card, styles.cardLeft]} onPress={()=>router.push("/tabs/HomeTeacher/vistas")}> 
@@ -102,15 +105,15 @@ export default function HomeTeacher() {
             <Text style={styles.cardTextCursos}> señas subidas</Text>
 
             <Text style={styles.cardTitleCursos}>{misModulos?.length} </Text>
-            <Text style={styles.cardTextCursos}> módulos creados</Text>
+            <Text style={styles.cardTextCursos}> {misModulos && misModulos.length > 1 ? "módulos creados":"módulo creado"} </Text>
           </TouchableOpacity>
         </View>
 
         <TouchableOpacity style={[styles.card, {marginVertical: 8}]} onPress={()=>{router.push("/tabs/HomeTeacher/ranking")}} >
           <ThemedText type='defaultSemiBold'>Tus calificaciones:</ThemedText>
-          {calificaciones_profe && calificaciones_profe.length>0?
+          {cant_reviews>0?
           <>
-          <ThemedText style={[estilos.centrado,{margin:5}]} type='title'>{promedio}</ThemedText>
+          <ThemedText style={[estilos.centrado,{margin:5}]} type='title'>{promedio.toFixed(2)}</ThemedText>
           <ThemedText>{cant_reviews} reseñas en tus módulos</ThemedText>
           </>:
           <ThemedText lightColor='gray'>Todavía no tienes ninguna calificación</ThemedText>
@@ -127,9 +130,9 @@ export default function HomeTeacher() {
             <Ionicons name="videocam-outline" size={22} color="#20bfa9" />
             <Text style={styles.quickActionTextCursos}>Subir video de seña</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.quickActionCardCursos}>
-            <Ionicons name="school-outline" size={22} color="#20bfa9" />
-            <Text style={styles.quickActionTextCursos}>Ver progreso de estudiantes</Text>
+          <TouchableOpacity style={styles.quickActionCardCursos} onPress={()=>{if (contexto.user.id==1)router.push("/tabs/HomeTeacher/moderar")}}>
+            <Ionicons name={contexto.user.id==1 ? "alert-circle-outline" : "school-outline"} size={22} color="#20bfa9" />
+            <Text style={styles.quickActionTextCursos}>{contexto.user.id==1 ? "Moderar" :"Ver progreso de estudiantes"}</Text>
           </TouchableOpacity>
         </View>
       </ScrollView>
@@ -166,7 +169,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#20bfa9',
     fontWeight: '500',
-    marginBottom: 18,
+    marginBottom: 7,
     alignSelf: 'center',
     zIndex: 2,
   },
