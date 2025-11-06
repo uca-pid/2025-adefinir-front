@@ -50,6 +50,23 @@ const getRanking = async () => {
           
 }
 
+const calificarModulo = async (id_modulo: number, id_alumno: number, puntaje: number, comentario?: string) => {
+    const { data, error } = await supabase
+        .from('Calificaciones_Modulos')
+        .upsert([
+            {
+                id_modulo,
+                id_alumno,
+                puntaje,
+                comentario
+            }
+        ])
+        .select();
+    
+    if (error) throw error;
+    return data;
+}
+
 const modulosCalificados = async () =>{
     let { data: Modulos, error } = await supabase
         .from('Modulos')
@@ -66,4 +83,4 @@ const promedio_reseñas = (calificaciones_modulo: Calificaciones[])=>{
     return calificaciones_modulo.length>0 ? promedio / calificaciones_modulo.length : 0
   }
 
-export {traerTodasCalificaciones, calificacionesModulo, calificacionesProfe, getRanking, modulosCalificados, promedio_reseñas}
+export {traerTodasCalificaciones, calificacionesModulo, calificacionesProfe, getRanking, modulosCalificados, promedio_reseñas, calificarModulo}
