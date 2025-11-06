@@ -1,3 +1,4 @@
+import { Calificaciones } from '@/components/types';
 import { supabase } from '../lib/supabase'
 
 const traerTodasCalificaciones = async () => {
@@ -14,6 +15,7 @@ const calificacionesModulo = async (id_modulo:number) => {
     if (error) throw error
     if (calificaciones && calificaciones.length>0) return calificaciones
 }
+
 
 const calificacionesProfe = async (id_profe:number) => {
     let {data, error} = await supabase.from("Modulos").select("id, Calificaciones_Modulos(*)").eq("autor",id_profe);
@@ -38,8 +40,8 @@ const getRanking = async () => {
                     cant++
                 })
             });
-            if (cant!=0) return {id: profe.id, username: profe.username, promedio: promedio / cant}
-            else return {id: profe.id,username: profe.username, promedio:0}
+            if (cant!=0) return {id: profe.id, username: profe.username, promedio: promedio / cant, cant_reviews:cant}
+            else return {id: profe.id,username: profe.username, promedio:0, cant_reviews:0}
         });
         return res
     } else {
@@ -65,10 +67,20 @@ const calificarModulo = async (id_modulo: number, id_alumno: number, puntaje: nu
     return data;
 }
 
-export {
-    traerTodasCalificaciones, 
-    calificacionesModulo, 
-    calificacionesProfe, 
-    getRanking,
-    calificarModulo
+const modulosCalificados = async () =>{
+    let { data: Modulos, error } = await supabase
+        .from('Modulos')
+        .select('*, Calificaciones_Modulos (*)')        
+    if (error) throw error;
+    if (Modulos && Modulos.length>0) return Modulos 
 }
+
+const promedio_reseñas = (calificaciones_modulo: Calificaciones[])=>{
+    let promedio =0;
+    calificaciones_modulo?.forEach(each=>{
+      promedio+= each.puntaje;
+    });
+    return calificaciones_modulo.length>0 ? promedio / calificaciones_modulo.length : 0
+  }
+
+export {traerTodasCalificaciones, calificacionesModulo, calificacionesProfe, getRanking, modulosCalificados, promedio_reseñas, calificarModulo}

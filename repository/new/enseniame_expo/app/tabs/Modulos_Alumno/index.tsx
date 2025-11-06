@@ -7,12 +7,18 @@ import { todos_los_modulos } from "@/conexiones/modulos";
 import { calificacionesModulo } from "@/conexiones/calificaciones";
 import Toast from "react-native-toast-message";
 import { AntDesign } from "@expo/vector-icons";
+import { modulosCalificados, promedio_reseñas } from "@/conexiones/calificaciones";
+import { ThemedText } from "@/components/ThemedText";
 
+interface ModuloCalificado extends Modulo {
+  promedio: number
+}
 
 export default function ModulosScreen() {
   const router = useRouter();
 
-  const [modulos,setModulos] = useState<Modulo[]>();
+  //const [modulos,setModulos] = useState<Modulo[]>();
+  const [modulos,setModulos] = useState<ModuloCalificado[]>();
   const [calificacionesPorModulo, setCalificacionesPorModulo] = useState<Record<number, any[]>>({});
   const [promediosPorModulo, setPromediosPorModulo] = useState<Record<number, number>>({});
   const [comentariosModalVisible, setComentariosModalVisible] = useState(false);
@@ -26,17 +32,16 @@ export default function ModulosScreen() {
     );
 
   const fetch_modulos = async ()=>{
-    const m = await todos_los_modulos();
-    setModulos(m || []);
-    // Llama a fetchCalificaciones para cada módulo
-    if (m && m.length > 0) {
-      m.forEach(modulo => {
-        fetchCalificaciones(modulo.id);
+    const m2 = await modulosCalificados();
+    
+    const res =m2?.map(e=>{        
+        let prom = promedio_reseñas(e.Calificaciones_Modulos)        
+        return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor}
       });
-    }
+    setModulos(res || []);    
   }
 
-  const fetchCalificaciones = async (id_modulo: number) => {
+      {/** const fetchCalificaciones = async (id_modulo: number) => {
     try {
       const calificaciones = await calificacionesModulo(id_modulo) || [];
       setCalificacionesPorModulo(prev => ({ ...prev, [id_modulo]: calificaciones }));
@@ -47,7 +52,7 @@ export default function ModulosScreen() {
     } catch (e) {
       setPromediosPorModulo(prev => ({ ...prev, [id_modulo]: 0 }));
     }
-  };
+  };**/}
 
   return (
     <View style={styles.container}>
@@ -63,9 +68,10 @@ export default function ModulosScreen() {
             <Text style={styles.cardTitle}>{item.nombre}</Text>
             <Text style={styles.cardSubtitle}>
               {/* {item.length} señas incluidas */}
+              {item.descripcion}
             </Text>
-            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-              {/* Promedio de estrellas */}
+        {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
+              { Promedio de estrellas }
               <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
                 {[...Array(5)].map((_, i) => (
                   <AntDesign
@@ -76,7 +82,7 @@ export default function ModulosScreen() {
                   />
                 ))}
               </View>
-              {/* Botón para ver comentarios */}
+              { Botón para ver comentarios }
               <Pressable
                 style={{ padding: 8, backgroundColor: "#20bfa9", borderRadius: 8 }}
                 onPress={async () => {
@@ -88,7 +94,15 @@ export default function ModulosScreen() {
                 }}
               >
                 <Text style={{ color: "#fff", fontWeight: "bold" }}>Ver comentarios</Text>
-              </Pressable>
+              </Pressable> */}
+            <View>
+                            
+              <ThemedText lightColor="gray">
+                <ThemedText type="defaultSemiBold" lightColor="gray">Calificación: </ThemedText>
+                {item.promedio==0 ? <ThemedText>-</ThemedText> : <ThemedText>{item.promedio} / 5</ThemedText> }
+                
+              </ThemedText>
+                
             </View>
             <Pressable
               style={styles.button}

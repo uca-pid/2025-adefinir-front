@@ -4,13 +4,12 @@ import {
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useEffect, useState } from "react";
-import { Image } from 'expo-image';
 import VideoUpload from '@/components/VideoUpload';
 import VideoPlayer from '@/components/VideoPlayer';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { router, useLocalSearchParams } from 'expo-router';
-import { borrar_video_de_storage, cambiar_nombre_senia, cambiar_video, subir_senia } from '@/conexiones/videos';
+import { borrar_video_de_storage, cambiar_nombre_senia, cambiar_video } from '@/conexiones/videos';
 import { paleta } from '@/components/colores';
 import { supabase } from '@/lib/supabase';
 import { ThemedText } from '@/components/ThemedText';

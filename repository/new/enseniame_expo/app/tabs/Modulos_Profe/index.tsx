@@ -3,14 +3,28 @@ import { useFocusEffect } from "expo-router";
 import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { eliminar_modulo, mis_modulos } from "@/conexiones/modulos";
+import { eliminar_modulo, mis_modulos, mis_modulos_calificados } from "@/conexiones/modulos";
 import { useUserContext } from "@/context/UserContext";
 import { error_alert } from "@/components/alert";
 import Toast from "react-native-toast-message";
-import { calificacionesProfe, traerTodasCalificaciones } from "@/conexiones/calificaciones";
+import { ThemedText } from "@/components/ThemedText";
+import { Modulo } from "@/components/types";
+import { promedio_reseñas } from "@/conexiones/calificaciones";
+
+type Calificaciones = {
+  id_alumno: number;
+  Users: {username:string};
+  id_modulo: number;
+  puntaje: number;
+  comentario? : string;
+  created_at: string
+}
+interface ModuloCalificado extends Modulo {
+  promedio: number
+}
 
 export default function MisModulosScreen() {
-  const [modules, setModules] = useState<any[]>([]);
+  const [modules, setModules] = useState<ModuloCalificado[]>([]);
   const [loading, setLoading] = useState(true);
   const [showMenu, setShowMenu] = useState<number | null>(null);
   const router = useRouter();
@@ -25,11 +39,16 @@ export default function MisModulosScreen() {
 
   const fetchModules = async () => {
     setLoading(true);
-    try {
-      const data = await mis_modulos(contexto.user.id);
-      setModules(data || []);
-      traerTodasCalificaciones();
-      calificacionesProfe(contexto.user.id);
+    try {      
+      const data2 = await mis_modulos_calificados(contexto.user.id);         
+
+      const res =data2?.map(e=>{        
+        let prom = promedio_reseñas(e.Calificaciones_Modulos)        
+        return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor}
+      });
+        
+      setModules(res || []);
+            
     } catch (error) {
       console.error(error);
       error_alert("Se produjo un error al buscar los módulos");
@@ -47,6 +66,7 @@ export default function MisModulosScreen() {
       .then(()=>fetchModules())
     
   };
+
 
   return (
     <View style={styles.container}>
@@ -79,12 +99,20 @@ export default function MisModulosScreen() {
                   <Ionicons name="ellipsis-vertical" size={22} color="#888" />
                 </Pressable>
               </View>
+              <View>
+                <ThemedText lightColor="gray">
+                  <ThemedText type="defaultSemiBold" lightColor="gray">Calificación: </ThemedText>
+                  {item.promedio==0 ? <ThemedText>-</ThemedText> : <ThemedText>{item.promedio} / 5</ThemedText> }
+                  
+                </ThemedText>
+                  
+              </View>
               <View style={styles.cardActions}>
                 <Pressable
                   style={styles.viewBtn}
                   onPress={() => router.push({
                     pathname: "/tabs/Modulos_Profe/detalle_modulo",
-                    params: { id: item.id, nombre: item.nombre }
+                    params: { id: item.id, nombre: String(item.nombre) }
                   })}
                 >
                   <Text style={styles.viewBtnText}>Ver señas</Text>
@@ -119,7 +147,7 @@ export default function MisModulosScreen() {
                       style={{ padding: 12, flexDirection: 'row', alignItems: 'center' }}
                       onPress={() => {
                         setShowMenu(null);
-                        router.push({ pathname: "/tabs/Modulos_Profe/crear_modulo", params: { id: item.id, nombre: item.nombre, icon: item.icon, descripcion: item.descripcion } });
+                        router.push({ pathname: "/tabs/Modulos_Profe/crear_modulo", params: { id: item.id, nombre: String(item.nombre), icon: item.icon, descripcion: String(item.descripcion) } });
                       }}
                     >
                       <Ionicons name="create-outline" size={18} color="#20bfa9" style={{ marginRight: 8 }} />
