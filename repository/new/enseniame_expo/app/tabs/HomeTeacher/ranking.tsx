@@ -1,14 +1,14 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, StyleSheet,  FlatList, ActivityIndicator, } from 'react-native';
-import { router, useFocusEffect } from 'expo-router';
+import { useFocusEffect } from 'expo-router';
 import { error_alert } from '@/components/alert';
-import { paleta, paleta_colores } from '@/components/colores';
+import { paleta } from '@/components/colores';
 
 import { ThemedText } from '@/components/ThemedText';
 import { estilos } from '@/components/estilos';
 import Toast from 'react-native-toast-message';
 import { getRanking } from '@/conexiones/calificaciones';
-import { RatingCard, RatingStars } from '@/components/review';
+import { RatingCard } from '@/components/review';
 import { useUserContext } from '@/context/UserContext';
 
 type DatosRanking ={

@@ -1,13 +1,11 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Pressable, TouchableOpacity, FlatList, ActivityIndicator } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { router, useFocusEffect } from 'expo-router';
+import {  useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
-import { Modulo, Senia, Senia_Info } from '@/components/types';
+import { Senia_Info } from '@/components/types';
 import { error_alert, success_alert } from '@/components/alert';
 import { paleta } from '@/components/colores';
-import { mis_modulos } from '@/conexiones/modulos';
-import { visualizaciones_profe } from '@/conexiones/visualizaciones';
 import Toast from 'react-native-toast-message';
 import { ThemedText } from '@/components/ThemedText';
 import { estilos } from '@/components/estilos';
