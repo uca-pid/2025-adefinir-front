@@ -48,5 +48,27 @@ const getRanking = async () => {
           
 }
 
+const calificarModulo = async (id_modulo: number, id_alumno: number, puntaje: number, comentario?: string) => {
+    const { data, error } = await supabase
+        .from('Calificaciones_Modulos')
+        .upsert([
+            {
+                id_modulo,
+                id_alumno,
+                puntaje,
+                comentario
+            }
+        ])
+        .select();
+    
+    if (error) throw error;
+    return data;
+}
 
-export {traerTodasCalificaciones, calificacionesModulo, calificacionesProfe, getRanking}
+export {
+    traerTodasCalificaciones, 
+    calificacionesModulo, 
+    calificacionesProfe, 
+    getRanking,
+    calificarModulo
+}

@@ -1,5 +1,5 @@
-import React, { useCallback, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator, Modal, TextInput } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Senia,Senia_Info, Modulo } from "@/components/types";
 import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
@@ -14,6 +14,8 @@ import { alumno_ver_senia, senias_aprendidas_alumno, visualizaciones_alumno } fr
 import { error_alert, success_alert } from "@/components/alert";
 import Checkbox from "expo-checkbox";
 import { marcar_aprendida, marcar_no_aprendida } from "@/conexiones/aprendidas";
+import { calificacionesModulo, calificarModulo } from "@/conexiones/calificaciones";
+import { AntDesign } from "@expo/vector-icons";
 
 type Senia_Aprendida ={
   senia: Senia_Info;
@@ -31,7 +33,11 @@ export default function ModuloDetalleScreen() {
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Aprendida | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
-  
+  const [showCalificacionModal, setShowCalificacionModal] = useState(false);
+  const [puntaje, setPuntaje] = useState(0);
+  const [comentario, setComentario] = useState("");
+  const [yaCalificado, setYaCalificado] = useState(false);
+
   const contexto = useUserContext();
   
    useFocusEffect(
@@ -39,6 +45,7 @@ export default function ModuloDetalleScreen() {
         fetch_modulo();
         fetch_senias();
         fetch_aprendidas();
+        verificarCalificacion();
         return () => {};
       }, [])
     );
@@ -146,6 +153,39 @@ export default function ModuloDetalleScreen() {
     info_senia.aprendida= value;
   }
   
+  const verificarCalificacion = async () => {
+    try {
+      const calificaciones = await calificacionesModulo(Number(id));
+      const ya = calificaciones?.find((c: any) => c.id_alumno === contexto.user.id);
+      setYaCalificado(!!ya);
+      if (!ya && senias && senias.length > 0 && senias.every(s => s.aprendida)) {
+        setShowCalificacionModal(true);
+      }
+    } catch (e) {
+      // Si hay error, no bloquea la vista
+    }
+  };
+
+  // Cuando cambian las señas aprendidas, verifica si debe mostrar el modal
+  useEffect(() => {
+    if (!yaCalificado && senias && senias.length > 0 && senias.every(s => s.aprendida)) {
+      setShowCalificacionModal(true);
+    } else {
+      setShowCalificacionModal(false);
+    }
+  }, [senias, yaCalificado]);
+
+  const enviarCalificacion = async () => {
+    try {
+      await calificarModulo(Number(id), contexto.user.id, puntaje, comentario);
+      setShowCalificacionModal(false);
+      setYaCalificado(true);
+      success_alert("¡Gracias por tu calificación!");
+    } catch (e) {
+      error_alert("No se pudo guardar la calificación");
+    }
+  };
+
   if (loading) {
       return (
         <View style={styles.loadingContainer}>
@@ -225,6 +265,48 @@ export default function ModuloDetalleScreen() {
           )}
         </SmallPopupModal>
 
+        {/* Modal para calificación */}
+        <Modal
+          visible={showCalificacionModal}
+          animationType="slide"
+          transparent={true}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Califica este módulo</Text>
+              {/* Estrellas para puntaje */}
+              <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 15 }}>
+                {[...Array(5)].map((_, i) => (
+                  <TouchableOpacity key={i} onPress={() => setPuntaje(i + 1)}>
+                    <AntDesign
+                      name={puntaje > i ? "star" : "star"}
+                      size={32}
+                      color={puntaje > i ? "#FFD700" : "#E0E0E0"}
+                      style={{ marginHorizontal: 2 }}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={{textAlign:'center', marginBottom:10}}>Puntaje: {puntaje} estrellas</Text>
+              <TextInput
+                style={[styles.input, { height: 60 }]}
+                placeholder="Comentario (opcional)"
+                value={comentario}
+                onChangeText={setComentario}
+
+              />
+              <View style={styles.modalButtons}>
+                <Pressable style={styles.button} onPress={enviarCalificacion} disabled={puntaje === 0}>
+                  <Text style={styles.buttonText}>Enviar calificación</Text>
+                </Pressable>
+                <Pressable style={styles.button} onPress={() => setShowCalificacionModal(false)}>
+                  <Text style={styles.buttonText}>Cerrar</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
         <Toast/>
     </View>
   );
@@ -272,6 +354,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 15,
+    paddingHorizontal: 5,
   },
   
   video: {
@@ -329,6 +412,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  
-  
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  input: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
 });
