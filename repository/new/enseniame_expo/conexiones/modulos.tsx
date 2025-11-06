@@ -40,7 +40,7 @@ const buscar_senias_modulo = async (id:number)=>{
         
         let { data: id_senias, error } = await supabase.from('Modulo_Video').select(`Senias (id)`).eq("id_modulo",id);
         if (id_senias && id_senias.length>0) {
-            const ids = id_senias.map(each => Number(each.Senias.id))
+            const ids = (id_senias as any).map((each: any) => Number((each.Senias && each.Senias.id) ? each.Senias.id : each.id));
             let {data:senias,error} = await supabase.from("Senias").select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `).in("id",ids);
             if (senias && senias.length>0) return senias
         }

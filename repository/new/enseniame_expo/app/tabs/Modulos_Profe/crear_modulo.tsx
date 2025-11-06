@@ -11,8 +11,8 @@ import { SmallPopupModal } from "@/components/modals";
 import { icon_type } from "@/components/types";
 import { crear_modulo, editar_modulo } from "@/conexiones/modulos";
 
-const firsticonOptions = ["car", "paw", "hand-left", "book", "star", "color-palette"] as const;
-const iconOptions:( icon_type) [] = Object.keys(Ionicons.glyphMap);
+const firsticonOptions: icon_type[] = ["car", "paw", "hand-left", "book", "star", "color-palette"] as icon_type[];
+const iconOptions = Object.keys(Ionicons.glyphMap) as icon_type[];
 
 export default function CrearModuloScreen() {
   
@@ -29,9 +29,9 @@ export default function CrearModuloScreen() {
 
   useEffect(() => {
     if (isEdit) {
-      setNombre(params.nombre ? String(params.nombre) : "");
-      setDescripcion(params.descripcion ? String(params.descripcion) : "");
-      setIcon(params.icon ? String(params.icon) : "car");
+  setNombre(params.nombre ? String(params.nombre) : "");
+  setDescripcion(params.descripcion ? String(params.descripcion) : "");
+  setIcon((params.icon ? String(params.icon) : "car") as icon_type);
     } else {
       setNombre("");
       setDescripcion("");
@@ -117,7 +117,7 @@ export default function CrearModuloScreen() {
           
           )}
       </View>
-      {!firsticonOptions.includes(icon)? 
+  {!firsticonOptions.includes(icon)? 
         <View style={styles.iconRow}>
           <Pressable
                 key={icon}
