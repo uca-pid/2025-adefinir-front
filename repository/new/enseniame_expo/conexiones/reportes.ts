@@ -51,4 +51,20 @@ const traerReportesProfe = async (id_profe: number) => {
     return data2;
 }
 
-export { traerMotivosReporte, crearReporte, traerReportesProfe }
+const todosReportes = async () => {
+    
+    let { data: Reportes, error } = await supabase.from('Reportes').select('*, Motivos_reporte(*), Senias (*, Users: Users!id_autor (*),  Categorias (nombre))');
+    if (error) throw error
+    return Reportes
+}
+
+const eliminarReporte = async (id:number) => {
+ 
+    const { error } = await supabase
+        .from('Reportes')
+        .delete()
+        .eq('id', id);
+    if (error) throw error
+}
+
+export {traerMotivosReporte, crearReporte, todosReportes, eliminarReporte,traerReportesProfe}
