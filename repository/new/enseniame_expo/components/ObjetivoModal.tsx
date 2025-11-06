@@ -1,6 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { Modal, View, Text, StyleSheet, TextInput, TouchableOpacity, KeyboardAvoidingView, Platform, Alert } from 'react-native';
+import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Alert } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { SmallPopupModal } from '@/components/modals';
+import { paleta } from '@/components/colores';
 
 type Objetivo = {
   id?: number;
@@ -54,47 +56,75 @@ export default function ObjetivoModal({
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : 'height'} style={styles.center}>
-        <View style={styles.modal}>
-          <View style={styles.header}>
-            <Text style={styles.headerTitle}>{initialData ? 'Editar objetivo' : 'Nuevo objetivo'}</Text>
-            <TouchableOpacity onPress={onClose}><Ionicons name="close" size={22} /></TouchableOpacity>
-          </View>
+  <SmallPopupModal title={initialData ? 'Editar objetivo' : 'Nuevo objetivo'} modalVisible={visible} setVisible={(v) => onClose()}>
+      <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.content}>
+        <Text style={styles.label}>Título *</Text>
+        <TextInput
+          value={titulo}
+          onChangeText={setTitulo}
+          placeholder="Título"
+          placeholderTextColor="#9aa0a6"
+          style={styles.input}
+        />
 
-          <Text style={styles.label}>Título *</Text>
-          <TextInput value={titulo} onChangeText={setTitulo} placeholder="Título" style={styles.input} />
+        <Text style={styles.label}>Descripción</Text>
+        <TextInput
+          value={descripcion}
+          onChangeText={setDescripcion}
+          placeholder="Descripción (opcional)"
+          placeholderTextColor="#9aa0a6"
+          style={[styles.input, styles.textarea]}
+          multiline
+        />
 
-          <Text style={styles.label}>Descripción</Text>
-          <TextInput value={descripcion} onChangeText={setDescripcion} placeholder="Descripción (opcional)" style={[styles.input, { height: 80 }]} multiline />
+        <Text style={styles.label}>Fecha límite (YYYY-MM-DD)</Text>
+        <TextInput
+          value={fecha}
+          onChangeText={setFecha}
+          placeholder="2025-12-31"
+          placeholderTextColor="#9aa0a6"
+          style={styles.input}
+        />
 
-          <Text style={styles.label}>Fecha límite (YYYY-MM-DD)</Text>
-          <TextInput value={fecha} onChangeText={setFecha} placeholder="2025-12-31" style={styles.input} />
-
-          <View style={styles.rowBtns}>
-            <TouchableOpacity style={[styles.btn, styles.cancel]} onPress={onClose}>
-              <Text style={styles.btnText}>Cancelar</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={[styles.btn, styles.save]} onPress={handleSave}>
-              <Text style={[styles.btnText, { color: 'white' }]}>Guardar</Text>
-            </TouchableOpacity>
-          </View>
+        <View style={styles.rowBtns}>
+          <TouchableOpacity style={[styles.btn, styles.cancel]} onPress={onClose}>
+            <Ionicons name="close" size={18} color="#222" />
+            <Text style={styles.btnCancelText}>Cancelar</Text>
+          </TouchableOpacity>
+          <TouchableOpacity style={[styles.btn, styles.save]} onPress={handleSave}>
+            <Ionicons name="save" size={18} color="#fff" />
+            <Text style={styles.btnSaveText}>Guardar</Text>
+          </TouchableOpacity>
         </View>
-      </KeyboardAvoidingView>
-    </Modal>
+      </ScrollView>
+    </SmallPopupModal>
   );
 }
 
 const styles = StyleSheet.create({
-  center: { flex: 1, justifyContent: 'center', alignItems: 'center' },
-  modal: { width: '92%', backgroundColor: 'white', borderRadius: 10, padding: 16, elevation: 6 },
-  header: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: 8 },
-  headerTitle: { fontSize: 18, fontWeight: '700' },
-  label: { marginTop: 8, fontSize: 13, color: '#333' },
-  input: { borderWidth: 1, borderColor: '#e6e6e6', borderRadius: 6, padding: 8, marginTop: 6 },
-  rowBtns: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 12 },
-  btn: { paddingVertical: 10, paddingHorizontal: 14, borderRadius: 6, marginLeft: 8 },
+  content: { paddingBottom: 24 },
+  label: { marginTop: 8, fontSize: 13, color: '#333', marginBottom: 6 },
+  input: {
+    borderWidth: 1,
+    borderColor: '#e0e0e0',
+    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 12,
+    backgroundColor: '#fff',
+  },
+  textarea: { minHeight: 90, textAlignVertical: 'top' },
+  rowBtns: { flexDirection: 'row', justifyContent: 'flex-end', marginTop: 16 },
+  btn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 8,
+    paddingVertical: 12,
+    paddingHorizontal: 16,
+    borderRadius: 12,
+    marginLeft: 10,
+  },
   cancel: { backgroundColor: '#f1f1f1' },
-  save: { backgroundColor: '#0a7ea4' },
-  btnText: { color: '#333', fontWeight: '600' },
+  save: { backgroundColor: '#20bfa9' },
+  btnCancelText: { color: '#222', fontWeight: '600' },
+  btnSaveText: { color: '#fff', fontWeight: '700' },
 });
