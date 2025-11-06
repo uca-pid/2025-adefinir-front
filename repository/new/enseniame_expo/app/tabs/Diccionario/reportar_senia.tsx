@@ -79,8 +79,7 @@ export default function Reportar_senia() {
     }, []);
 
     const submit = async ()=>{
-        if (value){
-            console.log(value);
+        if (value){            
             let my_id = contexto.user.id;
             crearReporte(my_id,value,comentario,Number(id_senia))
             .catch(reason=>{

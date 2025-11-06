@@ -4,14 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
 import { Modulo, Senia, Senia_Info } from '@/components/types';
-import { error_alert } from '@/components/alert';
+import { error_alert, success_alert } from '@/components/alert';
 import { paleta } from '@/components/colores';
 import { mis_modulos } from '@/conexiones/modulos';
 import { visualizaciones_profe } from '@/conexiones/visualizaciones';
 import Toast from 'react-native-toast-message';
 import { ThemedText } from '@/components/ThemedText';
 import { estilos } from '@/components/estilos';
-import { todosReportes } from '@/conexiones/reportes';
+import { eliminarReporte, todosReportes } from '@/conexiones/reportes';
 import { SmallPopupModal } from '@/components/modals';
 import VideoPlayer from '@/components/VideoPlayer';
 
@@ -44,22 +44,29 @@ export default function Moderacion() {
     const fetchReportes = async () => {
         setLoading(true)
         try {
-            const r = await todosReportes();
-            console.log(r);
+            const r = await todosReportes();            
             setReportes(r || [])
         } catch (error) {            
-            error_alert("No se pudo cargar el ranking");
+            error_alert("No se pudo cargar los reportes");
             console.error(error)
         } finally{
             setLoading(false);
-        }
-        
+        }        
     }
 
     const handleDelete = async (id: number) => {
-        setShowMenu(null);
-    
+        setShowMenu(null);    
     //borrar reporte
+        eliminarReporte(id)
+        .then(()=>{
+            setModalVisible(false);
+            success_alert("¡Reporte eliminado con éxito!");
+            fetchReportes();
+        })
+        .catch(reason=>{
+            error_alert("No se pudo eliminar el reporte");
+            console.error(reason)
+        })
     };
     if (loading) {
         return (
@@ -78,6 +85,7 @@ export default function Moderacion() {
             <FlatList
                 data={reportes}
                 keyExtractor={item=>item.id.toString()}
+                contentContainerStyle={styles.listContent}
                 ItemSeparatorComponent={() => <View style={styles.separator} />}
                 ListEmptyComponent={<ThemedText style={estilos.centrado} lightColor='gray'>No hay reseñas ni reportes</ThemedText>}
                 renderItem={({ item }: { item: Reporte }) =>{
@@ -158,6 +166,9 @@ export default function Moderacion() {
                         <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
                         <ThemedText>{reporteSeleccionado.Senias.Categorias.nombre}</ThemedText>
                         </ThemedText>   
+
+                        <ThemedText style={styles.cardTitle}>{reporteSeleccionado.Motivos_reporte.descripcion}</ThemedText>
+                        <ThemedText style={styles.cardSubtitle}>{reporteSeleccionado.comentario}</ThemedText>
 
                         <TouchableOpacity style={[styles.iconButton,estilos.shadow,{backgroundColor:"red"}]} onPress={()=>{handleDelete(reporteSeleccionado.id)}}   >  
                         <Ionicons name="trash-bin-outline" color='white' size={25} style={styles.icon} />
@@ -289,5 +300,10 @@ const styles = StyleSheet.create({
   icon:{
     flex:1,
     marginLeft: 25
+  },
+  listContent: {
+    paddingHorizontal: 16,
+    paddingBottom: 80,
+    zIndex: 2,
   },
 });
