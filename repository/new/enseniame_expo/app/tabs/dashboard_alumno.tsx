@@ -225,6 +225,14 @@ export default function DashboardAlumnoScreen() {
           <View style={styles.headerBox}>
             <Text style={styles.titleCursos}>Dashboard de Aprendizaje</Text>
             <GlobalProgress learned={progresoGlobal.learned} total={progresoGlobal.total} />
+            <View style={{ marginTop: 12, alignItems: 'center' }}>
+              <Text
+                onPress={() => router.push('/tabs/objetivos_activos' as any)}
+                style={{ color: '#0a7ea4', fontWeight: 'bold' }}
+              >
+                Ver objetivos activos
+              </Text>
+            </View>
             {error && (
               <View style={styles.errorBox}>
                 <Ionicons name="alert-circle" size={18} color="#e74c3c" />
