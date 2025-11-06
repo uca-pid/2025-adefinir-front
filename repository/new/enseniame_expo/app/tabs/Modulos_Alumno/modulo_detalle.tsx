@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator } from "react-native";
+import React, { useCallback, useEffect, useState } from "react";
+import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator, Modal, TextInput } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
-import { Senia,Senia_Info, Modulo } from "@/components/types";
+import { Senia_Info, Modulo } from "@/components/types";
 import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
@@ -14,11 +14,25 @@ import { alumno_ver_senia, senias_aprendidas_alumno, visualizaciones_alumno } fr
 import { error_alert, success_alert } from "@/components/alert";
 import Checkbox from "expo-checkbox";
 import { marcar_aprendida, marcar_no_aprendida } from "@/conexiones/aprendidas";
+import { calificacionesModulo, calificarModulo } from "@/conexiones/calificaciones";
+import { RatingStars } from "@/components/review";
+import { estilos } from "@/components/estilos";
+import { get_antiguedad } from "@/components/validaciones";
+import { AntDesign } from "@expo/vector-icons";
 
 type Senia_Aprendida ={
   senia: Senia_Info;
   vista: boolean;
   aprendida: boolean
+}
+type Calificaciones = {
+  id_alumno: number;
+  Users?: {username:string};
+  id_modulo: number;
+  puntaje: number;
+  comentario? : string;
+  created_at: string;
+  id: number
 }
 
 export default function ModuloDetalleScreen() {
@@ -27,10 +41,17 @@ export default function ModuloDetalleScreen() {
   const [modulo,setModulo] = useState<Modulo | undefined>();
   const [senias,setSenias] = useState<Senia_Aprendida[]>();
   const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({});
+  const [calificaciones_modulo,setCalificacionesModulo] = useState<Calificaciones[]>()
 
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Aprendida | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [showCalificacionModal, setShowCalificacionModal] = useState(false);
+  const [puntaje, setPuntaje] = useState(0);
+  const [comentario, setComentario] = useState("");
+  const [yaCalificado, setYaCalificado] = useState(false);
+
+  const [modalCalificaciones,setModalCalificaciones] = useState(false);
   
   const contexto = useUserContext();
   
@@ -39,6 +60,7 @@ export default function ModuloDetalleScreen() {
         fetch_modulo();
         fetch_senias();
         fetch_aprendidas();
+        verificarCalificacion();
         return () => {};
       }, [])
     );
@@ -46,6 +68,8 @@ export default function ModuloDetalleScreen() {
     try {
       const m = await buscar_modulo(Number(id));
       setModulo(m || []);
+      const calificaciones =await calificacionesModulo(Number(id));
+      setCalificacionesModulo(calificaciones || []);
     } catch (error) {
       error_alert("No se pudo cargar el módulo");
       console.error(error)
@@ -145,7 +169,48 @@ export default function ModuloDetalleScreen() {
     success_alert(value ? 'Marcada como aprendida' : 'Marcada como no aprendida')
     info_senia.aprendida= value;
   }
+
+  const promedio_reseñas = ()=>{
+    let promedio =0;
+    calificaciones_modulo?.forEach(each=>{
+      promedio+= each.puntaje;
+    });
+    return calificaciones_modulo? promedio / calificaciones_modulo.length : 0
+  }
   
+  const verificarCalificacion = async () => {
+    try {
+      const calificaciones = await calificacionesModulo(Number(id));
+      const ya = calificaciones?.find((c: any) => c.id_alumno === contexto.user.id);
+      setYaCalificado(!!ya);
+      if (!ya && senias && senias.length > 0 && senias.every(s => s.aprendida)) {
+        setShowCalificacionModal(true);
+      }
+    } catch (e) {
+      // Si hay error, no bloquea la vista
+    }
+  };
+
+  // Cuando cambian las señas aprendidas, verifica si debe mostrar el modal
+  useEffect(() => {
+    if (!yaCalificado && senias && senias.length > 0 && senias.every(s => s.aprendida)) {
+      setShowCalificacionModal(true);
+    } else {
+      setShowCalificacionModal(false);
+    }
+  }, [senias, yaCalificado]);
+
+  const enviarCalificacion = async () => {
+    try {
+      await calificarModulo(Number(id), contexto.user.id, puntaje, comentario);
+      setShowCalificacionModal(false);
+      setYaCalificado(true);
+      success_alert("¡Gracias por tu calificación!");
+    } catch (e) {
+      error_alert("No se pudo guardar la calificación");
+    }
+  };
+
   if (loading) {
       return (
         <View style={styles.loadingContainer}>
@@ -165,6 +230,25 @@ export default function ModuloDetalleScreen() {
             </Pressable>
       <Text style={styles.title}> {modulo?.nombre}</Text>
 
+      <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
+        {calificaciones_modulo && calificaciones_modulo.length>0 ? 
+        <>
+          <ThemedText>
+            <ThemedText style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</ThemedText> {' '}
+            <ThemedText type="defaultSemiBold">{promedio_reseñas().toFixed(2)}</ThemedText>
+          </ThemedText>
+          
+          <ThemedText>
+            <ThemedText>{calificaciones_modulo.length}</ThemedText>{' '}
+            <ThemedText>{calificaciones_modulo.length == 1 ? "calificación" : "calificaciones"} </ThemedText>
+          </ThemedText>
+          </>
+          : <>
+          <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 8 }}>Calificación:</Text>
+          <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
+          </>
+        }
+      </TouchableOpacity>
       
       <FlatList
         data={senias ? senias : []}
@@ -224,7 +308,73 @@ export default function ModuloDetalleScreen() {
             </View>
           )}
         </SmallPopupModal>
+          
 
+        {/* Modal para calificación */}
+        <Modal
+          visible={showCalificacionModal}
+          animationType="slide"
+          transparent={true}
+        >
+          <View style={styles.modalContainer}>
+            <View style={styles.modalContent}>
+              <Text style={styles.modalTitle}>Califica este módulo</Text>
+              {/* Estrellas para puntaje */}
+              <View style={{ flexDirection: 'row', justifyContent: 'center', marginBottom: 15 }}>
+                {[...Array(5)].map((_, i) => (
+                  <TouchableOpacity key={i} onPress={() => setPuntaje(i + 1)}>
+                    <AntDesign
+                      name={puntaje > i ? "star" : "star"}
+                      size={32}
+                      color={puntaje > i ? "#FFD700" : "#E0E0E0"}
+                      style={{ marginHorizontal: 2 }}
+                    />
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <Text style={{textAlign:'center', marginBottom:10}}>Puntaje: {puntaje} estrellas</Text>
+              <TextInput
+                style={[styles.input, { height: 60 }]}
+                placeholder="Comentario (opcional)"
+                value={comentario}
+                onChangeText={setComentario}
+
+              />
+              <View style={styles.modalButtons}>
+                <Pressable style={styles.button} onPress={enviarCalificacion} disabled={puntaje === 0}>
+                  <Text style={styles.buttonText}>Enviar calificación</Text>
+                </Pressable>
+                <Pressable style={styles.button} onPress={() => setShowCalificacionModal(false)}>
+                  <Text style={styles.buttonText}>Cerrar</Text>
+                </Pressable>
+              </View>
+            </View>
+          </View>
+        </Modal>
+
+                <SmallPopupModal title={"Reseñas "} modalVisible={modalCalificaciones}  setVisible={setModalCalificaciones}>
+            {calificaciones_modulo && calificaciones_modulo.length>0 ?
+            <View>
+
+              <FlatList
+                keyExtractor={(item)=>item.id.toString()}
+                data={calificaciones_modulo}
+                renderItem={({ item }) => (
+                  <View style={[styles.card,estilos.shadow, {marginBottom:5,marginHorizontal:5}]}>
+                    <RatingStars color={paleta.strong_yellow} puntaje={item.puntaje} />
+                    <ThemedText>
+                      <ThemedText lightColor="gray">{get_antiguedad(item.created_at)}</ThemedText>{' - '}
+                      <ThemedText lightColor="gray">{item.Users? item.Users.username: "Anónimo"}</ThemedText>
+                    </ThemedText>
+                    <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario ? item.comentario : null}</ThemedText>
+                  </View> 
+                )}
+              />
+            </View> 
+            :
+            <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
+            }
+        </SmallPopupModal>
         <Toast/>
     </View>
   );
@@ -272,6 +422,7 @@ const styles = StyleSheet.create({
     color: "#fff",
     fontWeight: "600",
     fontSize: 15,
+    paddingHorizontal: 5,
   },
   
   video: {
@@ -329,6 +480,35 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     fontSize: 16,
   },
-  
-  
+  modalContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "rgba(0, 0, 0, 0.7)",
+  },
+  modalContent: {
+    width: "80%",
+    backgroundColor: "#fff",
+    borderRadius: 10,
+    padding: 20,
+    elevation: 5,
+  },
+  modalTitle: {
+    fontSize: 18,
+    fontWeight: "bold",
+    marginBottom: 15,
+    textAlign: "center",
+  },
+  input: {
+    height: 40,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    borderRadius: 8,
+    paddingHorizontal: 10,
+    marginBottom: 15,
+  },
+  modalButtons: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+  },
 });
