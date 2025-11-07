@@ -1,10 +1,17 @@
 import { AppState } from 'react-native'
 import { supabase } from '../lib/supabase'
 import { Logged_Alumno, Logged_Profesor, Profesor, User } from '@/components/types'
-import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 import { validateEmail } from '@/components/validaciones';
-import { useUserContext } from '@/context/UserContext';
+import * as Crypto from 'expo-crypto';
+
+const hash = async (text: string) =>{
+  const h = await Crypto.digestStringAsync(
+        Crypto.CryptoDigestAlgorithm.SHA256, text
+      );
+  
+  return h;
+}
 
 const entrar = async (mail: string)=>{
   const { data: user, error } = await supabase.from('Users').select('*').eq('mail', mail);
@@ -16,8 +23,10 @@ const entrar = async (mail: string)=>{
     if (user && user.length > 0) {
       
         //inicializar entorno
-        if (user[0].is_prof) router.push('/tabs/HomeTeacher');
-        else router.push('/tabs/HomeStudent');              
+        const usuario = user[0].is_prof ? new Logged_Profesor(user[0].mail,user[0].username,user[0].hashed_password,user[0].institution,user[0].id) :
+                                         new Logged_Alumno(user[0].mail,user[0].username,user[0].hashed_password,user[0].id);
+                
+       return usuario      
     }
 }
 
@@ -31,8 +40,10 @@ const ingresar = async  (mail:string, contraseña: string) =>{
     }
     
     if (user && user.length > 0) {
-      if (contraseña!= user[0].hashed_password || mail!= user[0].mail) {
+      const password_hash = await hash(contraseña);
+      if (password_hash!= user[0].hashed_password || mail!= user[0].mail) {
         error_alert("Usuario o contraseña incorrectos");
+        console.error("Las contraseñas sin hash ya no son válidas");
       } else{
         //devolver usuario hallado
        
@@ -52,6 +63,11 @@ const ingresar = async  (mail:string, contraseña: string) =>{
 }
 
 const registrarse = async (user:User )=>{
+  user.hashed_password= await hash(user.hashed_password);
+  if (await cuenta_existe(user.mail)) {
+    error_alert("Ya existe un usuario con ese mail.");
+    return;
+  }
   try {
     const {data, error } = await supabase
           .from('Users')
@@ -108,4 +124,10 @@ const eliminar_usuario = async (id:number)=>{
   }
 }
 
-export {ingresar, registrarse, cuenta_existe , entrar, eliminar_usuario}
+const nombre_usuario = async (uid:number) => {
+  const {data,error} = await supabase.from('Users').select("username").eq('id', uid);
+  if (error) throw error
+  if (data && data.length>0) return data[0].username
+}
+
+export {ingresar, registrarse, cuenta_existe , entrar, eliminar_usuario, nombre_usuario}

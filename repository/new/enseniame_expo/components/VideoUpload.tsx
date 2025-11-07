@@ -11,6 +11,7 @@ import * as ImagePicker from 'expo-image-picker';
 import { Ionicons } from '@expo/vector-icons';
 import { ThemedView } from './ThemedView';
 import { ThemedText } from './ThemedText';
+import { paleta_colores } from './colores';
 
 interface VideoUploadProps {
   onVideoUpload: (video: { uri: string; name: string; type: string }) => void;
@@ -61,7 +62,7 @@ const VideoUpload: React.FC<VideoUploadProps> = ({ onVideoUpload }) => {
   return (
     <ThemedView style={styles.container}>
       <TouchableOpacity 
-        style={styles.uploadButton}
+        style={[styles.uploadButton,paleta_colores.dark_aqua]}
         onPress={pickVideo}
         disabled={uploading}
       >
@@ -85,7 +86,7 @@ const styles = StyleSheet.create({
     backgroundColor: '#fff',
   },
   uploadButton: {
-    backgroundColor: '#F72585',
+    backgroundColor: '#73d3c8ff',
     padding: 15,
     borderRadius: 10,
     alignItems: 'center',

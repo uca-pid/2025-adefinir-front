@@ -1,13 +1,21 @@
-import React, { useState } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, TextInput, TouchableOpacity } from 'react-native';
-import { Ionicons } from '@expo/vector-icons';
-import { Link , router, useFocusEffect} from 'expo-router';
+import React, { useCallback, useState } from 'react';
+import { View, StyleSheet, Pressable, ScrollView, TouchableOpacity, Modal, Alert, TextInput } from 'react-native';
+import { Ionicons, MaterialIcons  } from '@expo/vector-icons';
+import { Link , router, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
 import { useUserContext } from '@/context/UserContext';
 import { validateEmail, validatePassword } from '@/components/validaciones';
 import { eliminar_usuario } from '@/conexiones/gestion_usuarios';
+import { traerReportesProfe } from '@/conexiones/reportes';
+import { paleta, paleta_colores } from '@/components/colores';
+import { IconTextInput, PasswordInput } from '@/components/inputs';
+import { estilos } from '@/components/estilos';
+import { Image } from 'expo-image';
+import { BotonLogin } from '@/components/botones';
+import { SmallPopupModal } from '@/components/modals';
+import VideoPlayer from '@/components/VideoPlayer';
 
 export default function Perfil (){
     const [name,setName]= useState<string>();
@@ -15,18 +23,49 @@ export default function Perfil (){
     const [pass,setPass]=useState<string>();
     const [institucion,setI]=useState<string>();
 
+    const [mailModalVisible, setMailModalVisible] = useState(false);
+    const [nameModalVisible, setNameModalVisible] = useState(false);
+    const [PassModalVisible, setPassModalVisible] = useState(false);
+    const [instModalVisible, setInstModalVisible] = useState(false);
+    const [deleteModalVisible, setDeleteModalVisible] = useState(false);
+    const [reportesModalVisible, setReportesModalVisible] = useState(false);
+
     const [errorEmail, setErrorEmail] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
     const [errorName,setErrorName] = useState('');
     const [errorI, setErrorI] = useState('');
 
     const [showPassword, setShowPassword] = useState(false);
+    const [reportes, setReportes] = useState<any[]>([]);
+    const [loadingReportes, setLoadingReportes] = useState(false);
 
     const contexto = useUserContext();
 
+    const img = require("../../assets/images/pfp.jpg");
+
+    useFocusEffect(
+      useCallback(() => {
+          const fetchData = async () => {
+              const reportes = await traerReportesProfe(contexto.user.id);
+              setReportes(reportes);
+          };
+          fetchData();
+        return () => {};
+      }, [])
+    );
+
     const eliminar_cuenta = ()=>{
-      eliminar_usuario(contexto.user.id);
-      salir();
+      Alert.alert('Eliminar cuenta', '¿Estás seguro de que querés eliminar la cuenta?', [
+      {
+        text: 'Cancelar',
+        style: 'cancel',
+      },
+      {text: 'Confirmar', onPress: () => {
+        eliminar_usuario(contexto.user.id);
+        salir();
+        }},
+    ])
+      
     }
 
     const handleEmailChange = (text:any) => {
@@ -53,8 +92,8 @@ export default function Perfil (){
 
     const salir = ()=>{
       contexto.logout();
-      router.push("/login");
-      router.dismissAll();
+      router.dismissTo("/")
+      
     }
 
     const borrar_cambios = ()=>{
@@ -99,101 +138,204 @@ export default function Perfil (){
         
         setTimeout( ()=> contexto.actualizar_info(contexto.user.id),400);
         if (exito) {
+            setNameModalVisible(false);
+            setMailModalVisible(false);
+            setPassModalVisible(false);
+            setDeleteModalVisible(false);
+            setInstModalVisible(false);
             setTimeout(()=>success_alert("Cambios aplicados"),200)
             borrar_cambios();
         }
         
     }
 
+    const abrirModalReportes = async () => {
+      setLoadingReportes(true);
+      try {
+        const data = await traerReportesProfe(contexto.user.id);
+        setReportes(data || []);
+        console.log(data);
+      } catch (e) {
+        error_alert("No se pudieron cargar los reportes");
+      }
+      setLoadingReportes(false);
+      setReportesModalVisible(true);
+    };
+
     return(
-        <View style={styles.safeArea}>
-            <View style={styles.mainView}>
-            <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+        <View style={[styles.mainView,{backgroundColor:"#ebfbfbff"}]}>
+          <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+            <View style={styles.formAndImg}>
+              <Image
+                style={[styles.image,{borderColor:paleta.aqua}]}
+                source={img}
+                contentFit="contain"
+                transition={1000}
+              />
+              
+                <View style={{marginTop:25}}>
+                  <ThemedText type='title'>{contexto.user.username}</ThemedText>
+                </View>
+
                 <View style={styles.formContainer}>
-                    <View style={styles.headerContainer}>
-                        <Text style={styles.panelTitle}>Perfil </Text>
-                    </View>
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.textInput}
-                            textContentType="emailAddress"
-                            keyboardType="email-address"
-                            onChangeText={handleEmailChange}
-                            value={mail}
-                            placeholder={contexto.user.mail}
-                            placeholderTextColor="#999"
-                        />
-                    </View>
-                    {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
+                 <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Actualizar datos</ThemedText>
+                    <TouchableOpacity onPress={()=>{setNameModalVisible(true)}} style={[styles.infoContainer,estilos.shadow,{borderTopRightRadius:15, borderTopLeftRadius:15,}]}>
+                      <ThemedText >Nombre</ThemedText>
+                      <View style={{flexDirection:"row"}}>
+                        <ThemedText lightColor='gray'>{contexto.user.username}</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                      </View>
+                    </TouchableOpacity>
 
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="person-outline" size={24} color="#666" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.textInput}
-                            onChangeText={handleNameChange}
-                            value={name}
-                            placeholder={contexto.user.username}
-                            placeholderTextColor="#999"
-                        />
-                    </View>
-                    {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null}
-
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.textInput}
-                            value={pass}
-                            onChangeText={ handlePasswordChange}
-                            placeholder="Nueva contraseña"
-                            placeholderTextColor="#999"
-                            secureTextEntry={!showPassword}
-                        />
-                        <Pressable onPress={() => setShowPassword(!showPassword)}>
-                            <Ionicons
-                            name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                            size={24}
-                            color="#666"
-                            />
-                        </Pressable>
-                    </View>
-                    {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
+                    <TouchableOpacity onPress={()=>{setMailModalVisible(true)}} style={[styles.infoContainer]}>
+                      <ThemedText >Mail</ThemedText>
+                      <View style={{flexDirection:"row"}}>
+                        <ThemedText lightColor='gray'>{contexto.user.mail}</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                      </View>
+                    </TouchableOpacity>
 
                     {contexto.user.is_prof ? 
-                    <View style={styles.inputContainer}>
-                        <Ionicons name="business-outline" size={24} color="#666" style={styles.inputIcon} />
-                        <TextInput
-                            style={styles.textInput}
-                            onChangeText={handleInstitutionChange}
-                            value={institucion}
-                            placeholder={contexto.user.institution}
-                            placeholderTextColor="#999"
-                        />
-                    </View>:null}
-                    {contexto.user.is_prof && errorI ? <ThemedText type='error'>{errorI}</ThemedText> : null}
+                    <TouchableOpacity onPress={()=>{setInstModalVisible(true)}} style={[styles.infoContainer]}>
+                      <ThemedText >Institución</ThemedText>
+                      <View style={{flexDirection:"row"}}>
+                        <ThemedText lightColor='gray'>{contexto.user.institution}</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
+                      </View>
+                    </TouchableOpacity> : null
+                  }
 
-                    <TouchableOpacity onPress={confirmar} style={styles.loginButton} >
-                        <ThemedText type="subtitle" lightColor='white'>Guardar cambios</ThemedText>
+                    <TouchableOpacity onPress={()=>{setPassModalVisible(true)}} style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
+                      <ThemedText >Cambiar contraseña</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
                     </TouchableOpacity>
 
-                    <TouchableOpacity style={[styles.loginButton,styles.cancelButton]} onPress={borrar_cambios}   >
-                        <ThemedText type="subtitle" lightColor='#7209B7'>Cancelar</ThemedText>
+                {contexto.user.is_prof ? (
+                  <View>
+                    <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Reportes</ThemedText>
+                    <TouchableOpacity onPress={abrirModalReportes} style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
+                      <ThemedText >Videos Reportados</ThemedText>
+                      <View style={{flexDirection:"row", alignSelf:"flex-end"}}>
+                        <ThemedText lightColor='gray'>{reportes.length}</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray"/>
+                      </View>
+                    </TouchableOpacity>
+                  </View>
+                ) : null}
+
+
+                    <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Cuenta</ThemedText>
+                    <TouchableOpacity onPress={eliminar_cuenta} style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
+                      <ThemedText >Eliminar cuenta</ThemedText>
+                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
                     </TouchableOpacity>
 
-                    
-                    <TouchableOpacity style={[styles.loginButton,styles.cancelButton]} onPress={salir}   >
-                        <ThemedText type="subtitle" lightColor='#7209B7'>Salir</ThemedText>
+                    <TouchableOpacity style={[styles.iconButton,estilos.shadow]} onPress={salir}   >  
+                      <ThemedText type="subtitle" lightColor='red'>Salir</ThemedText>
                     </TouchableOpacity>
-
-
-                    <TouchableOpacity style={[styles.loginButton,{backgroundColor:"red"}]} onPress={eliminar_cuenta}   >
-                        <ThemedText type="subtitle" lightColor='white'>Eliminar cuenta</ThemedText>
-                    </TouchableOpacity>
-
-                </View>
+                </View>            
+              </View>
             </ScrollView>
-            </View>
-            <Toast/>
+
+           
+            <SmallPopupModal title='Editar nombre' modalVisible={nameModalVisible} setVisible={setNameModalVisible}>
+              <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nombre </ThemedText>
+                <IconTextInput 
+                    icon={{Ionicon_name: "person-outline"}} 
+                    value={name} 
+                    bck_color="white"
+                    onChange={handleNameChange}
+                    keyboardType='default'
+                    placeholder={contexto.user.username} />
+                    
+                  {errorName ? <ThemedText type='error'>{errorName}</ThemedText> : null} 
+                  <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
+            </SmallPopupModal>
+
+            <SmallPopupModal title='Editar mail' modalVisible={mailModalVisible} setVisible={setMailModalVisible}>
+               <IconTextInput 
+                  icon={{Ionicon_name: "mail-outline"}} 
+                  value={mail} 
+                  bck_color="white"
+                  onChange={handleEmailChange}
+                  keyboardType='email-address'
+                  placeholder={contexto.user.mail}
+                />
+                {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
+
+              <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
+            </SmallPopupModal>
+
+            <SmallPopupModal setVisible={setInstModalVisible} modalVisible={instModalVisible} title="Editar institución">
+              <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Institución </ThemedText>
+              <IconTextInput 
+                icon={{Ionicon_name: "business-outline"}} 
+                value={institucion} 
+                bck_color="white"
+                onChange={handleInstitutionChange}
+                keyboardType='default'
+                placeholder={contexto.user.institution} />
+                { errorI ? <ThemedText type='error'>{errorI}</ThemedText>:null}
+
+                <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
+            </SmallPopupModal>
+
+            <SmallPopupModal title='Cambiar contraseña' modalVisible={PassModalVisible} setVisible={setPassModalVisible}>
+              <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nueva contraseña </ThemedText>
+              <PasswordInput 
+                value={pass}
+                bck_color={paleta.soft_yellow}
+                onChange={handlePasswordChange}
+                showPassword={showPassword}
+                setShowPassword={()=> setShowPassword(!showPassword)}
+                placeholder='Nueva contraseña'
+              />
+              {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
+
+              <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
+            </SmallPopupModal>
+
+            <SmallPopupModal title='Reportes recibidos' modalVisible={reportesModalVisible} setVisible={setReportesModalVisible}>
+              {loadingReportes ? (
+                <ThemedText>Cargando...</ThemedText>
+              ) : reportes.length === 0 ? (
+                <ThemedText>No tienes reportes.</ThemedText>
+              ) : (
+                <ScrollView style={{maxHeight: 500}}>
+                  {reportes.map((rep, idx) => (
+                    <View key={rep.id || idx} style={{marginBottom: 15, padding: 10, backgroundColor: "#f6f6f6", borderRadius: 10}}>
+                      <ThemedText type='defaultSemiBold'>Motivo: {rep.Motivos_reporte?.descripcion || rep.motivo}</ThemedText>
+                      <ThemedText>Comentario: {rep.comentario || "Sin comentario"}</ThemedText>
+                      {rep.Senias && (
+                        <>
+                          <ThemedText style={{marginTop: 8}}>Seña reportada: <ThemedText type='defaultSemiBold'>{rep.Senias.significado}</ThemedText></ThemedText>
+                          <VideoPlayer uri={rep.Senias.video_url} style={{height: 120, borderRadius: 8, marginVertical: 8}} />
+                          <TouchableOpacity
+                            style={[estilos.shadow, {backgroundColor: "#ffe066", borderRadius: 8, padding: 8, marginTop: 10, alignSelf: "flex-start"}]}
+                            onPress={() => {
+                              router.push({
+                                pathname: "/tabs/Diccionario/editar_senia",
+                                params: {
+                                  id_senia: rep.Senias.id,
+                                  url: rep.Senias.video_url,
+                                  significado: rep.Senias.significado,
+                                  cate: rep.Senias.categoria
+                                }
+                              });
+                              setReportesModalVisible(false);
+                            }}
+                          >
+                            <ThemedText type='defaultSemiBold'>Editar seña</ThemedText>
+                          </TouchableOpacity>
+                        </>
+                      )}
+                    </View>
+                  ))}
+                </ScrollView>
+              )}
+            </SmallPopupModal>
+
+          <Toast/>
         </View>
     )
 }
@@ -202,163 +344,62 @@ export default function Perfil (){
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#f3e8ff', // violeta claro
   },
-  mainView: {
+   mainView:{
     flex: 1,
-    backgroundColor: '#f3e8ff',
-    justifyContent: 'flex-start',
-    alignItems: 'center',
-    
+    justifyContent: "space-between",
+    alignItems: "center",
+    width: '100%',
+    height: '100%',
+    marginBottom: 60
   },
   headerContainer: {
-    marginBottom: 24,
+    flex:1,
+    margin: 70,
     alignItems: 'center',
-  },
-  panelTitle: {
-    fontSize: 26,
-    fontWeight: 'bold',
-    color: '#560bad',
-    marginBottom: 4,
-  },
-  teacherName: {
-    fontSize: 18,
-    color: '#560bad',
-    fontWeight: '500',
-    marginBottom: 18,
-  },
-  ctaButton: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#F72585',
-    borderRadius: 14,
-    height: 60,
-    marginBottom: 28,
-    shadowColor: '#000',
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 3,
-    paddingHorizontal: 24,
-  },
-  ctaIcon: {
-    marginRight: 10,
-  },
-  ctaButtonText: {
-    color: '#fff',
-    fontSize: 18,
-    fontWeight: 'bold',
-  },
-  quickActionsRow: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    marginBottom: 22,
-    width: '100%',
-    paddingHorizontal: 16,
-  },
-  quickActionCard: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#f8f9fa',
-    borderRadius: 12,
-    paddingVertical: 20,
-    marginHorizontal: 6,
-  },
-  quickActionText: {
-    color: '#560bad',
-    fontWeight: 'bold',
-    fontSize: 14,
-    marginTop: 6,
-    textAlign: 'center',
-  },
-  // summaryCard y summaryText eliminados
-  navBar: {
-    flexDirection: 'row',
-    justifyContent: 'space-evenly',
-    alignItems: 'center',
-    backgroundColor: '#560bad',
-    paddingVertical: 12,
-    width: '100%',
-    position: 'absolute',
-    bottom: 0,
-    left: 0,
-    borderTopLeftRadius: 16,
-    borderTopRightRadius: 16,
-    shadowColor: '#000',
-    shadowOffset: { width: 0, height: -3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
-    elevation: 10,
-    zIndex: 1,
-  },
-  fabPlaceholder: {
-    width: 80,
-  },
-  navItem: {
-    alignItems: 'center',
-    justifyContent: 'center',
-    minWidth: 60,
-  },
-  navText: {
-    color: '#fff',
-    fontSize: 12,
-    marginTop: 4,
-    fontWeight: '500',
-  },
-  fabButton: {
-    position: 'absolute',
-    left: '50%',
-    bottom: 1,
-    transform: [{ translateX: -32 }, { translateY: -32 }],
-    backgroundColor: '#7209B7',
-    width: 64,
-    height: 64,
-    borderRadius: 32,
-    alignItems: 'center',
-    justifyContent: 'center',
-    shadowColor: '#000',
-    shadowOpacity: 0.18,
-    shadowRadius: 8,
-    elevation: 8,
-    borderWidth: 4,
-    borderColor: '#f3e8ff',
-    zIndex: 2,
   },
 
-  inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 15
-    },
-    inputIcon: {
-      marginRight: 10,
-    },
-     scrollViewContent: {
-      flexGrow: 1,
-      justifyContent: 'center',
-      minWidth: "80%",
-      marginBottom: 50
-    },
-    formContainer: {
-        width: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        borderRadius: 10,
-        padding: 20,
-        justifyContent: "center",
-        alignItems: 'center',
-        height: 600
-    },
-   loginButton: {
-      backgroundColor: '#B5179E',
-      borderRadius: 10,
-      height: 50,
-      minWidth: "60%",
-      justifyContent: 'center',
-      alignItems: 'center',
-      marginTop: 25,
-      marginHorizontal: 30,
-      width:"80%",
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    minWidth: "80%",
+  },
+  formAndImg: {
+    width: '100%',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: 'center',
+    height: "100%"
+  },
+  formContainer: {
+    width: "100%",
+    zIndex: 999,
+    marginBottom: 20,
+    marginTop: 15,
+    flex: 1
+  },
+  infoContainer: {
+    flexDirection: "row",
+    backgroundColor:"white",
+    justifyContent: "space-between",
+    width:"100%",
+    height: 50,
+    alignContent:"center",
+    alignItems:"center",
+    borderBottomColor:"lightgray",
+    borderBottomWidth:1,
+    padding: 10
+  },
+  iconButton: {
+    borderRadius: 10,
+    height: 50,
+    minWidth: "100%",
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginTop: 25,
+    width:"100%",
+    backgroundColor: "white"
   },
    title : {
     fontSize: 28,
@@ -367,25 +408,22 @@ const styles = StyleSheet.create({
     marginBottom: 40,
     textAlign: 'center',
   },
-  textInput:{
-        padding:8,
-        backgroundColor: "white",
-        fontSize:18,
-        elevation: 1,
-        zIndex: 1,
-        minWidth: "60%",
-        maxHeight: 60,
-        minHeight: 40,
-        borderColor: "#0538cf",
-        borderRadius: 5,
-        borderWidth: 2,
-        flex: 1,
-        position: "relative"
-    },
-    cancelButton:{
-        width:"80%",
-        borderWidth: 1, 
-        borderColor: '#7209B7',
-        backgroundColor: '#fff',
-    }
+  
+  cancelButton:{
+      width:"80%",
+      borderWidth: 1, 
+      borderColor: '#7209B7',
+      backgroundColor: '#fff',
+  },
+  icon: {
+      marginRight: 10,
+      marginLeft: 10
+  },
+  image: {
+    flex: 1,
+    width: 100,
+    height: 100,
+    borderRadius: 20,
+    borderWidth: 1,
+  },
 });

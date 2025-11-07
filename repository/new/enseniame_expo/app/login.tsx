@@ -1,7 +1,8 @@
-import { Pressable,  Text,  TextInput,  View,
+import { Pressable,  TextInput,  View,
   StyleSheet,  ScrollView,  AppState, 
-  TouchableOpacity
+  TouchableOpacity, KeyboardAvoidingView,  Platform
 } from 'react-native';
+import { Image } from 'expo-image';
 import { useState } from "react";
 import { Link , router} from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
@@ -12,7 +13,10 @@ import Toast from 'react-native-toast-message';
 import {ingresar} from "../conexiones/gestion_usuarios"
 import { useUserContext } from '@/context/UserContext';
 import { supabase } from '../lib/supabase'
-import { Logged_User } from '@/components/types';
+import { estilos } from '@/components/estilos';
+import { paleta, paleta_colores } from '@/components/colores';
+import { IconTextInput, PasswordInput } from '@/components/inputs';
+import { BotonLogin } from '@/components/botones';
 
 // Tells Supabase Auth to continuously refresh the session automatically if
 // the app is in the foreground. When this is added, you will continue to receive
@@ -32,6 +36,8 @@ export default function Login() {
   const [showPassword, setShowPassword] = useState(false);
 
   const {login_app} = useUserContext();
+
+  const img = require("../assets/images/lsa-aqua.png");
 
   async function login  (){
     const lower_case_mail = mail.toLowerCase();
@@ -53,62 +59,63 @@ export default function Login() {
     <View
       style={styles.mainView}
     >
-      
-        <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
-          <View style={styles.formContainer}>
+       <KeyboardAvoidingView
+        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+        style={{flex: 1}}
+      >
+      <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
+          <View style={styles.formAndImg}>
+
+            <Image
+              style={styles.image}
+              source={img}
+              contentFit="cover"
+              transition={1000}
+            />
+          
+           <View style={{alignSelf:"flex-start"}}>
+              <ThemedText type='title'>Ingresa a tu cuenta</ThemedText>
+
+              <View style={{marginVertical:15}}>
+                <Link href="/signup_alumno" >
+                  <ThemedText lightColor='gray'>¿No tienes un usuario? / </ThemedText> {''}
+                  <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Regístrate aquí</ThemedText>
+                </Link>
+              </View>
+           </View>
+
+            <View style={styles.formContainer}>
+             
+              <IconTextInput 
+                icon={{Ionicon_name:"mail-outline"}} 
+                value={mail} 
+                bck_color={paleta.soft_yellow} 
+                onChange={setMail} 
+                placeholder='Correo electrónico' 
+                keyboardType='email-address' />
+
+              <PasswordInput 
+                value={password} 
+                bck_color={paleta.softgray} 
+                onChange={setPassword} 
+                showPassword={showPassword} 
+                setShowPassword={setShowPassword} 
+                placeholder='Contraseña' />
+
+              <View style={{marginVertical:15}}>
+                <Link href="/acc_recovery" >
+                  <ThemedText lightColor='gray'>¿Olvidaste tu contraseña? / </ThemedText> {''}
+                  <ThemedText style={{fontSize: 16}} type='defaultSemiBold' >Recuperar</ThemedText>
+                </Link>
+              </View>
+
+              <BotonLogin callback={login} textColor='black' bckColor='#73d3c8ff' text='Ingresar'  />
+
+            </View>
             
-            <Text style={styles.title}>Iniciar Sesión</Text>
-            <View style={styles.inputContainer}>
-              <Ionicons name="mail-outline" size={24} color="#666" style={styles.inputIcon} />
-              <TextInput
-              style={styles.textInput}
-              textContentType="emailAddress"
-              keyboardType="email-address"
-              onChangeText={setMail}
-              value={mail}
-              placeholder="Correo electrónico"
-              placeholderTextColor="#999"
-              />
-            </View>
-            <View style={styles.inputContainer}>
-              <Ionicons name="lock-closed-outline" size={24} color="#666" style={styles.inputIcon} />
-              <TextInput
-                style={styles.textInput}
-                secureTextEntry={!showPassword}
-                textContentType="password"
-                onChangeText={setPassword}
-                value={password}
-                placeholder="Contraseña"
-                placeholderTextColor="#999"
-              />
-              <Pressable style={{zIndex:999,position:"relative"}} onPress={()=> {setShowPassword(!showPassword)}} >
-                <Ionicons
-                  name= {showPassword ? "eye-outline" : "eye-off-outline"}
-                  size={24}
-                  color="#666"
-                />
-              </Pressable>
-            </View>
-
-
-            <TouchableOpacity onPress={login} style={styles.loginButton} >
-              <ThemedText type="subtitle" lightColor='white'>Ingresar</ThemedText>
-            </TouchableOpacity>
-
-            <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}} >
-              <ThemedText style={{fontSize: 16}}>¿No tienes un usuario? </ThemedText>
-              <Link href="/signup_alumno" >
-                <ThemedText style={{fontSize: 16}} type='link' >Regístrate aquí</ThemedText>
-              </Link>
-            </View>
-
-            <View style={{margin:5, alignContent:"center", justifyContent:"center", alignItems:"center"}}>
-              <Link href="/acc_recovery" >
-                <ThemedText style={{fontSize: 16}} type='link' >Olvidé mi contraseña</ThemedText>
-              </Link>
-            </View>
           </View>
         </ScrollView>
+        </KeyboardAvoidingView>
       <Toast/>
     </View>
   );
@@ -117,66 +124,39 @@ export default function Login() {
 const styles = StyleSheet.create({
   mainView:{
     flex: 1,
-    justifyContent: "center",
+    justifyContent: "space-between",
     alignItems: "center",
     width: '100%',
     height: '100%',
-    backgroundColor: "#560bad"},
-  textInput:{
-        padding:8,
-        backgroundColor: "white",
-        fontSize:18,
-        elevation: 1,
-        zIndex: 1,
-        minWidth: "60%",
-        maxHeight: 60,
-        minHeight: 40,
-        borderColor: "#0538cf",
-        borderRadius: 5,
-        borderWidth: 2,
-        flex: 1,
-        position: "relative"
-    },
-    inputContainer: {
-      flexDirection: 'row',
-      alignItems: 'center',
-      marginTop: 15
-    },
-    inputIcon: {
-      marginRight: 10,
-    },
-     scrollViewContent: {
-      flexGrow: 1,
-      justifyContent: 'center',
-      minWidth: "80%"
-    },
-    formContainer: {
-        width: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.8)',
-        borderRadius: 10,
-        padding: 20,
-        justifyContent: "center",
-        alignItems: 'center',
-        height: 500
-    },
-    loginButton: {
-      backgroundColor: '#F72585',
-      borderRadius: 10,
-      height: 50,
-      minWidth: "60%",
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 30,
-      shadowColor: "#000",
-      shadowOpacity: 0.2,
-      shadowRadius: 6,
+    backgroundColor: "white"
   },
-   title : {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 40,
-    textAlign: 'center',
+  
+  scrollViewContent: {
+    flexGrow: 1,
+    justifyContent: 'space-between',
+    minWidth: "80%",
+    
   },
+  formAndImg: {
+    width: '100%',
+    borderRadius: 10,
+    padding: 20,
+    justifyContent: "center",
+    alignItems: 'center',
+    height: "100%"
+  },
+  formContainer: {
+    width: "100%",
+    zIndex: 999,
+    marginBottom: 20,
+    marginTop: 15
+  },
+
+  image: {
+    flex: 1,
+    width: '100%',
+    backgroundColor: 'rgba(255, 255, 255, 0)',
+  },
+  
 })
 

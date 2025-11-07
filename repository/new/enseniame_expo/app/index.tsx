@@ -1,22 +1,17 @@
-import { 
-  Pressable,
-  Text,
-  TextInput,
-  View,
-  StyleSheet,
-  KeyboardAvoidingView,
-  Platform,
-  ScrollView,
-} from 'react-native';
+import {   Pressable, StyleSheet} from 'react-native';
 import ParallaxScrollView from '@/components/ParallaxScrollView';
 import { Link, router } from 'expo-router';
 import { Image } from 'expo-image';
 import { HelloWave } from '@/components/HelloWave';
 import { ThemedText } from '@/components/ThemedText';
 import { ThemedView } from '@/components/ThemedView';
-import { estilos } from '@/components/estilos';
+import { BotonLogin } from '@/components/botones';
+import { paleta } from '@/components/colores';
+import { useUserContext } from '@/context/UserContext';
+import { Logged_Alumno, Logged_Profesor } from '@/components/types';
 
-export default function Login() {
+export default function Index() {
+  const contexto = useUserContext()
   return (
     <ParallaxScrollView
           headerBackgroundColor={{ light: '#4CC9F0', dark: '#1D3D47' }}
@@ -30,11 +25,21 @@ export default function Login() {
         <ThemedText type="title">¡Hola!</ThemedText>
         <HelloWave />
       </ThemedView>
-      
+
+      {/* <Pressable onPress={()=>contexto.login_app(new Logged_Profesor("admin@mail.com","Administrador","","HQ",1))}><ThemedText>Login debug</ThemedText></Pressable>
+      <Pressable onPress={()=>contexto.login_app(new Logged_Alumno("belcaguinalde@uca.edu.ar","Belu","",8))}><ThemedText>Login alumno</ThemedText></Pressable>
+       */}
       <ThemedView style={styles.stepContainer}>
-        <ThemedText type="subtitle">¿Qué es enSEÑAme?</ThemedText>
         <ThemedText>
-          <ThemedText type="defaultSemiBold">enSEÑAme</ThemedText>{' '}
+          <ThemedText type="subtitle">¿Qué es </ThemedText>{''}
+          <ThemedText type="subtitle">En</ThemedText>{''}
+          <ThemedText type="subtitle" lightColor="#03a793">seña</ThemedText>{''}
+          <ThemedText type="subtitle">me?</ThemedText>
+        </ThemedText>
+        <ThemedText>
+          <ThemedText type="defaultSemiBold">En</ThemedText>{''}
+          <ThemedText type="defaultSemiBold" lightColor="#03a793">seña</ThemedText>{''}
+          <ThemedText type="defaultSemiBold">me</ThemedText>{' '}
            es una aplicación de aprendizaje de 
           <ThemedText type="defaultSemiBold"> Lengua de Señas Argentina (LSA)</ThemedText>.
         </ThemedText>
@@ -58,22 +63,7 @@ export default function Login() {
         </ThemedText>
       </ThemedView>
 
-      <View style={{flexDirection:"row", alignContent:"center",justifyContent:"center"}}>
-        <Pressable onPress={()=>{router.replace('/signup_alumno');}} style={styles.loginButton} >
-          <ThemedText type="subtitle" lightColor='white'>Soy alumno</ThemedText>
-        </Pressable>
-        <Pressable onPress={()=>{router.replace('/signup_profe');}} style={styles.loginButton} >
-            <ThemedText type="subtitle" lightColor='white'>Soy profesor</ThemedText>
-        </Pressable>
-      </View>
-        
-      <View style={estilos.centrado} >
-        <ThemedText >¿Ya tienes un usuario? </ThemedText>
-        <Pressable onPress={()=>{router.replace('/login');}} style={styles.loginButton2} >
-          <ThemedText type="subtitle" lightColor='white'>Inicia sesión aquí</ThemedText>
-        </Pressable>
-      </View>
-    
+      <BotonLogin callback={()=>{router.navigate('/login');}} textColor={'black'} bckColor={paleta.dark_aqua} text={'Empezar'} />
     </ParallaxScrollView>
   );
 }
@@ -95,24 +85,5 @@ const styles = StyleSheet.create({
     gap: 8,
     marginBottom: 8,
   },
-  loginButton: {
-      backgroundColor: '#F72585',
-      borderRadius: 10,
-      height: 50,
-      padding: 10,
-      paddingHorizontal: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 5,
-  },
-  loginButton2: {
-      backgroundColor: '#7209B7',
-      borderRadius: 10,
-      height: 50,
-      padding: 10,
-      paddingHorizontal: 20,
-      justifyContent: 'center',
-      alignItems: 'center',
-      margin: 5,
-  },
+  
 })
