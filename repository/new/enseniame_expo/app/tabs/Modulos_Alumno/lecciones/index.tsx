@@ -76,7 +76,8 @@ export default function Leccion (){
         }
         else {
             //terminar lección
-            console.log("terminaste")
+            console.log("terminaste");
+            success_alert("Terminaste el módulo!!")
         }
     }
      if (loading) {
