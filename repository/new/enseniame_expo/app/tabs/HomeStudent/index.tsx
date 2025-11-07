@@ -6,6 +6,7 @@ import { useUserContext } from '@/context/UserContext';
 import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexiones/modulos';
   
 import Toast from 'react-native-toast-message';
+import { paleta } from '@/components/colores';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -66,7 +67,7 @@ export default function HomeStudent() {
         
         <View style={styles.stackCards}>
           <View style={[styles.card, styles.cardLeft]}> 
-            <Ionicons name="flame" size={28} color="#20bfa9" style={{marginBottom: 8}} />
+            <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
             <Text style={styles.cardTitleCursos}>{user.racha} días de racha</Text>
           </View>
           <Pressable style={[styles.card, styles.cardRight]} onPress={() => router.push('/tabs/Dashboard_Alumno')}>
@@ -107,9 +108,9 @@ export default function HomeStudent() {
             <Ionicons name="book" size={22} color="#20bfa9" />
             <Text style={styles.shortcutTextCursos}>Cursos</Text>
           </Pressable>
-          <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/Diccionario')}>
-            <Ionicons name="search" size={22} color="#20bfa9" />
-            <Text style={styles.shortcutTextCursos}>Diccionario</Text>
+          <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/HomeStudent/alumno_objetivos')}>
+            <Ionicons name="flag" size={22} color="#20bfa9" />
+            <Text style={styles.shortcutTextCursos}>Mis objetivos</Text>
           </Pressable>
         </View>
       </ScrollView>
