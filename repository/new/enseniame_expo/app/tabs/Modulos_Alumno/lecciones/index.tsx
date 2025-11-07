@@ -6,7 +6,7 @@ import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import VideoPlayer from "@/components/VideoPlayer";
-import { paleta } from "@/components/colores";
+import { paleta, paleta_colores } from "@/components/colores";
 import { useUserContext } from "@/context/UserContext";
 import { SmallPopupModal } from "@/components/modals";
 import Toast from "react-native-toast-message";
@@ -27,6 +27,7 @@ export default function Leccion (){
   const [senias,setSenias] = useState<Senia_Info[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
+  const [currentIndex,setIndex]=useState(0)
 
   const contexto = useUserContext();
 
@@ -69,7 +70,10 @@ export default function Leccion (){
 
     const next =()=>{
         const i = senias.findIndex(each=>each.id==selectedSenia?.id);
-        if (i!=-1 && i<senias.length) setSelectedSenia(senias[i+1]);
+        if (i!=-1 && i<senias.length-1) {
+          setIndex(i+1);
+          setSelectedSenia(senias[i+1]);
+        }
         else {
             //terminar lección
             console.log("terminaste")
@@ -91,7 +95,15 @@ export default function Leccion (){
             <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
             <Text style={styles.backBtnText}>Volver</Text>
             </Pressable>
-            <View style={styles.bck_content}>
+            <View style={[styles.bck_content,estilos.centrado]}>
+              <View style={styles.progressBar}>
+                <View
+                  style={[
+                    styles.progressFill,
+                    {width: `${currentIndex/senias.length*100}%`}
+                  ]}
+                />
+              </View>
                 <View>
                     {selectedSenia && (
                         <VideoPlayer 
@@ -100,20 +112,20 @@ export default function Leccion (){
                         />
                     )}
                 </View>
-                <View style={styles.card}>
+                <View style={[styles.card,paleta_colores.dark_aqua,{width:"95%"}]}>
                     <ThemedText style={styles.title}>{modulo?.nombre}</ThemedText>
-                    <ThemedText style={styles.cardSubtitle}>{modulo?.descripcion}</ThemedText>
+                    <ThemedText style={styles.cardSubtitle}>{modulo?.descripcion}hola</ThemedText>
                     <View style={styles.card}>
                         {selectedSenia ? 
                         <>
-                        <View style={[{flexDirection:"row",alignItems:"stretch",justifyContent:"space-between"},estilos.thinGrayBottomBorder]}>
+                        <View style={[{flexDirection:"row",alignItems:"stretch",justifyContent:"space-between",marginBottom:10},estilos.thinGrayBottomBorder]}>
                         <ThemedText style={styles.cardTitle}>{selectedSenia.significado}</ThemedText>
                         <ThemedText style={styles.cardTitle}>{selectedSenia.Categorias.nombre}</ThemedText>
                         </View>
                         <ThemedText>Acá va una descripcion de la seña o una aclaración en el contexto específico del módulo. 
                             Podríamos añadirlo a la tabla Senia_Modulo
                         </ThemedText>
-                        <Pressable onPress={next}>
+                        <Pressable style={{marginVertical:10}} onPress={next}>
                             <ThemedText type="defaultSemiBold" lightColor={paleta.strong_yellow}>Siguiente</ThemedText>
                         </Pressable>
                         </>
@@ -137,22 +149,22 @@ const styles = StyleSheet.create({
     padding: 16,
   },
   bck_content:{
-    width: "80%",
-    backgroundColor: "#f0f9f6ff",
+    width: "90%",
+    backgroundColor: "#ffffffff",
+    height: "90%"
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
-    marginBottom: 30,
     marginTop:20,
-    color: "#222",
-    alignSelf: "center",
+    color: "white",
+    
   },
   card: {
     backgroundColor: "#fff",
     borderRadius: 20,
     padding: 20,
-    marginBottom: 14,
+    //marginBottom: 34,
     shadowColor: "#222",
     shadowOpacity: 0.08,
     shadowRadius: 10,
@@ -180,9 +192,10 @@ const styles = StyleSheet.create({
   },
   
   video: {
-    width: '100%',
+    width: '95%',
     aspectRatio: 16/9,
     borderRadius: 12,
+    marginBottom: 25
   },
   loadingContainer: {
     flex: 1,
@@ -195,12 +208,7 @@ const styles = StyleSheet.create({
     borderRadius:10,
     borderColor: paleta.strong_yellow 
   },
-  row: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    marginTop: 10,
-    marginHorizontal: 6
-  },
+  
   checkboxLabel: {
     fontSize: 16,
     color: '#222'
@@ -240,34 +248,13 @@ const styles = StyleSheet.create({
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.7)",
   },
-  modalContent: {
-    width: "80%",
-    backgroundColor: "#fff",
-    borderRadius: 10,
-    padding: 20,
-    elevation: 5,
-  },
-  modalTitle: {
-    fontSize: 18,
-    fontWeight: "bold",
-    marginBottom: 15,
-    textAlign: "center",
-  },
-  input: {
-    height: 40,
-    borderColor: "#ccc",
-    borderWidth: 1,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-    marginBottom: 15,
-  },
-  modalButtons: {
-    flexDirection: "row",
-    justifyContent: "space-between",
-  },
+ progressTotal: { color: '#555', marginBottom: 8 },
+  progressBar: { height: 12, backgroundColor: '#e53838ff', borderRadius: 8, overflow: 'hidden' },
+  progressFill: { height: '100%', backgroundColor: '#20bfa9', borderRadius: 8 },
+  progressPercent: { alignSelf: 'flex-end', color: '#20bfa9', fontWeight: 'bold', marginTop: 6 },
   
   cardSubtitle: {
-    color: "#555",
+    color: "white",
     fontSize: 15,
     marginBottom: 12,
   },

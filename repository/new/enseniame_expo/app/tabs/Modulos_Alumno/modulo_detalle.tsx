@@ -229,7 +229,9 @@ export default function ModuloDetalleScreen() {
         <Text style={styles.backBtnText}>Volver</Text>
       </Pressable>
       <Text style={styles.title}> {modulo?.nombre}</Text>
-      <Pressable onPress={()=>router.push({ pathname: '/tabs/Modulos_Alumno/lecciones', params: { id: modulo?.id } })}>lecciones</Pressable>
+      <Pressable onPress={()=>router.push({ pathname: '/tabs/Modulos_Alumno/lecciones', params: { id: modulo?.id } })}>
+        <Text>leccioness</Text>
+      </Pressable>
 
       <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
         {calificaciones_modulo && calificaciones_modulo.length>0 ? 
