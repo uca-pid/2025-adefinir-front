@@ -225,10 +225,11 @@ export default function ModuloDetalleScreen() {
               style={[styles.backBtn, { marginBottom: 10, marginTop:30, flexDirection: 'row', alignItems: 'center' }]}
               onPress={() => {   contexto.user.gotToModules()   }}
             >
-              <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
-              <Text style={styles.backBtnText}>Volver</Text>
-            </Pressable>
+        <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
+        <Text style={styles.backBtnText}>Volver</Text>
+      </Pressable>
       <Text style={styles.title}> {modulo?.nombre}</Text>
+      <Pressable onPress={()=>router.push({ pathname: '/tabs/Modulos_Alumno/lecciones', params: { id: modulo?.id } })}>lecciones</Pressable>
 
       <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
         {calificaciones_modulo && calificaciones_modulo.length>0 ? 
