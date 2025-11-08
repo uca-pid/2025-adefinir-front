@@ -56,10 +56,23 @@ export default function Leccion (){
 
     const fetch_senias = async () => {
         try {
-            setLoading(true);
-            const s = await  buscar_senias_modulo(Number(id));
-            setSenias(s || []);
-            if (s && s.length>0)  setSelectedSenia(s[0])
+          setLoading(true);
+          const s = await  buscar_senias_modulo(Number(id));
+          setSenias(s || []);
+          if (s && s.length>0)  {
+            const ordered =s.sort(function (a, b) {
+              if (a.significado < b.significado) {
+                return -1;
+              }
+              if (a.significado > b.significado) {
+                return 1;
+              }
+              return 0;
+            })
+            setSelectedSenia(ordered[0]);
+            setSenias(ordered);
+          }
+            
         } catch (error) {
             error_alert("No se pudieron cargar las señas");
           console.error(error)
