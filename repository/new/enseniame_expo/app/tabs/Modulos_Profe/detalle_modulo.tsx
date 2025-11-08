@@ -282,6 +282,7 @@ export default function DetalleModuloScreen() {
               <View>
 
                 <FlatList
+                style={[{maxHeight:500}]}
                   keyExtractor={(item)=>item.id.toString()}
                   data={calificaciones_modulo}
                   renderItem={({ item }) => (
