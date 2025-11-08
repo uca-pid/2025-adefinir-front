@@ -58,4 +58,9 @@ const get_antiguedad = (date: string)=>{
         return 'Hace ' + Math.round(elapsed/msPerYear ) + ' años';   
     }
   }
-export {validatePassword, validateEmail, validateInstitution, get_antiguedad}
+
+const now= ()=>{
+    let ya = new Date();
+    return ya.getFullYear().toString() +"-" + (ya.getMonth()+1).toString()+"-" + ya.getDate().toString()
+}
+export {validatePassword, validateEmail, validateInstitution, get_antiguedad, now}

@@ -3,6 +3,7 @@ import { icon_type, Logged_Alumno, Logged_Profesor, Modulo, Profesor, User } fro
 import { router } from 'expo-router';
 import { error_alert } from '@/components/alert';
 import { visualizaciones_alumno } from './visualizaciones';
+import { now } from '@/components/validaciones';
 
 const todos_los_modulos = async () =>{
     try {
@@ -223,8 +224,17 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
     return true
 }
 
+const completar_modulo_alumno = async (id_alumno:number,id_modulo:number) =>{
+    
+    const { data, error } = await supabase
+        .from('Alumno_Modulo')
+        .upsert({ id_modulo: id_modulo, id_alumno:id_alumno,completado:true, fecha_completado:now() })
+        .select()
+    if (error) throw error
+}
+
 
 
 export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo,
-    modulos_completados_por_alumno,progreso_por_categoria, mis_modulos_calificados
+    modulos_completados_por_alumno,progreso_por_categoria, mis_modulos_calificados, completar_modulo_alumno
 }

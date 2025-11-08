@@ -1,29 +1,24 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator, Modal, TextInput } from "react-native";
+import { View, Text, Pressable, StyleSheet,  ActivityIndicator,  } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Senia_Info, Modulo } from "@/components/types";
-import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
+import { buscar_modulo, buscar_senias_modulo, completar_modulo_alumno } from "@/conexiones/modulos";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import VideoPlayer from "@/components/VideoPlayer";
 import { paleta, paleta_colores } from "@/components/colores";
 import { useUserContext } from "@/context/UserContext";
-import { SmallPopupModal } from "@/components/modals";
 import Toast from "react-native-toast-message";
 import { alumno_ver_senia, senias_aprendidas_alumno, visualizaciones_alumno } from "@/conexiones/visualizaciones";
 import { error_alert, success_alert } from "@/components/alert";
 import Checkbox from "expo-checkbox";
 import { marcar_aprendida, marcar_no_aprendida } from "@/conexiones/aprendidas";
-import { calificacionesModulo, calificarModulo } from "@/conexiones/calificaciones";
-import { RatingStars } from "@/components/review";
 import { estilos } from "@/components/estilos";
-import { get_antiguedad } from "@/components/validaciones";
-import { AntDesign } from "@expo/vector-icons";
 
 export default function Leccion (){
   const { id=0 } = useLocalSearchParams<{ id: string }>();
   if (id==0) router.back();
-  const [modulo,setModulo] = useState<Modulo | undefined>();
+  const [modulo,setModulo] = useState<Modulo>();
   const [senias,setSenias] = useState<Senia_Info[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
@@ -44,7 +39,7 @@ export default function Leccion (){
         try {
             setLoading(true)
             const m = await buscar_modulo(Number(id));
-            setModulo(m || []);
+            setModulo(m || {id:0,descripcion:"",nombre:"",autor:0,icon: "paw"});
           
         } catch (error) {
           error_alert("No se pudo cargar el módulo");
@@ -88,18 +83,26 @@ export default function Leccion (){
           setSelectedSenia(senias[i+1]);
         }
         else {
-            //terminar lección
-            console.log("terminaste");
-            success_alert("Terminaste el módulo!!")
+            //terminar lección           
+            if (modulo) {
+              completar_modulo_alumno(contexto.user.id,modulo.id)
+                .then(()=>router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: modulo?.id } }))
+                .catch(reason=>{
+                  console.error(reason);
+                  router.back()
+                  contexto.user.gotToModules();
+                  setTimeout(()=>error_alert("Ocurrió un error al completar el módulo"),300)
+                })
+            }                        
         }
     }
      if (loading) {
-          return (
-            <View style={styles.loadingContainer}>
-              <ActivityIndicator size="large" color="#20bfa9" />
-            </View>
-          );
-        }
+        return (
+          <View style={styles.loadingContainer}>
+            <ActivityIndicator size="large" color="#20bfa9" />
+          </View>
+        );
+      }
     return (
         <View style={styles.container}>
             <Pressable

@@ -229,9 +229,6 @@ export default function ModuloDetalleScreen() {
         <Text style={styles.backBtnText}>Volver</Text>
       </Pressable>
       <Text style={styles.title}> {modulo?.nombre}</Text>
-      <Pressable onPress={()=>router.push({ pathname: '/tabs/Modulos_Alumno/lecciones', params: { id: modulo?.id } })}>
-        <Text>leccioness</Text>
-      </Pressable>
 
       <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
         {calificaciones_modulo && calificaciones_modulo.length>0 ? 
@@ -251,9 +248,15 @@ export default function ModuloDetalleScreen() {
           <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
           </>
         }
-      </TouchableOpacity>
+      </TouchableOpacity>  
+
+      <Pressable onPress={()=>router.push({ pathname: '/tabs/Modulos_Alumno/lecciones', params: { id: modulo?.id } })} 
+        style={styles.ctaButtonCursos}>
+        <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
+        <Text style={styles.ctaButtonTextCursos}>Empezar lección</Text>
+      </Pressable>    
       
-      <FlatList
+      <FlatList      
         data={senias ? senias : []}
         keyExtractor={(item) => item.senia.id.toString()}
         ListFooterComponent={<View style={{marginVertical:28}}></View>}
@@ -273,7 +276,7 @@ export default function ModuloDetalleScreen() {
             
           </View>
         )}
-      />
+      />      
 
         <SmallPopupModal title={selectedSenia?.senia.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
           {selectedSenia && (
@@ -360,6 +363,7 @@ export default function ModuloDetalleScreen() {
             <View>
 
               <FlatList
+              style={[{maxHeight:500}]}
                 keyExtractor={(item)=>item.id.toString()}
                 data={calificaciones_modulo}
                 renderItem={({ item }) => (
@@ -513,5 +517,26 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  ctaButtonCursos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: paleta.dark_aqua,
+    borderRadius: 14,
+    height: 50,
+    marginVertical: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  ctaButtonTextCursos: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+   buttonIcon: {
+    marginRight: 8,
   },
 });
