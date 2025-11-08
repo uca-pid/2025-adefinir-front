@@ -115,7 +115,7 @@ export default function Leccion (){
                 </View>
                 <View style={[styles.card,paleta_colores.dark_aqua,{width:"95%"}]}>
                     <ThemedText style={styles.title}>{modulo?.nombre}</ThemedText>
-                    <ThemedText style={styles.cardSubtitle}>{modulo?.descripcion}hola</ThemedText>
+                    <ThemedText style={styles.cardSubtitle}>{modulo?.descripcion}</ThemedText>
                     <View style={styles.card}>
                         {selectedSenia ? 
                         <>
