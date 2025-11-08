@@ -47,7 +47,7 @@ export default function Perfil (){
       useCallback(() => {
           const fetchData = async () => {
               const reportes = await traerReportesProfe(contexto.user.id);
-              setReportes(reportes);
+              setReportes(reportes || []);
           };
           fetchData();
         return () => {};
@@ -351,7 +351,9 @@ const styles = StyleSheet.create({
     alignItems: "center",
     width: '100%',
     height: '100%',
-    marginBottom: 60
+    marginBottom: 60,
+    paddingTop:30 ,
+    
   },
   headerContainer: {
     flex:1,
@@ -363,6 +365,7 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     justifyContent: 'space-between',
     minWidth: "80%",
+    paddingBottom:60 
   },
   formAndImg: {
     width: '100%',

@@ -282,7 +282,7 @@ export default function DetalleModuloScreen() {
               <View>
 
                 <FlatList
-                  keyExtractor={(item)=>item.id_alumno.toString()}
+                  keyExtractor={(item)=>item.id.toString()}
                   data={calificaciones_modulo}
                   renderItem={({ item }) => (
                     <View style={[styles.card,estilos.shadow, {marginBottom:5,marginHorizontal:5}]}>
@@ -291,7 +291,7 @@ export default function DetalleModuloScreen() {
                         <ThemedText lightColor="gray">{get_antiguedad(item.created_at)}</ThemedText>{' - '}
                         <ThemedText lightColor="gray">{item.Users? item.Users.username: "Anónimo"}</ThemedText>
                       </ThemedText>
-                      <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario ? item.comentario : null}</ThemedText>
+                      <ThemedText style={{marginTop: 10}} lightColor="#404243ff">{item.comentario ? item.comentario : null}</ThemedText>
                     </View> 
                   )}
 

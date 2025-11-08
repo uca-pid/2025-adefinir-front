@@ -90,7 +90,7 @@ export default function RootLayout() {
       })}
       />
 
-      <Tabs.Screen name='perfil'   options={({ navigation }) =>({title:"Perfil", 
+      <Tabs.Screen name='perfil'   options={({ navigation }) =>({title:"Perfil", headerShown:false, 
         tabBarButton: ((props) => 
           <TouchableOpacity onPress={() => navigation.navigate('perfil')}  style={styles.navItem}>
             <Ionicons name="person-circle-outline" size={22} color="#fff" />
