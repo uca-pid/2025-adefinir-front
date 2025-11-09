@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { View, Text, StyleSheet, ActivityIndicator, SectionList, RefreshControl, SafeAreaView, Modal, FlatList, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, ActivityIndicator, SectionList, RefreshControl, SafeAreaView, Modal, FlatList, TouchableOpacity, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
 import { useUserContext } from '@/context/UserContext';
@@ -262,18 +262,15 @@ export default function DashboardAlumnoScreen() {
             <Text style={styles.titleCursos}>Dashboard de Aprendizaje</Text>
             <GlobalProgress learned={progresoGlobal.learned} total={progresoGlobal.total} />
             <View style={{ marginTop: 12, alignItems: 'center' }}>
-              <Text
-                onPress={() => router.push('/tabs/objetivos_activos' as any)}
-                style={{ color: '#0a7ea4', fontWeight: 'bold' }}
-              >
+              <Pressable onPress={() => router.navigate('/tabs/Dashboard_Alumno/objetivos_activos')}>
+                <Text  style={{ color: '#0a7ea4', fontWeight: 'bold' }}>
                 Ver objetivos activos
-              </Text>
-              <Text
-                onPress={() => router.push('/tabs/reporte_historico' as any)}
-                style={{ color: '#0a7ea4', fontWeight: 'bold', marginTop: 6 }}
-              >
+              </Text></Pressable>
+              <Pressable onPress={() => router.navigate('/tabs/Dashboard_Alumno/reporte_historico' )}>
+                <Text style={{ color: '#0a7ea4', fontWeight: 'bold', marginTop: 6 }}>
                 Ver reporte histórico
-              </Text>
+              </Text></Pressable>
+              
             </View>
             {error && (
               <View style={styles.errorBox}>

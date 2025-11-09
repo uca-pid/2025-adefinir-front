@@ -27,7 +27,7 @@ type Senia_Aprendida ={
 }
 type Calificaciones = {
   id_alumno: number;
-  Users?: {username:string};
+  Users?: {username:string, id:number};
   id_modulo: number;
   puntaje: number;
   comentario? : string;
@@ -357,6 +357,7 @@ export default function ModuloDetalleScreen() {
             <View>
 
               <FlatList
+              style={[{maxHeight:500}]}
                 keyExtractor={(item)=>item.id.toString()}
                 data={calificaciones_modulo}
                 renderItem={({ item }) => (
@@ -365,6 +366,9 @@ export default function ModuloDetalleScreen() {
                     <ThemedText>
                       <ThemedText lightColor="gray">{get_antiguedad(item.created_at)}</ThemedText>{' - '}
                       <ThemedText lightColor="gray">{item.Users? item.Users.username: "Anónimo"}</ThemedText>
+                      {item.Users && item.Users.id==contexto.user.id ? 
+                        <ThemedText lightColor="gray">  (Yo)</ThemedText>:null
+                      }
                     </ThemedText>
                     <ThemedText style={{marginVertical: 10}} lightColor="#404243ff">{item.comentario ? item.comentario : null}</ThemedText>
                   </View> 

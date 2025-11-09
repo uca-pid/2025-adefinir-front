@@ -118,7 +118,7 @@ export default function HomeTeacher() {
           </>:
           <ThemedText lightColor='gray'>Todavía no tienes ninguna calificación</ThemedText>
         }
-          
+          <ThemedText style={[estilos.centrado,{marginTop:10}]} lightColor={paleta.dark_aqua}>Ver ranking</ThemedText>
         </TouchableOpacity>
 
         <TouchableOpacity style={styles.ctaButtonCursos} onPress={()=>contexto.user.gotToModules()}>
@@ -151,7 +151,7 @@ const styles = StyleSheet.create({
   
   scrollContent: {
     paddingHorizontal: 20,
-    paddingTop: 40,
+    paddingTop: 15,
     paddingBottom: 60,
     zIndex: 2,
   },
