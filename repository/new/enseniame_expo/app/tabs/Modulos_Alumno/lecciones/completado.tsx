@@ -1,23 +1,19 @@
-import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator, Modal, TextInput } from "react-native";
+import React, { useCallback,  useState } from "react";
+import { View, Text, Pressable, StyleSheet, TouchableOpacity, ActivityIndicator, Modal, TextInput } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
-import { Senia_Info, Modulo } from "@/components/types";
-import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
-import { Ionicons } from "@expo/vector-icons";
+import {  Modulo } from "@/components/types";
+import { buscar_modulo } from "@/conexiones/modulos";
 import { ThemedText } from "@/components/ThemedText";
-import VideoPlayer from "@/components/VideoPlayer";
+import { Image } from 'expo-image';
 import { paleta, paleta_colores } from "@/components/colores";
 import { useUserContext } from "@/context/UserContext";
-import { SmallPopupModal } from "@/components/modals";
 import Toast from "react-native-toast-message";
 import { alumno_ver_senia, senias_aprendidas_alumno, visualizaciones_alumno } from "@/conexiones/visualizaciones";
 import { error_alert, success_alert } from "@/components/alert";
 import Checkbox from "expo-checkbox";
 import { marcar_aprendida, marcar_no_aprendida } from "@/conexiones/aprendidas";
-import { calificacionesModulo, calificarModulo } from "@/conexiones/calificaciones";
-import { RatingStars } from "@/components/review";
+import { alumno_ya_califico_modulo, calificacionesModulo, calificarModulo } from "@/conexiones/calificaciones";
 import { estilos } from "@/components/estilos";
-import { get_antiguedad } from "@/components/validaciones";
 import { AntDesign } from "@expo/vector-icons";
 import { BotonLogin } from "@/components/botones";
 
@@ -33,6 +29,7 @@ export default function ModuloCompletado (){
       const [yaCalificado, setYaCalificado] = useState(false);
 
       const contexto = useUserContext();
+      const aplausos = require("../../../../assets/images/aplausos.gif");
 
       useFocusEffect(
           useCallback(() => {
@@ -43,10 +40,12 @@ export default function ModuloCompletado (){
 
     const fetch_modulo = async ()=>{
         try {
-            setLoading(true)
-            const m = await buscar_modulo(Number(id));
-            setModulo(m || []);
-            
+          setLoading(true)
+          const m = await buscar_modulo(Number(id));
+          setModulo(m || []);
+
+          const calificado = await alumno_ya_califico_modulo(contexto.user.id,Number(id));
+          setYaCalificado(calificado);          
         } catch (error) {
             error_alert("No se pudo cargar el módulo");
             console.error(error)
@@ -78,14 +77,21 @@ export default function ModuloCompletado (){
         <View style={styles.container}>
             <Text style={styles.title}> ¡¡Felicidades!!</Text>
             <Text style={[styles.cardTitle,estilos.centrado]}>Completaste el módulo {modulo?.nombre}</Text>
-
+            <Image
+              style={[styles.image,estilos.centrado]}
+              source={aplausos}
+              contentFit="contain"
+              transition={0}
+            />
             {!yaCalificado && (
-                <>
-<ThemedText type="defaultSemiBold" lightColor="gray" style={estilos.centrado}>¿Deseas dejar una calificación?</ThemedText>
-            <BotonLogin callback={()=>setShowCalificacionModal(true)} textColor={"white"} bckColor={paleta.strong_yellow} text={"Calificar"} /></>
+            <>            
+            <Pressable style={estilos.centrado} onPress={()=>setShowCalificacionModal(true)}>
+              <ThemedText lightColor={paleta.strong_yellow} type="defaultSemiBold"  style={estilos.centrado}>¿Deseas dejar una calificación?</ThemedText>
+            </Pressable>
+            </>
             )}
             
-            <BotonLogin callback={()=>{router.back();contexto.user.goHome()}} textColor={"white"} bckColor={paleta.aqua} text={"Aceptar"} />
+            <BotonLogin callback={()=>{router.back();contexto.user.goHome()}} textColor={"white"} bckColor={paleta.dark_aqua} text={"Aceptar"} />
 
             {/* Modal para calificación */}
                     <Modal
@@ -138,28 +144,19 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#e6f7f2",
     padding: 16,
+    paddingTop: 40
   },
   title: {
     fontSize: 26,
     fontWeight: "bold",
     marginBottom: 30,
-    marginTop:20,
-    color: "#222",
+    marginTop:60,
+    color: "#005348ff",
     alignSelf: "center",
   },
-  card: {
-    backgroundColor: "#fff",
-    borderRadius: 20,
-    padding: 20,
-    marginBottom: 14,
-    shadowColor: "#222",
-    shadowOpacity: 0.08,
-    shadowRadius: 10,
-    shadowOffset: { width: 0, height: 4 },
-    elevation: 2,
-  },
+  
   cardTitle: {
-    color: "#222",
+    color: paleta.dark_aqua,
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 10,
@@ -177,12 +174,7 @@ const styles = StyleSheet.create({
     fontSize: 15,
     paddingHorizontal: 5,
   },
-  
-  video: {
-    width: '100%',
-    aspectRatio: 16/9,
-    borderRadius: 12,
-  },
+
   loadingContainer: {
     flex: 1,
     justifyContent: 'center',
@@ -204,35 +196,7 @@ const styles = StyleSheet.create({
     fontSize: 16,
     color: '#222'
   },
-   iconButton: {
-    borderRadius: 10,
-    height: 50,
-    minWidth: "100%",
-    justifyContent: 'center',
-    alignItems: 'center',
-    flexDirection: "row",
-    width:"100%",
-    backgroundColor: "white",
-    position: "relative",
-    marginTop: 25
-  },
-  icon:{
-    flex:1,
-    marginLeft: 25
-  },
-  backBtn: {
-    padding: 10,
-    borderRadius: 8,
-    alignSelf: 'flex-start',
-    flexDirection: 'row',
-    alignItems: 'center',
-    elevation: 2,
-  },
-  backBtnText: {
-    color: '#20bfa9',
-    fontWeight: 'bold',
-    fontSize: 16,
-  },
+  
   modalContainer: {
     flex: 1,
     justifyContent: "center",
@@ -264,5 +228,10 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
   },
-  
+   image: {
+    flex: 1,
+    height: "100%",
+    width:"100%",
+    margin:0 
+  },
 });
