@@ -15,13 +15,20 @@ import Checkbox from "expo-checkbox";
 import { marcar_aprendida, marcar_no_aprendida } from "@/conexiones/aprendidas";
 import { estilos } from "@/components/estilos";
 
+type Senia_Aprendida ={
+  senia: Senia_Info;
+  vista: boolean;
+  aprendida: boolean
+}
+
 export default function Leccion (){
   const { id=0 } = useLocalSearchParams<{ id: string }>();
   if (id==0) router.back();
   const [modulo,setModulo] = useState<Modulo>();
-  const [senias,setSenias] = useState<Senia_Info[]>([]);
+  const [senias,setSenias] = useState<Senia_Aprendida[]>([]);
+  const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(true);
-  const [selectedSenia, setSelectedSenia] = useState<Senia_Info | null>(null);
+  const [selectedSenia, setSelectedSenia] = useState<Senia_Aprendida | null>(null);
   const [currentIndex,setIndex]=useState(0)
 
   const contexto = useUserContext();
@@ -52,20 +59,61 @@ export default function Leccion (){
     const fetch_senias = async () => {
         try {
           setLoading(true);
+         
           const s = await  buscar_senias_modulo(Number(id));
-          setSenias(s || []);
-          if (s && s.length>0)  {
-            const ordered =s.sort(function (a, b) {
-              if (a.significado < b.significado) {
+          const vistas = await visualizaciones_alumno(contexto.user.id);
+          const aprendidas = await senias_aprendidas_alumno(contexto.user.id);
+
+          const fue_vista = (senia_id:number)=>{
+            let res = false;
+            vistas?.forEach(each=>{
+              if (each.senia==senia_id) res= true
+            });
+            return res
+          }
+          
+          const fue_aprendida =(senia_id:number)=>{
+            let res = false;
+            aprendidas?.forEach(each=>{
+              if (each.senia_id==senia_id && each.aprendida) res= true
+            });
+            return res
+          }
+    
+          const senias_vistas = s?.map(each=>{
+            let vista = fue_vista(each.id);
+            return {senia:each, vista:vista}
+          });
+          
+          const senias_vistas_aprendidas =senias_vistas?.map(each=>{
+            let aprendida = fue_aprendida(each.senia.id);
+            return {senia:each.senia, vista:each.vista,aprendida:aprendida}
+          });                          
+          
+          if (senias_vistas_aprendidas && senias_vistas_aprendidas.length>0)  {
+            const ordered =senias_vistas_aprendidas.sort(function (a, b) {
+              if (a.senia.significado < b.senia.significado) {
                 return -1;
               }
-              if (a.significado > b.significado) {
+              if (a.senia.significado > b.senia.significado) {
                 return 1;
               }
               return 0;
             })
-            setSelectedSenia(ordered[0]);
+            
             setSenias(ordered);
+            const item = ordered[0];
+            if (!item.vista){
+              alumno_ver_senia(contexto.user.id,item.senia.id)
+                .catch(reason=>{
+                  error_alert("No se pudo guardar tu progreso");
+                  console.error(reason);
+                })
+                .then(()=>{
+                  item.vista= true
+                })              
+            }
+            setSelectedSenia(item);
           }
             
         } catch (error) {
@@ -77,10 +125,21 @@ export default function Leccion (){
     }
 
     const next =()=>{
-        const i = senias.findIndex(each=>each.id==selectedSenia?.id);
+        const i = senias.findIndex(each=>each.senia.id==selectedSenia?.senia.id);
         if (i!=-1 && i<senias.length-1) {
           setIndex(i+1);
           setSelectedSenia(senias[i+1]);
+          const item = senias[i+1];
+          if (!item.vista){
+            alumno_ver_senia(contexto.user.id,item.senia.id)
+              .catch(reason=>{
+                error_alert("No se pudo guardar tu progreso");
+                console.error(reason);
+              })
+              .then(()=>{
+                item.vista= true
+              })              
+          }
         }
         else {
             //terminar lección           
@@ -96,6 +155,26 @@ export default function Leccion (){
             }                        
         }
     }
+
+    const toggleAprendida = async (info_senia: Senia_Aprendida, value: boolean) => {
+      
+        if (value) {
+          marcar_aprendida(info_senia.senia.id,contexto.user.id)
+            .catch(reason =>{
+              console.error(reason);
+              error_alert("No se pudo actualizar el estado")
+            })
+        } else {
+          marcar_no_aprendida(info_senia.senia.id,contexto.user.id)
+            .catch(reason=>{
+              console.error(reason);
+              error_alert("No se pudo actualizar el estado")
+            })
+        }
+        setAprendidasMap((prev) => ({ ...prev, [info_senia.senia.id]: value }));        
+        success_alert(value ? 'Marcada como aprendida' : 'Marcada como no aprendida');
+        info_senia.aprendida= value;
+      }
      if (loading) {
         return (
           <View style={styles.loadingContainer}>
@@ -113,36 +192,45 @@ export default function Leccion (){
             <Text style={styles.backBtnText}>Volver</Text>
             </Pressable>
             <View style={[styles.bck_content,estilos.centrado]}>
-              <View style={styles.progressBar}>
-                <View
-                  style={[
-                    styles.progressFill,
-                    {width: `${currentIndex/senias.length*100}%`}
-                  ]}
-                />
+              
+              <View>
+                  {selectedSenia && (
+                      <VideoPlayer 
+                      uri={selectedSenia.senia.video_url}
+                      style={styles.video}
+                      />
+                  )}
               </View>
-                <View>
-                    {selectedSenia && (
-                        <VideoPlayer 
-                        uri={selectedSenia.video_url}
-                        style={styles.video}
-                        />
-                    )}
-                </View>
                 <View style={[styles.card,paleta_colores.dark_aqua,{width:"95%"}]}>
                     <ThemedText style={styles.title}>{modulo?.nombre}</ThemedText>
                     <ThemedText style={styles.cardSubtitle}>{modulo?.descripcion}</ThemedText>
                     <View style={styles.card}>
                         {selectedSenia ? 
                         <>
-                        <View style={[{flexDirection:"row",alignItems:"stretch",justifyContent:"space-between",marginBottom:10},estilos.thinGrayBottomBorder]}>
-                        <ThemedText style={styles.cardTitle}>{selectedSenia.significado}</ThemedText>
-                        <ThemedText style={styles.cardTitle}>{selectedSenia.Categorias.nombre}</ThemedText>
+                        <View style={[{flexDirection:"row",alignItems:"flex-start",justifyContent:"space-between",marginBottom:10},estilos.thinGrayBottomBorder]}>
+                        <ThemedText style={styles.cardTitle}>{selectedSenia.senia.significado}</ThemedText>
+                        <View style={{alignSelf:"flex-start"}}>
+                          <ThemedText lightColor="gray">Categoría: </ThemedText>
+                          <ThemedText lightColor="gray">{selectedSenia.senia.Categorias.nombre}</ThemedText>
+                        </View>
+                        
                         </View>
                         <ThemedText>Acá va una descripcion de la seña o una aclaración en el contexto específico del módulo. 
                             Podríamos añadirlo a la tabla Senia_Modulo
                         </ThemedText>
-                        <Pressable style={{marginVertical:10}} onPress={next}>
+                        {/* Toggle Aprendida */}
+                          {selectedSenia && (
+                            <View style={styles.row}>
+                              <Checkbox
+                                value={selectedSenia.aprendida}
+                                onValueChange={(v) => toggleAprendida(selectedSenia, v)}
+                                color={aprendidasMap[selectedSenia.senia.id] ? '#20bfa9' : undefined}
+                                style={styles.checkbox}
+                              />
+                              <Text style={styles.checkboxLabel}>Aprendida</Text>
+                            </View>
+                          )}
+                        <Pressable style={[{marginVertical:10},estilos.centrado]} onPress={next}>
                             <ThemedText type="defaultSemiBold" lightColor={paleta.strong_yellow}>Siguiente</ThemedText>
                         </Pressable>
                         </>
@@ -168,7 +256,7 @@ const styles = StyleSheet.create({
   bck_content:{
     width: "90%",
     backgroundColor: "#ffffffff",
-    height: "90%"
+    height: "85%"
   },
   title: {
     fontSize: 26,
@@ -193,6 +281,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: "600",
     marginBottom: 10,
+    alignSelf:"center"
   },
   button: {
     backgroundColor: "#20bfa9",
@@ -274,5 +363,11 @@ const styles = StyleSheet.create({
     color: "white",
     fontSize: 15,
     marginBottom: 12,
+  },
+  row: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: 10,
+    marginHorizontal: 6
   },
 });
