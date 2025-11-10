@@ -28,6 +28,7 @@ export default function ModuloCompletado (){
 
       const contexto = useUserContext();
       const aplausos = require("../../../../assets/images/aplausos.gif");
+      const success = require("../../../../assets/images/success.gif")
 
       useFocusEffect(
           useCallback(() => {
@@ -81,11 +82,8 @@ export default function ModuloCompletado (){
               contentFit="contain"
               transition={0}
             />
-            <DotLottieReact
-              src="path/to/animation.lottie"
-              loop
-              autoplay
-            />
+            
+           
             {!yaCalificado && (
             <>            
             <Pressable style={estilos.centrado} onPress={()=>setShowCalificacionModal(true)}>
