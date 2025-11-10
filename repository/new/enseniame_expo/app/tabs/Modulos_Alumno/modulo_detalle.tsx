@@ -188,6 +188,7 @@ export default function ModuloDetalleScreen() {
       }
     } catch (e) {
       // Si hay error, no bloquea la vista
+      console.error(e);
     }
   };
 
@@ -203,6 +204,7 @@ export default function ModuloDetalleScreen() {
   const enviarCalificacion = async () => {
     try {
       await calificarModulo(Number(id), contexto.user.id, puntaje, comentario);
+      fetch_modulo();
       setShowCalificacionModal(false);
       setYaCalificado(true);
       success_alert("¡Gracias por tu calificación!");

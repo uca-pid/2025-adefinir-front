@@ -8,11 +8,9 @@ import { Image } from 'expo-image';
 import { paleta, paleta_colores } from "@/components/colores";
 import { useUserContext } from "@/context/UserContext";
 import Toast from "react-native-toast-message";
-import { alumno_ver_senia, senias_aprendidas_alumno, visualizaciones_alumno } from "@/conexiones/visualizaciones";
+import { DotLottieReact } from '@lottiefiles/dotlottie-react';
 import { error_alert, success_alert } from "@/components/alert";
-import Checkbox from "expo-checkbox";
-import { marcar_aprendida, marcar_no_aprendida } from "@/conexiones/aprendidas";
-import { alumno_ya_califico_modulo, calificacionesModulo, calificarModulo } from "@/conexiones/calificaciones";
+import { alumno_ya_califico_modulo, calificarModulo } from "@/conexiones/calificaciones";
 import { estilos } from "@/components/estilos";
 import { AntDesign } from "@expo/vector-icons";
 import { BotonLogin } from "@/components/botones";
@@ -82,6 +80,11 @@ export default function ModuloCompletado (){
               source={aplausos}
               contentFit="contain"
               transition={0}
+            />
+            <DotLottieReact
+              src="path/to/animation.lottie"
+              loop
+              autoplay
             />
             {!yaCalificado && (
             <>            
