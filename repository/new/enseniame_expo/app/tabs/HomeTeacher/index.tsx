@@ -105,7 +105,7 @@ export default function HomeTeacher() {
             <Text style={styles.cardTextCursos}> señas subidas</Text>
 
             <Text style={styles.cardTitleCursos}>{misModulos?.length} </Text>
-            <Text style={styles.cardTextCursos}> {misModulos && misModulos.length > 1 ? "módulos creados":"módulo creado"} </Text>
+            <Text style={styles.cardTextCursos}> {misModulos && misModulos.length != 1 ? "módulos creados":"módulo creado"} </Text>
           </TouchableOpacity>
         </View>
 
