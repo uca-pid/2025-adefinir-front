@@ -55,7 +55,7 @@ export default function RootLayout() {
     }
 
       {/* Alumno: mis objetivos tab */}
-      {!contexto.user.is_prof ? (
+     {/*  {!contexto.user.is_prof ? (
         <Tabs.Screen name='alumno_objetivos' options={({ navigation }) => ({ title: 'Objetivos', headerShown: false,
           tabBarButton: ((props) => (
             <TouchableOpacity onPress={() => navigation.navigate('alumno_objetivos')} style={styles.navItem}>
@@ -65,7 +65,7 @@ export default function RootLayout() {
           )),
         })} />
       ) : <Tabs.Screen name='alumno_objetivos' options={{href:null}} />}
-
+ */}
       {contexto.user.is_prof ? (
         <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />
       ): <Tabs.Screen name='Modulos_Profe'  options={{href:null}} />}
@@ -90,7 +90,7 @@ export default function RootLayout() {
       })}
       />
 
-      <Tabs.Screen name='perfil'   options={({ navigation }) =>({title:"Perfil", 
+      <Tabs.Screen name='perfil'   options={({ navigation }) =>({title:"Perfil", headerShown:false, 
         tabBarButton: ((props) => 
           <TouchableOpacity onPress={() => navigation.navigate('perfil')}  style={styles.navItem}>
             <Ionicons name="person-circle-outline" size={22} color="#fff" />
