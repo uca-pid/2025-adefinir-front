@@ -7,6 +7,9 @@ import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexi
   
 import Toast from 'react-native-toast-message';
 import { paleta } from '@/components/colores';
+import { mi_racha, perder_racha, sumar_racha } from '@/conexiones/racha';
+import { error_alert } from '@/components/alert';
+import { fue_ayer, now } from '@/components/validaciones';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -17,6 +20,7 @@ export default function HomeStudent() {
     racha: 5,
     modulosCompletados: 0,
   });
+  const [progresoCategorias, setProgresoCategorias] = useState<Array<any>>([]);
 
   useFocusEffect(
       useCallback(() => {
@@ -24,24 +28,14 @@ export default function HomeStudent() {
         const completados = await modulos_completados_por_alumno(contexto.user.id);
         setUser(prev => ({ ...prev, modulosCompletados: completados || 0 }));
         //console.log('Modulos completados actualizados:', completados);
-    };
+        };
 
-    fetchModulosCompletados();
+        fetchModulosCompletados();
+        fetch_racha()
           return () => {};
         }, [])
       );
 
-  useEffect(() => {
-    const fetchModulosCompletados = async () => {
-      const completados = await modulos_completados_por_alumno(contexto.user.id);
-      setUser(prev => ({ ...prev, modulosCompletados: completados || 0 }));
-      //console.log('Modulos completados actualizados:', completados);
-    };
-
-    fetchModulosCompletados();
-  }, [contexto.user.id]);
-
-  const [progresoCategorias, setProgresoCategorias] = useState<Array<any>>([]);
 
   useEffect(()=>{
     let mounted = true;
@@ -72,6 +66,22 @@ export default function HomeStudent() {
       </View>
     </View>
   );
+
+  const fetch_racha = async ()=>{
+    try {
+      const r = await mi_racha(contexto.user.id);
+      if (r && r.length>0) {
+        let ultimo_login =new Date(r.last_login);
+        if (fue_ayer(ultimo_login)) { await sumar_racha(contexto.user.id);console.log("sumo",r.last_login)}
+        else if (r.last_login!= now()) {await perder_racha(contexto.user.id);console.log("pierdo",r.last_login)}
+        else {console.log("es hoy")}        
+      }
+      setUser(prev => ({ ...prev, racha: r.racha || 0 }))
+    } catch (error) {
+      console.error(error);
+      error_alert("Ocurrió un error al cargar la racha");
+    }    
+  }
 
   return (
     <View style={styles.container}>

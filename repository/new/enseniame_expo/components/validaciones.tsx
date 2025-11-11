@@ -69,4 +69,10 @@ const now= ()=>{
     let ya = new Date();
     return ya.getFullYear().toString() +"-" + (ya.getMonth()+1).toString()+"-" + ya.getDate().toString()
 }
-export {validatePassword, validateEmail, validateInstitution, get_antiguedad, now}
+
+const fue_ayer = (dia:Date)=>{
+    let ayer = new Date();
+    ayer.setDate(ayer.getDate()-1)
+    return (ayer.getFullYear()==dia.getFullYear() && ayer.getMonth()==dia.getMonth() && ayer.getDate() == dia.getDate())
+}
+export {validatePassword, validateEmail, validateInstitution, get_antiguedad, now, fue_ayer}

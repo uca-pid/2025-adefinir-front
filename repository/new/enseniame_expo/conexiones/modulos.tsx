@@ -1,8 +1,6 @@
 import { supabase } from '../lib/supabase'
-import { icon_type, Logged_Alumno, Logged_Profesor, Modulo, Profesor, User } from '@/components/types'
-import { router } from 'expo-router';
+import { icon_type } from '@/components/types'
 import { error_alert } from '@/components/alert';
-import { visualizaciones_alumno } from './visualizaciones';
 import { now } from '@/components/validaciones';
 
 const todos_los_modulos = async () =>{
