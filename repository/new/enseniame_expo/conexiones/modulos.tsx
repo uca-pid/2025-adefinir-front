@@ -226,15 +226,61 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
 
 const completar_modulo_alumno = async (id_alumno:number,id_modulo:number) =>{
     
-    const { data, error } = await supabase
+    const completado = await alumno_completo_modulo(id_alumno,id_modulo);
+    if (!completado){
+        //verificar si existe el registro
+        let { data, error } = await supabase
+            .from('Alumno_Modulo')
+            .select('id_modulo')
+            .eq('id_alumno', id_alumno)
+            .eq("id_modulo",id_modulo);
+
+        if (error) throw error;
+
+        if (data && data.length>0) {
+            const { error } = await supabase
+                .from('Alumno_Modulo')
+                .update({ completado: true, fecha_completado:now() })
+                .eq('id_alumno', id_alumno)            
+                .eq('id_modulo', id_modulo); 
+                if (error) throw error;
+        } else {
+            const { error } = await supabase
+                .from('Alumno_Modulo')
+                .insert({ id_modulo: id_modulo, id_alumno:id_alumno,completado:true, fecha_completado:now() })
+                
+            if (error) throw error
+        }
+    }   
+}
+
+const alumno_completo_modulo = async (id_alumno:number,id_modulo:number) => {
+    let { data, error } = await supabase
+            .from('Alumno_Modulo')
+            .select('id_modulo')
+            .eq('id_alumno', id_alumno)
+            .eq("id_modulo",id_modulo)
+            .eq('completado', true);
+            
+        if (error) throw error;
+        if (data && data.length>0) return true
+        return false
+}
+
+const mis_modulos_completos = async (id_alumno:number) => {
+    let { data, error } = await supabase
         .from('Alumno_Modulo')
-        .upsert({ id_modulo: id_modulo, id_alumno:id_alumno,completado:true, fecha_completado:now() })
-        .select()
-    if (error) throw error
+        .select('id_modulo')
+        .eq('id_alumno', id_alumno)            
+        .eq('completado', true);
+        
+    if (error) throw error;
+    
+    return data && data.length>0 ? data : [];
 }
 
 
-
 export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo,
-    modulos_completados_por_alumno,progreso_por_categoria, mis_modulos_calificados, completar_modulo_alumno
+    modulos_completados_por_alumno,progreso_por_categoria, mis_modulos_calificados, completar_modulo_alumno, alumno_completo_modulo,
+    mis_modulos_completos
 }

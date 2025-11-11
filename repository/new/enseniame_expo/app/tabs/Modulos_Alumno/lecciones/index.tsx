@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet,  ActivityIndicator,  } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Senia_Info, Modulo } from "@/components/types";
-import { buscar_modulo, buscar_senias_modulo, completar_modulo_alumno } from "@/conexiones/modulos";
+import { alumno_completo_modulo, buscar_modulo, buscar_senias_modulo, completar_modulo_alumno } from "@/conexiones/modulos";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -25,11 +25,12 @@ export default function Leccion (){
   const { id=0 } = useLocalSearchParams<{ id: string }>();
   if (id==0) router.back();
   const [modulo,setModulo] = useState<Modulo>();
+  const [completado,setCompletado] =useState(false)
   const [senias,setSenias] = useState<Senia_Aprendida[]>([]);
   const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({});
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Aprendida | null>(null);
-  const [currentIndex,setIndex]=useState(0)
+  const [currentIndex,setIndex]=useState(0);
 
   const contexto = useUserContext();
 
@@ -47,6 +48,10 @@ export default function Leccion (){
             setLoading(true)
             const m = await buscar_modulo(Number(id));
             setModulo(m || {id:0,descripcion:"",nombre:"",autor:0,icon: "paw"});
+
+            const c = await alumno_completo_modulo(contexto.user.id,Number(id));
+            console.log("lo complete? ",c)
+            setCompletado(c);
           
         } catch (error) {
           error_alert("No se pudo cargar el módulo");
@@ -124,7 +129,7 @@ export default function Leccion (){
         }
     }
 
-    const next =()=>{
+    const next =async ()=>{
         const i = senias.findIndex(each=>each.senia.id==selectedSenia?.senia.id);
         if (i!=-1 && i<senias.length-1) {
           setIndex(i+1);
@@ -142,17 +147,20 @@ export default function Leccion (){
           }
         }
         else {
-            //terminar lección           
-            if (modulo) {
-              completar_modulo_alumno(contexto.user.id,modulo.id)
-                .then(()=>router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: modulo?.id } }))
-                .catch(reason=>{
-                  console.error(reason);
-                  router.back()
-                  contexto.user.gotToModules();
-                  setTimeout(()=>error_alert("Ocurrió un error al completar el módulo"),300)
-                })
-            }                        
+          //terminar lección           
+          if (modulo) {
+            try {              
+              if (!completado) {                
+                await completar_modulo_alumno(contexto.user.id,modulo.id);
+              }
+              router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: modulo?.id } })
+            } catch (error) {
+              console.error(error);
+              router.back()
+              contexto.user.gotToModules();
+              setTimeout(()=>error_alert("Ocurrió un error al completar el módulo"),300)
+            }                          
+          }                        
         }
     }
 
@@ -175,13 +183,14 @@ export default function Leccion (){
         success_alert(value ? 'Marcada como aprendida' : 'Marcada como no aprendida');
         info_senia.aprendida= value;
       }
-     if (loading) {
-        return (
-          <View style={styles.loadingContainer}>
-            <ActivityIndicator size="large" color="#20bfa9" />
-          </View>
-        );
-      }
+
+    if (loading) {
+      return (
+        <View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color="#20bfa9" />
+        </View>
+      );
+    }
     return (
         <View style={styles.container}>
             <Pressable

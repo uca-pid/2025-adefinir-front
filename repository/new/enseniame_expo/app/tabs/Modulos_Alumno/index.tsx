@@ -3,26 +3,29 @@ import { View, Text, Pressable, StyleSheet, FlatList, Modal, ScrollView } from "
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import {  Modulo } from "@/components/types";
-import { todos_los_modulos } from "@/conexiones/modulos";
+import { alumno_completo_modulo, mis_modulos_completos, modulos_completados_por_alumno, todos_los_modulos } from "@/conexiones/modulos";
 import { calificacionesModulo } from "@/conexiones/calificaciones";
 import Toast from "react-native-toast-message";
 import { AntDesign } from "@expo/vector-icons";
 import { modulosCalificados, promedio_reseñas } from "@/conexiones/calificaciones";
 import { ThemedText } from "@/components/ThemedText";
+import { useUserContext } from "@/context/UserContext";
 
 interface ModuloCalificado extends Modulo {
-  promedio: number
+  promedio: number;
+  completado: boolean
 }
 
 export default function ModulosScreen() {
   const router = useRouter();
 
-  //const [modulos,setModulos] = useState<Modulo[]>();
   const [modulos,setModulos] = useState<ModuloCalificado[]>();
   const [calificacionesPorModulo, setCalificacionesPorModulo] = useState<Record<number, any[]>>({});
   const [promediosPorModulo, setPromediosPorModulo] = useState<Record<number, number>>({});
   const [comentariosModalVisible, setComentariosModalVisible] = useState(false);
   const [comentariosSeleccionados, setComentariosSeleccionados] = useState<any[]>([]);
+
+  const contexto = useUserContext();
 
   useFocusEffect(
       useCallback(() => {
@@ -33,11 +36,16 @@ export default function ModulosScreen() {
 
   const fetch_modulos = async ()=>{
     const m2 = await modulosCalificados();
+    const completados = await mis_modulos_completos(contexto.user.id);
+    console.log(completados)
     
-    const res =m2?.map(e=>{        
-        let prom = promedio_reseñas(e.Calificaciones_Modulos)        
-        return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor}
-      });
+    //corregir para que te muestre los que completaste
+    const res =m2?.map( e=>{        
+      let prom = promedio_reseñas(e.Calificaciones_Modulos);
+      let completo = completados.includes({"id_modulo":e.id});
+      console.log(completo)
+      return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor, completado:completo}
+    });
     setModulos(res || []);    
   }
 
@@ -64,12 +72,13 @@ export default function ModulosScreen() {
 
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Ionicons name={item.icon} size={36} color="#20bfa9" />
+            <View style={{flexDirection:"row",justifyContent:"space-between",alignContent:"center"}}>
+              <Ionicons name={item.icon} size={36} color="#20bfa9" />
+              {item.completado &&  (<ThemedText>🎉 ¡Completado!</ThemedText>)}
+            </View>
+            
             <Text style={styles.cardTitle}>{item.nombre}</Text>
-            <Text style={styles.cardSubtitle}>
-              {/* {item.length} señas incluidas */}
-              {item.descripcion}
-            </Text>
+            <Text style={styles.cardSubtitle}>  {item.descripcion}</Text>
         {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
               { Promedio de estrellas }
               <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>

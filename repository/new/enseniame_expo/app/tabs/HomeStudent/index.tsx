@@ -72,7 +72,7 @@ export default function HomeStudent() {
           </View>
           <Pressable style={[styles.card, styles.cardRight]} onPress={() => router.push('/tabs/Dashboard_Alumno')}>
             <Text style={styles.cardTitleCursos}>{user.modulosCompletados}</Text>
-            <Text style={styles.cardTitleCursos}>módulos completos</Text>
+            <Text style={styles.cardTitleCursos}>{user.modulosCompletados==1 ? "módulo completo":"módulos completos"}</Text>
           </Pressable>
         </View>
 
