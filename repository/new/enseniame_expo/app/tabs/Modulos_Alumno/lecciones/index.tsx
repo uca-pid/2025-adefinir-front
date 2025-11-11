@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React, { useCallback, useState } from "react";
 import { View, Text, Pressable, StyleSheet,  ActivityIndicator,  } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Senia_Info, Modulo } from "@/components/types";
@@ -49,8 +49,7 @@ export default function Leccion (){
             const m = await buscar_modulo(Number(id));
             setModulo(m || {id:0,descripcion:"",nombre:"",autor:0,icon: "paw"});
 
-            const c = await alumno_completo_modulo(contexto.user.id,Number(id));
-            console.log("lo complete? ",c)
+            const c = await alumno_completo_modulo(contexto.user.id,Number(id));            
             setCompletado(c);
           
         } catch (error) {
@@ -149,8 +148,10 @@ export default function Leccion (){
         else {
           //terminar lección           
           if (modulo) {
-            try {              
-              if (!completado) {                
+            try {           
+              await completar_modulo_alumno(contexto.user.id,modulo.id);   
+              if (!completado) {         
+                //la lección debería continuar hasta marcar todas como aprendidas o te deja salir sin completar el módulo?       
                 await completar_modulo_alumno(contexto.user.id,modulo.id);
               }
               router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: modulo?.id } })

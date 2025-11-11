@@ -162,7 +162,7 @@ export default function ModuloDetalleScreen() {
       marcar_no_aprendida(info_senia.senia.id,contexto.user.id)
         .catch(reason=>{
           console.error(reason);
-          error_alert("No se pudo actualizar el estado")
+          error_alert("No se pudo actualizar el estado");
         })
     }
     setAprendidasMap((prev) => ({ ...prev, [info_senia.senia.id]: value }));

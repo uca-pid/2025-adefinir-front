@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback,  } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
 import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexiones/modulos';
   
@@ -17,6 +17,19 @@ export default function HomeStudent() {
     racha: 5,
     modulosCompletados: 0,
   });
+
+  useFocusEffect(
+      useCallback(() => {
+        const fetchModulosCompletados = async () => {
+        const completados = await modulos_completados_por_alumno(contexto.user.id);
+        setUser(prev => ({ ...prev, modulosCompletados: completados || 0 }));
+        //console.log('Modulos completados actualizados:', completados);
+    };
+
+    fetchModulosCompletados();
+          return () => {};
+        }, [])
+      );
 
   useEffect(() => {
     const fetchModulosCompletados = async () => {
