@@ -37,13 +37,19 @@ export default function ModulosScreen() {
   const fetch_modulos = async ()=>{
     const m2 = await modulosCalificados();
     const completados = await mis_modulos_completos(contexto.user.id);
-    console.log(completados)
+
+    const lo_complete = (id_modulo:number)=>{
+      let res = false;
+      completados.forEach(m=>{
+        if (m.id_modulo==id_modulo) res=true
+      });
+      return res
+    }
     
     //corregir para que te muestre los que completaste
     const res =m2?.map( e=>{        
       let prom = promedio_reseñas(e.Calificaciones_Modulos);
-      let completo = completados.includes({"id_modulo":e.id});
-      console.log(completo)
+      let completo = lo_complete(e.id);      
       return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor, completado:completo}
     });
     setModulos(res || []);    
@@ -189,6 +195,7 @@ const styles = StyleSheet.create({
     color: "#555",
     fontSize: 15,
     marginBottom: 12,
+    marginTop:10
   },
   button: {
     backgroundColor: "#20bfa9",
