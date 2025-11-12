@@ -292,8 +292,8 @@ export default function DetalleModuloScreen() {
         >
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
-              <Text style={styles.modalTitle}>Añade una descripción para la seña </Text>
-              <Text style={styles.modalTitle}>{selectedSenia?.Senias.significado}</Text>             
+              <Text style={styles.modalTitle}>Añade una descripción para la seña {selectedSenia?.Senias.significado}</Text>
+                         
               
               <TextInput
                 style={[styles.input, { height: 60 }]}
@@ -463,6 +463,7 @@ const styles = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "rgba(0, 0, 0, 0.7)",
+    
   },
   modalContent: {
     width: "80%",

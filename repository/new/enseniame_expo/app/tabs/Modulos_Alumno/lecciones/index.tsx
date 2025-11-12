@@ -18,7 +18,8 @@ import { estilos } from "@/components/estilos";
 type Senia_Aprendida ={
   senia: Senia_Info;
   vista: boolean;
-  aprendida: boolean
+  aprendida: boolean;
+  descripcion?: string
 }
 
 export default function Leccion (){
@@ -85,13 +86,13 @@ export default function Leccion (){
           }
     
           const senias_vistas = s?.map(each=>{
-            let vista = fue_vista(each.id);
-            return {senia:each, vista:vista}
+            let vista = fue_vista(each.Senias.id);
+            return {senia:each.Senias, vista:vista, descripcion:each.descripcion}
           });
           
           const senias_vistas_aprendidas =senias_vistas?.map(each=>{
             let aprendida = fue_aprendida(each.senia.id);
-            return {senia:each.senia, vista:each.vista,aprendida:aprendida}
+            return {senia:each.senia, vista:each.vista,aprendida:aprendida,descripcion:each.descripcion}
           });                          
           
           if (senias_vistas_aprendidas && senias_vistas_aprendidas.length>0)  {
@@ -225,9 +226,11 @@ export default function Leccion (){
                         </View>
                         
                         </View>
+                        { selectedSenia.descripcion ? 
+                        <ThemedText>{selectedSenia.descripcion} </ThemedText>:
                         <ThemedText>Acá va una descripcion de la seña o una aclaración en el contexto específico del módulo. 
                             Podríamos añadirlo a la tabla Senia_Modulo
-                        </ThemedText>
+                        </ThemedText>}
                         {/* Toggle Aprendida */}
                           {selectedSenia && (
                             <View style={styles.row}>
