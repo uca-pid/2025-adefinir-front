@@ -37,13 +37,21 @@ const buscar_senias_modulo = async (id:number)=>{
         //let { data: relaciones, error: relErr } = await supabase.from('Modulo_Video').select('id_video').eq("id_modulo",id);
         //if (relErr) throw relErr;
         
-        let { data: id_senias, error } = await supabase.from('Modulo_Video').select(`Senias (id)`).eq("id_modulo",id);
+       /*  let { data: id_senias, error } = await supabase.from('Modulo_Video').select(`Senias (id)`).eq("id_modulo",id);
+        if (error) throw error
         if (id_senias && id_senias.length>0) {
             const ids = (id_senias as any).map((each: any) => Number((each.Senias && each.Senias.id) ? each.Senias.id : each.id));
             let {data:senias,error} = await supabase.from("Senias").select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `).in("id",ids);
+            if (error) throw error
             if (senias && senias.length>0) return senias
-        }
-       
+        } */
+    let {data, error} = await supabase.from('Modulo_Video')
+        .select("*, Senias(*, Users: Users!id_autor (*),  Categorias (nombre))")
+        .eq("id_modulo",id);
+    
+    if (error) throw error
+    
+    return data
 }
 
 const modulos_completados_por_alumno = async (id_alumno:number) =>{

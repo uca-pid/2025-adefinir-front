@@ -35,7 +35,8 @@ type Calificaciones = {
   id:number;
 }
 
-interface Senia_Modulo extends Senia_Info {
+interface Senia_Modulo {
+  Senias: Senia_Info;
   descripcion?: string
 }
 
@@ -43,7 +44,7 @@ export default function DetalleModuloScreen() {
   const { id, nombre } = useLocalSearchParams<{ id: string, nombre?: string }>();
   const router = useRouter();
   const [search, setSearch] = useState("");
-  const [seniasModulo, setSeniasModulo] = useState<Senia_Info[]>([]);
+  const [seniasModulo, setSeniasModulo] = useState<Senia_Modulo[]>([]);
   const [calificaciones_modulo,setCalificacionesModulo] = useState<Calificaciones[]>()
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
@@ -73,7 +74,7 @@ export default function DetalleModuloScreen() {
   const fetchSeniasModulo = async () => {
     setLoading(true);
     try {
-      const s = await  buscar_senias_modulo(Number(id));    
+      const s = await  buscar_senias_modulo(Number(id));   
       setSeniasModulo(s || []);
       const calificaciones =await calificacionesModulo(Number(id));
       setCalificacionesModulo(calificaciones || []);
@@ -101,7 +102,7 @@ export default function DetalleModuloScreen() {
             if (error) {
               Alert.alert('Error', 'No se pudo eliminar la seña');
             } else {
-              setSeniasModulo(seniasModulo.filter(s => s.id !== seniaId));
+              setSeniasModulo(seniasModulo.filter(s => s.Senias.id !== seniaId));
               fetchSeniasModulo();
               Alert.alert('Seña eliminada', 'La seña fue eliminada del módulo correctamente.');
             }
@@ -116,7 +117,7 @@ export default function DetalleModuloScreen() {
     fetchSeniasModulo();
   };
 
-  const handleVerSenia = (senia: Senia_Info) => {
+  const handleVerSenia = (senia: Senia_Modulo) => {
     setSelectedSenia(senia);
     setModalVisible(true)
   };
@@ -139,7 +140,7 @@ export default function DetalleModuloScreen() {
   const confirmar_descripcion = async () => {
     try {
       if (selectedSenia) {
-        await sumar_descripcion_senia_modulo(Number(id),selectedSenia?.id,descripcion_senia);
+        await sumar_descripcion_senia_modulo(Number(id),selectedSenia?.Senias.id,descripcion_senia);
         success_alert("La descripción se agregó exitosamente");
         fetchSeniasModulo();
         setShowDescripcionModal(false);
@@ -161,7 +162,7 @@ export default function DetalleModuloScreen() {
   const filteredDiccionario = diccionario.filter(
     s =>
       s.significado.toLowerCase().includes(search.toLowerCase()) &&
-      !seniasModulo.some(sm => sm.id === s.id)
+      !seniasModulo.some(sm => sm.Senias.id === s.id)
   );
 
   const promedio_reseñas = ()=>{
@@ -246,7 +247,7 @@ export default function DetalleModuloScreen() {
       ) : (
         <FlatList
           data={seniasModulo}
-          keyExtractor={(item) => item.id.toString()}
+          keyExtractor={(item) => item.Senias.id.toString()}
           onRefresh={handleRefresh}
           refreshing={refreshing}
           renderItem={({ item }) => (
@@ -254,7 +255,7 @@ export default function DetalleModuloScreen() {
               <View style={styles.row}>
                 <Image source={{ uri: /* item.thumbnail || */ 'https://img.youtube.com/vi/1/default.jpg' }} style={styles.thumbnail} />
                 <View style={{ flex: 1 }}>
-                  <Text style={styles.cardTitle}>{item.significado}</Text>
+                  <Text style={styles.cardTitle}>{item.Senias.significado}</Text>
                   <View style={{ flexDirection: 'row', gap: 8 }}>
                     <Pressable
                       style={styles.viewBtn}
@@ -264,7 +265,7 @@ export default function DetalleModuloScreen() {
                     </Pressable>
                     <Pressable
                       style={[styles.viewBtn, { backgroundColor: '#e74c3c' }]}
-                      onPress={() => handleEliminarSenia(item.id)}
+                      onPress={() => handleEliminarSenia(item.Senias.id)}
                     >
                       <Ionicons name="trash" size={18} color="#fff" />
                     </Pressable>
@@ -292,14 +293,14 @@ export default function DetalleModuloScreen() {
           <View style={styles.modalContainer}>
             <View style={styles.modalContent}>
               <Text style={styles.modalTitle}>Añade una descripción para la seña </Text>
-              <Text style={styles.modalTitle}>{selectedSenia?.significado}</Text>             
+              <Text style={styles.modalTitle}>{selectedSenia?.Senias.significado}</Text>             
               
               <TextInput
                 style={[styles.input, { height: 60 }]}
                 placeholder="Comentario (opcional)"
                 value={descripcion_senia}
                 onChangeText={setDescripcion}
-
+                multiline
               />
               <View style={styles.modalButtons}>
                 <Pressable style={styles.button} onPress={confirmar_descripcion} disabled={descripcion_senia === ""}>
@@ -313,25 +314,25 @@ export default function DetalleModuloScreen() {
           </View>
         </Modal>
 
-        <SmallPopupModal title={selectedSenia?.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
+        <SmallPopupModal title={selectedSenia?.Senias.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
           {selectedSenia && (
             <VideoPlayer 
-              uri={selectedSenia.video_url}
+              uri={selectedSenia.Senias.video_url}
               style={styles.video}
             />
           )}
           {selectedSenia ?
           <ThemedText style={{margin:10}}>
             <ThemedText type='defaultSemiBold'>Categoría:</ThemedText> {''}
-            <ThemedText>{selectedSenia.Categorias.nombre}</ThemedText>
+            <ThemedText>{selectedSenia.Senias.Categorias.nombre}</ThemedText>
           </ThemedText>
             :null
           }
               
-          {selectedSenia && selectedSenia.Users  ?
+          {selectedSenia && selectedSenia.Senias.Users  ?
           <ThemedText style={{margin:10}}>
             <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
-            <ThemedText>{selectedSenia.Users.username} </ThemedText> {''}
+            <ThemedText>{selectedSenia.Senias.Users.username} </ThemedText> {''}
           </ThemedText>
             :null
           }
