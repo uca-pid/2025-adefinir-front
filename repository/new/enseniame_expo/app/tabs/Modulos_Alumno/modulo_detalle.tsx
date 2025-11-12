@@ -20,10 +20,12 @@ import { estilos } from "@/components/estilos";
 import { get_antiguedad } from "@/components/validaciones";
 import { AntDesign } from "@expo/vector-icons";
 
+
 type Senia_Aprendida ={
   senia: Senia_Info;
   vista: boolean;
-  aprendida: boolean
+  aprendida: boolean;
+  descripcion?: string
 }
 type Calificaciones = {
   id_alumno: number;
@@ -78,7 +80,7 @@ export default function ModuloDetalleScreen() {
 
   const fetch_senias = async ()=>{
     try {
-      const s = await  buscar_senias_modulo(Number(id));
+      const s = await  buscar_senias_modulo(Number(id));      
       const vistas = await visualizaciones_alumno(contexto.user.id);
       const aprendidas = await senias_aprendidas_alumno(contexto.user.id);
 
@@ -99,13 +101,13 @@ export default function ModuloDetalleScreen() {
       }
 
       const senias_vistas = s?.map(each=>{
-        let vista = fue_vista(each.id);
-        return {senia:each, vista:vista}
+        let vista = fue_vista(each.Senias.id);
+        return {senia:each.Senias, vista:vista, descripcion:each.descripcion}
       });
 
       const senias_vistas_aprendidas =senias_vistas?.map(each=>{
         let aprendida = fue_aprendida(each.senia.id);
-        return {senia:each.senia, vista:each.vista,aprendida:aprendida}
+        return {senia:each.senia, vista:each.vista,aprendida:aprendida,descripcion:each.descripcion}
       });
 
       setSenias(senias_vistas_aprendidas || []);
@@ -299,6 +301,14 @@ export default function ModuloDetalleScreen() {
           <ThemedText style={{margin:10}}>
             <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
             <ThemedText>{selectedSenia.senia.Users.username} </ThemedText> {''}
+          </ThemedText>
+            :null
+          }
+
+          {selectedSenia && selectedSenia.descripcion  ?
+          <ThemedText style={{margin:10}}>
+            <ThemedText type='defaultSemiBold'>Descripción:</ThemedText> {''}
+            <ThemedText>{selectedSenia.descripcion} </ThemedText> {''}
           </ThemedText>
             :null
           }
