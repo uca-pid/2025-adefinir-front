@@ -277,8 +277,20 @@ const mis_modulos_completos = async (id_alumno:number) => {
     return data && data.length>0 ? data : [];
 }
 
+const sumar_descripcion_senia_modulo = async (id_modulo:number,id_senia:number,desc:string) => {
+    
+    const { data, error } = await supabase
+        .from('Modulo_Video')
+        .update({ descripcion: desc })
+        .eq('id_modulo', id_modulo)
+        .eq("id_video",id_senia)
+        .select()
+    if (error) throw error;
+    console.log(data)
+}
+
 
 export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo,
     modulos_completados_por_alumno,progreso_por_categoria, mis_modulos_calificados, completar_modulo_alumno, alumno_completo_modulo,
-    mis_modulos_completos
+    mis_modulos_completos, sumar_descripcion_senia_modulo
 }
