@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet, Pressable, ScrollView, TouchableOpacity, Modal, Alert, TextInput } from 'react-native';
-import { Ionicons, MaterialIcons  } from '@expo/vector-icons';
-import { Link , router, useFocusEffect } from 'expo-router';
+import { View, StyleSheet,  ScrollView, TouchableOpacity,  Alert,  } from 'react-native';
+import {  MaterialIcons  } from '@expo/vector-icons';
+import {  router, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';

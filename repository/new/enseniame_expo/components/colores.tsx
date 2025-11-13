@@ -29,7 +29,8 @@ const paleta = {
     yellow:  "#ffbb51",
     soft_yellow: "#fdce85",
     strong_yellow: "#fdac32ff",
-    softgray:  "#f6f6f6"
+    softgray:  "#f6f6f6",
+    turquesa: '#64DFDF'
 }
 
 export {paleta_colores,paleta}

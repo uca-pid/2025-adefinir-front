@@ -4,12 +4,14 @@ import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
 import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexiones/modulos';
-  
+import { Image } from 'expo-image';
 import Toast from 'react-native-toast-message';
 import { paleta } from '@/components/colores';
 import { mi_racha, perder_racha, sumar_racha } from '@/conexiones/racha';
 import { error_alert } from '@/components/alert';
 import { es_hoy, fue_ayer, now } from '@/components/validaciones';
+import { BotonLogin } from '@/components/botones';
+import { estilos } from '@/components/estilos';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -21,6 +23,10 @@ export default function HomeStudent() {
     modulosCompletados: 0,
   });
   const [progresoCategorias, setProgresoCategorias] = useState<Array<any>>([]);
+
+  const [showModalRacha,setShowModalRacha] = useState(false);
+  const fuego_racha = require("../../../assets/images/Streak activation.gif");
+  const racha_perdida =require("../../../assets/images/Broken Stars.gif");
 
   useFocusEffect(
       useCallback(() => {
@@ -71,15 +77,18 @@ export default function HomeStudent() {
     try {      
       const r = await mi_racha(contexto.user.id);
       let racha = 1;
+      let cambio = false;
       if (r) {
         let ultimo_login =new Date(r.last_login);        
         if (fue_ayer(ultimo_login)) { 
           await sumar_racha(contexto.user.id);
           racha= r.racha+1;
+          cambio=true;
           console.log("sumo racha",r.last_login)
         }
         else if (!es_hoy(ultimo_login)) {
           await perder_racha(contexto.user.id);
+          cambio=true;
           console.log("pierdo racha",r.last_login)
         }
         else {
@@ -87,7 +96,8 @@ export default function HomeStudent() {
           console.log("es hoy; no sumo ni pierdo")
         }        
       }
-      setUser(prev => ({ ...prev, racha: racha || 0 }))
+      setUser(prev => ({ ...prev, racha: racha || 0 }));
+      setShowModalRacha(cambio);
     } catch (error) {
       console.error(error);
       error_alert("Ocurrió un error al cargar la racha");
@@ -156,7 +166,7 @@ export default function HomeStudent() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <SafeAreaView style={styles.modalContainer}>
+        <View style={[styles.modalContainer]}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Todas las categorías</Text>
@@ -171,8 +181,47 @@ export default function HomeStudent() {
               ))}
             </ScrollView>
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
+
+      {/* Modal de sumar o perder racha */}
+        <Modal
+          visible={showModalRacha}
+          animationType="fade"
+          transparent={true}
+        >
+          <View style={[styles.modalContainer,estilos.centrado,{width:"100%"}]}>
+            <View style={[styles.modalContent,{height:"60%",borderBottomEndRadius:20,borderBottomStartRadius:20}]}>
+              {user.racha==1 ? (
+                <View>
+                    <Text style={[styles.title_racha]}>Perdiste tu racha</Text>
+                    <Image
+                      style={[styles.image]}
+                      source={racha_perdida}
+                      contentFit="contain"
+                      transition={0}
+                    />
+                
+                <BotonLogin callback={()=>setShowModalRacha(false)} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
+                </View>
+                ):(
+                  <View>
+                    <Text style={[styles.title_racha]}>¡¡Sumaste 1 día de racha!!</Text>
+                    <Image
+                      style={[styles.image]}
+                      source={fuego_racha}
+                      contentFit="contain"
+                      transition={0}
+                    />
+                
+                <BotonLogin callback={()=>setShowModalRacha(false)} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
+                </View>
+                )}                                          
+                
+              
+            </View>
+          </View>
+        </Modal>
       <Toast/>
     </View>
   );
@@ -376,5 +425,18 @@ const styles = StyleSheet.create({
   },
   modalScrollView: {
     paddingBottom: 20,
+  },
+  image: {
+    flex: 1,
+    width: "100%",
+    height: "100%",    
+  },
+  title_racha: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginBottom: 30,
+    marginTop:60,
+    color: paleta.dark_aqua,
+    alignSelf: "center",
   },
 });
