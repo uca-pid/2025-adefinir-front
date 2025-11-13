@@ -1,9 +1,9 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
-import { eliminar_modulo, mis_modulos, mis_modulos_calificados } from "@/conexiones/modulos";
+import { eliminar_modulo,  mis_modulos_calificados } from "@/conexiones/modulos";
 import { useUserContext } from "@/context/UserContext";
 import { error_alert } from "@/components/alert";
 import Toast from "react-native-toast-message";
@@ -12,14 +12,6 @@ import { Modulo } from "@/components/types";
 import { promedio_reseñas } from "@/conexiones/calificaciones";
 import { paleta } from "@/components/colores";
 
-type Calificaciones = {
-  id_alumno: number;
-  Users: {username:string};
-  id_modulo: number;
-  puntaje: number;
-  comentario? : string;
-  created_at: string
-}
 interface ModuloCalificado extends Modulo {
   promedio: number
 }
