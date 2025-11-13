@@ -9,7 +9,7 @@ import Toast from 'react-native-toast-message';
 import { paleta } from '@/components/colores';
 import { mi_racha, perder_racha, sumar_racha } from '@/conexiones/racha';
 import { error_alert } from '@/components/alert';
-import { fue_ayer, now } from '@/components/validaciones';
+import { es_hoy, fue_ayer, now } from '@/components/validaciones';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -31,7 +31,7 @@ export default function HomeStudent() {
         };
 
         fetchModulosCompletados();
-        fetch_racha()
+        fetch_racha();
           return () => {};
         }, [])
       );
@@ -68,15 +68,26 @@ export default function HomeStudent() {
   );
 
   const fetch_racha = async ()=>{
-    try {
+    try {      
       const r = await mi_racha(contexto.user.id);
-      if (r && r.length>0) {
-        let ultimo_login =new Date(r.last_login);
-        if (fue_ayer(ultimo_login)) { await sumar_racha(contexto.user.id);console.log("sumo",r.last_login)}
-        else if (r.last_login!= now()) {await perder_racha(contexto.user.id);console.log("pierdo",r.last_login)}
-        else {console.log("es hoy")}        
+      let racha = 1;
+      if (r) {
+        let ultimo_login =new Date(r.last_login);        
+        if (fue_ayer(ultimo_login)) { 
+          await sumar_racha(contexto.user.id);
+          racha= r.racha+1;
+          console.log("sumo racha",r.last_login)
+        }
+        else if (!es_hoy(ultimo_login)) {
+          await perder_racha(contexto.user.id);
+          console.log("pierdo racha",r.last_login)
+        }
+        else {
+          racha= r.racha;
+          console.log("es hoy; no sumo ni pierdo")
+        }        
       }
-      setUser(prev => ({ ...prev, racha: r.racha || 0 }))
+      setUser(prev => ({ ...prev, racha: racha || 0 }))
     } catch (error) {
       console.error(error);
       error_alert("Ocurrió un error al cargar la racha");

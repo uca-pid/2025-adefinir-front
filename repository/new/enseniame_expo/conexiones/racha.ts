@@ -14,7 +14,7 @@ const mi_racha = async (id_alumno:number) => {
         const { data, error } = await supabase
             .from('Alumno_Racha')
             .insert([
-                { id_alumno: id_alumno, racha: 1,last_login: now() },
+                { id_alumno: id_alumno, racha: 1,last_login: new Date() },
             ])
             .select()
         if (error) throw error
@@ -33,7 +33,7 @@ const sumar_racha= async (id_alumno:number) =>{
         let r =Alumno_Racha[0];        
         const { data, error } = await supabase
             .from('Alumno_Racha')
-            .update({ racha: r.racha+1, last_login: now() })
+            .update({ racha: r.racha+1, last_login: new Date() })
             .eq('id_alumno', id_alumno)
             .select()
         if (error) throw error
@@ -42,7 +42,7 @@ const sumar_racha= async (id_alumno:number) =>{
         const { data, error } = await supabase
             .from('Alumno_Racha')
             .insert([
-                { id_alumno: id_alumno, racha: 1,last_login: now() },
+                { id_alumno: id_alumno, racha: 1,last_login: new Date() },
             ])
             .select()
         if (error) throw error
@@ -53,7 +53,7 @@ const sumar_racha= async (id_alumno:number) =>{
 const perder_racha = async (id_alumno:number) => {
     const { data, error } = await supabase
         .from('Alumno_Racha')
-        .update({ racha: 1, last_login: now() })
+        .update({ racha: 1, last_login: new Date() })
         .eq('id_alumno', id_alumno)
         .select()
     if (error) throw error

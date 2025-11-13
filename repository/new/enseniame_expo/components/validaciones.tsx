@@ -72,7 +72,12 @@ const now= ()=>{
 
 const fue_ayer = (dia:Date)=>{
     let ayer = new Date();
-    ayer.setDate(ayer.getDate()-1)
-    return (ayer.getFullYear()==dia.getFullYear() && ayer.getMonth()==dia.getMonth() && ayer.getDate() == dia.getDate())
+    ayer.setDate(ayer.getDate()-1);      
+    return (ayer.toDateString()==dia.toDateString())
 }
-export {validatePassword, validateEmail, validateInstitution, get_antiguedad, now, fue_ayer}
+
+const es_hoy=(dia:Date)=>{
+    let hoy = new Date();
+    return (hoy.toDateString()==dia.toDateString())
+}
+export {validatePassword, validateEmail, validateInstitution, get_antiguedad, now, fue_ayer, es_hoy}
