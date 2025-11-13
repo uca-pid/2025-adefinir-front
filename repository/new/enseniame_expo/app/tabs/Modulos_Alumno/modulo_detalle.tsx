@@ -305,7 +305,7 @@ export default function ModuloDetalleScreen() {
             :null
           }
 
-          {selectedSenia && selectedSenia.descripcion  ?
+          {selectedSenia && selectedSenia.descripcion && selectedSenia.descripcion!=""  ?
           <ThemedText style={{margin:10}}>
             <ThemedText type='defaultSemiBold'>Descripción:</ThemedText> {''}
             <ThemedText>{selectedSenia.descripcion} </ThemedText> {''}

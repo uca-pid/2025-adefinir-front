@@ -226,7 +226,7 @@ export default function Leccion (){
                         </View>
                         
                         </View>
-                        { selectedSenia.descripcion ? 
+                        { selectedSenia.descripcion && selectedSenia.descripcion!="" ? 
                         <ThemedText>{selectedSenia.descripcion} </ThemedText>:
                         <ThemedText>Acá va una descripcion de la seña o una aclaración en el contexto específico del módulo. 
                             Podríamos añadirlo a la tabla Senia_Modulo

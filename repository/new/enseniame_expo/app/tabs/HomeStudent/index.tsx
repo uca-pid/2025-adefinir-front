@@ -91,7 +91,7 @@ export default function HomeStudent() {
         <View style={styles.stackCards}>
           <View style={[styles.card, styles.cardLeft]}> 
             <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
-            <Text style={styles.cardTitleCursos}>{user.racha} días de racha</Text>
+            <Text style={styles.cardTitleCursos}>{user.racha} {user.racha ==1 ? "día":"días"} de racha</Text>
           </View>
           <Pressable style={[styles.card, styles.cardRight]} onPress={() => router.push('/tabs/Dashboard_Alumno')}>
             <Text style={styles.cardTitleCursos}>{user.modulosCompletados}</Text>
