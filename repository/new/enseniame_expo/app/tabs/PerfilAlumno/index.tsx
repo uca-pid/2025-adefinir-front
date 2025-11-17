@@ -65,7 +65,7 @@ export default function Perfil (){
 
   const renderAvatar = ({ item }: { item: Avatar }) =>(
     <TouchableOpacity 
-    onPress={()=>cambiar_avatar(item)}
+      onPress={()=>cambiar_avatar(item)}
       style={[{margin:5},item.id==pfp?.id ? styles.round_border:{}]}>
       <Image
         style={[styles.image]}
@@ -162,7 +162,7 @@ export default function Perfil (){
               <FlatList 
                 keyExtractor={(item) => item.id.toString()}
                 style={[{maxHeight:220}]}
-                data={avatares}
+                data={avatares?.slice(0,5)}
                 renderItem={renderAvatar}
                 numColumns={3}
                 columnWrapperStyle={{marginHorizontal:10}}
