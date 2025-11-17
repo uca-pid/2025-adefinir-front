@@ -1,6 +1,6 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet,  ScrollView, TouchableOpacity,  Alert, Pressable, ActivityIndicator, FlatList,  } from 'react-native';
-import {  Ionicons, MaterialIcons  } from '@expo/vector-icons';
+import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList } from 'react-native';
+import {  Ionicons  } from '@expo/vector-icons';
 import {  router, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
@@ -9,9 +9,9 @@ import { useUserContext } from '@/context/UserContext';
 import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
-import { BotonLogin } from '@/components/botones';
-import { SmallPopupModal } from '@/components/modals';
 import { cambiar_mi_avatar, my_avatar, todos_avatares } from '@/conexiones/avatars';
+import { mi_racha } from '@/conexiones/racha';
+import { mis_modulos_completos } from '@/conexiones/modulos';
 
 type Avatar = {
   id: number;
@@ -19,7 +19,8 @@ type Avatar = {
   racha_desbloquear: number;
 }
 export default function Perfil (){
-    
+  const [racha,setRacha] = useState(0);
+  const [modulos_completos,setModulos] = useState(0);
   const [pfp,setPfp]=useState<Avatar>();
   const [avatares,setAvatares] = useState<Avatar[]>();
   const [loading,setLoading] = useState(false);
@@ -39,8 +40,18 @@ export default function Perfil (){
             if (p.Avatar) {setPfp(p.Avatar)}
             else setPfp({image_url:img,id:1,racha_desbloquear:1});
 
-            const a = await todos_avatares();
-            setAvatares(a || []);
+            const a = await todos_avatares();            
+            const r = await mi_racha(contexto.user.id);
+            let avatares_desbloqueados =a;
+            if (a && a.length>0) {
+              avatares_desbloqueados = desbloqueados(a,r.racha_maxima)
+            }            
+            setAvatares(avatares_desbloqueados || []);  
+            setRacha(r.racha);
+            
+            const m= await mis_modulos_completos(contexto.user.id);
+            if (m && m.length>0) setModulos(m.length)
+
             setLoading(false)
           } catch (error) {
             console.error(error);
@@ -83,6 +94,11 @@ export default function Perfil (){
     );
   }   
 
+  const desbloqueados = (avatares:Avatar[],racha_max:number)=>{
+    const d =avatares.filter(each=>each.racha_desbloquear<=racha_max)
+    return d
+  }
+
     return(
         <View style={[styles.mainView,{backgroundColor:paleta.aqua_bck}]}>
           <View style={styles.bck_top}></View>
@@ -101,12 +117,12 @@ export default function Perfil (){
               </View>
               
               <View style={styles.stats}>
-                <ThemedText type='bold'> 5</ThemedText>
+                <ThemedText type='bold'> {racha}</ThemedText>
                 <ThemedText>racha</ThemedText>
               </View>
               
               <View style={styles.stats}>
-                <ThemedText type='bold' > 9</ThemedText>
+                <ThemedText type='bold' > {modulos_completos}</ThemedText>
                 <ThemedText>módulos</ThemedText>
               </View>
             
@@ -116,7 +132,7 @@ export default function Perfil (){
               <View style={{marginTop: 5,flexDirection:"row"}}>
                 <ThemedText style={{fontSize:14}} >{contexto.user.mail}</ThemedText>
                 <Pressable onPress={()=>router.push("/tabs/PerfilAlumno/editar_perfil")}>
-                    <Ionicons style={styles.icon} name='pencil' size={22} color={paleta.aqua} />
+                    <Ionicons style={styles.icon} name='pencil' size={18} color={paleta.aqua} />
                 </Pressable> 
               </View>                              
             </View>    
@@ -156,8 +172,11 @@ export default function Perfil (){
 
             <View style={styles.seccion}>
               <View style={[styles.row,{marginBottom:3}]}>
-                <ThemedText style={styles.title}>Avatares debloqueados</ThemedText>
-                <ThemedText style={styles.subtitle}>Ver todos</ThemedText>
+                <ThemedText style={styles.title}>Avatares desbloqueados</ThemedText>
+                <Pressable onPress={()=>router.push("/tabs/PerfilAlumno/gestion_avatars")}>
+                  <ThemedText style={styles.subtitle}>Ver todos</ThemedText>
+                </Pressable>
+                
               </View>
               <FlatList 
                 keyExtractor={(item) => item.id.toString()}
