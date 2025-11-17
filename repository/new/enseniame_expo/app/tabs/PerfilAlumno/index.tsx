@@ -8,46 +8,40 @@ import Toast from 'react-native-toast-message';
 import { useUserContext } from '@/context/UserContext';
 import { validateEmail, validatePassword } from '@/components/validaciones';
 import { eliminar_usuario } from '@/conexiones/gestion_usuarios';
-import { traerReportesProfe } from '@/conexiones/reportes';
 import { paleta, paleta_colores } from '@/components/colores';
 import { IconTextInput, PasswordInput } from '@/components/inputs';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
 import { BotonLogin } from '@/components/botones';
 import { SmallPopupModal } from '@/components/modals';
-import VideoPlayer from '@/components/VideoPlayer';
+import { my_avatar, prueba_pfp } from '@/conexiones/avatars';
 
 export default function Perfil (){
     const [name,setName]= useState<string>();
     const [mail,setMail]= useState<string>();
     const [pass,setPass]=useState<string>();
-    const [institucion,setI]=useState<string>();
+    const [pfp,setPfp]=useState<string>();
 
     const [mailModalVisible, setMailModalVisible] = useState(false);
     const [nameModalVisible, setNameModalVisible] = useState(false);
-    const [PassModalVisible, setPassModalVisible] = useState(false);
-    const [instModalVisible, setInstModalVisible] = useState(false);
-    
-    const [reportesModalVisible, setReportesModalVisible] = useState(false);
+    const [PassModalVisible, setPassModalVisible] = useState(false);    
 
     const [errorEmail, setErrorEmail] = useState('');
     const [errorPassword, setErrorPassword] = useState('');
     const [errorName,setErrorName] = useState('');
-    const [errorI, setErrorI] = useState('');
-
+    
     const [showPassword, setShowPassword] = useState(false);
-    const [reportes, setReportes] = useState<any[]>([]);
-    const [loadingReportes, setLoadingReportes] = useState(false);
-
-    const contexto = useUserContext();
-
-    const img = require("../../assets/images/pfp.jpg");
+    
+    const contexto = useUserContext();    
 
     useFocusEffect(
       useCallback(() => {
           const fetchData = async () => {
-              const reportes = await traerReportesProfe(contexto.user.id);
-              setReportes(reportes || []);
+            const p = await my_avatar(contexto.user.id);
+            const img = require("../../../assets/images/pfp.jpg");
+            console.log(p)
+            if (p) {setPfp(p.Avatar.image_url)}
+            else setPfp(img)
           };
           fetchData();
         return () => {};
@@ -63,48 +57,38 @@ export default function Perfil (){
       {text: 'Confirmar', onPress: () => {
         eliminar_usuario(contexto.user.id);
         salir();
-        }},
-    ])
-      
+        }}, 
+    ])      
     }
 
     const handleEmailChange = (text:any) => {
       setMail(text);
-      setErrorEmail(validateEmail(text).msj);
+      setErrorEmail(validateEmail(text).msj); 
     };
 
     const handleNameChange = (text:any) => {
         setName(text);
-        setErrorName(text ? '' : 'El nombre de usuario no puede estar vacío');
+        setErrorName(text ? '' : 'El nombre de usuario no puede estar vacío'); 
     };
 
     const handlePasswordChange = (text:any) => {
         setPass(text);
-        setErrorPassword(validatePassword(text).msj);
+        setErrorPassword(validatePassword(text).msj); 
         
-    };
-
-    const handleInstitutionChange = (text:any) =>{
-      setI(text);
-      setErrorI(text ? '' : 'El nombre de la institución no puede estar vacío');
-      console.log("escribir algo")
-    }
+    };   
 
     const salir = ()=>{
       contexto.logout();
-      router.dismissTo("/")
-      
+      router.dismissTo("/");      
     }
 
     const borrar_cambios = ()=>{
         setName(undefined);
         setMail(undefined);
-        setPass(undefined);
-        setI(undefined);
+        setPass(undefined);        
         setErrorEmail("");
         setErrorPassword("");
-        setErrorName("");
-        setErrorI("")
+        setErrorName("");        
     }
 
     const confirmar = async () => {
@@ -128,37 +112,18 @@ export default function Perfil (){
                 contexto.cambiar_password(pass);
                 exito=true;
             } else error_alert("Contraseña inválida");
-        }
-        if (institucion!=undefined){
-            if (institucion !== '') {
-                contexto.cambiar_institucion(institucion);
-                setI(undefined);
-            } else error_alert("La institución no puede estar vacía");
-        }
+        }      
         
         setTimeout( ()=> contexto.actualizar_info(contexto.user.id),400);
         if (exito) {
             setNameModalVisible(false);
             setMailModalVisible(false);
-            setPassModalVisible(false);            
-            setInstModalVisible(false);
+            setPassModalVisible(false);                        
             setTimeout(()=>success_alert("Cambios aplicados"),200)
-            borrar_cambios();
+            borrar_cambios();            
         }        
     }
 
-    const abrirModalReportes = async () => {
-      setLoadingReportes(true);
-      try {
-        const data = await traerReportesProfe(contexto.user.id);
-        setReportes(data || []);
-        console.log(data);
-      } catch (e) {
-        error_alert("No se pudieron cargar los reportes");
-      }
-      setLoadingReportes(false);
-      setReportesModalVisible(true);
-    };
 
     return(
         <View style={[styles.mainView,{backgroundColor:"#ebfbfbff"}]}>
@@ -166,10 +131,10 @@ export default function Perfil (){
             <View style={styles.formAndImg}>
               <Image
                 style={[styles.image,{borderColor:paleta.aqua}]}
-                source={img}
+                source={pfp}
                 contentFit="contain"
                 transition={1000}
-              />
+              /> 
               
                 <View style={[{marginTop:25,flexDirection:"row"},estilos.centrado]}>
                   <ThemedText type='title'>{contexto.user.username}</ThemedText>
@@ -194,33 +159,12 @@ export default function Perfil (){
                       </View>
                     </TouchableOpacity>
 
-                    {contexto.user.is_prof ? 
-                    <TouchableOpacity onPress={()=>{setInstModalVisible(true)}} style={[styles.infoContainer]}>
-                      <ThemedText >Institución</ThemedText>
-                      <View style={{flexDirection:"row"}}>
-                        <ThemedText lightColor='gray'>{contexto.user.institution}</ThemedText>
-                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
-                      </View>
-                    </TouchableOpacity> : null
-                  }
+                    
 
                     <TouchableOpacity onPress={()=>{setPassModalVisible(true)}} style={[styles.infoContainer,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0}]}>
                       <ThemedText >Cambiar contraseña</ThemedText>
                         <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray" />
-                    </TouchableOpacity>
-
-                {contexto.user.is_prof ? (
-                  <View>
-                    <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Reportes</ThemedText>
-                    <TouchableOpacity onPress={abrirModalReportes} style={[styles.infoContainer,estilos.shadow,{borderBottomRightRadius:15, borderBottomLeftRadius:15,borderBottomWidth:0,borderTopRightRadius:15, borderTopLeftRadius:15}]}>
-                      <ThemedText >Videos Reportados</ThemedText>
-                      <View style={{flexDirection:"row", alignSelf:"flex-end"}}>
-                        <ThemedText lightColor='gray'>{reportes.length}</ThemedText>
-                        <MaterialIcons name="keyboard-arrow-right" size={24} color="lightgray"/>
-                      </View>
-                    </TouchableOpacity>
-                  </View>
-                ) : null}
+                    </TouchableOpacity>                
 
 
                     <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Cuenta</ThemedText>
@@ -263,21 +207,7 @@ export default function Perfil (){
                 {errorEmail ? <ThemedText type='error'>{errorEmail}</ThemedText> : null}
 
               <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
-            </SmallPopupModal>
-
-            <SmallPopupModal setVisible={setInstModalVisible} modalVisible={instModalVisible} title="Editar institución">
-              <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Institución </ThemedText>
-              <IconTextInput 
-                icon={{Ionicon_name: "business-outline"}} 
-                value={institucion} 
-                bck_color="white"
-                onChange={handleInstitutionChange}
-                keyboardType='default'
-                placeholder={contexto.user.institution} />
-                { errorI ? <ThemedText type='error'>{errorI}</ThemedText>:null}
-
-                <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
-            </SmallPopupModal>
+            </SmallPopupModal>            
 
             <SmallPopupModal title='Cambiar contraseña' modalVisible={PassModalVisible} setVisible={setPassModalVisible}>
               <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", marginTop:25,marginHorizontal:15}}>Nueva contraseña </ThemedText>
@@ -292,47 +222,7 @@ export default function Perfil (){
               {errorPassword ? <ThemedText type='error' style={{maxWidth: "80%"}}>{errorPassword}</ThemedText> : null}
 
               <BotonLogin callback={confirmar} textColor='black' text='Guardar cambios' bckColor={paleta.strong_yellow}/>
-            </SmallPopupModal>
-
-            <SmallPopupModal title='Reportes recibidos' modalVisible={reportesModalVisible} setVisible={setReportesModalVisible}>
-              {loadingReportes ? (
-                <ThemedText>Cargando...</ThemedText>
-              ) : reportes.length === 0 ? (
-                <ThemedText>No tienes reportes.</ThemedText>
-              ) : (
-                <ScrollView style={{maxHeight: 500}}>
-                  {reportes.map((rep, idx) => (
-                    <View key={rep.id || idx} style={{marginBottom: 15, padding: 10, backgroundColor: "#f6f6f6", borderRadius: 10}}>
-                      <ThemedText type='defaultSemiBold'>Motivo: {rep.Motivos_reporte?.descripcion || rep.motivo}</ThemedText>
-                      <ThemedText>Comentario: {rep.comentario || "Sin comentario"}</ThemedText>
-                      {rep.Senias && (
-                        <>
-                          <ThemedText style={{marginTop: 8}}>Seña reportada: <ThemedText type='defaultSemiBold'>{rep.Senias.significado}</ThemedText></ThemedText>
-                          <VideoPlayer uri={rep.Senias.video_url} style={{height: 120, borderRadius: 8, marginVertical: 8}} />
-                          <TouchableOpacity
-                            style={[estilos.shadow, {backgroundColor: "#ffe066", borderRadius: 8, padding: 8, marginTop: 10, alignSelf: "flex-start"}]}
-                            onPress={() => {
-                              router.push({
-                                pathname: "/tabs/Diccionario/editar_senia",
-                                params: {
-                                  id_senia: rep.Senias.id,
-                                  url: rep.Senias.video_url,
-                                  significado: rep.Senias.significado,
-                                  cate: rep.Senias.categoria
-                                }
-                              });
-                              setReportesModalVisible(false);
-                            }}
-                          >
-                            <ThemedText type='defaultSemiBold'>Editar seña</ThemedText>
-                          </TouchableOpacity>
-                        </>
-                      )}
-                    </View>
-                  ))}
-                </ScrollView>
-              )}
-            </SmallPopupModal>
+            </SmallPopupModal>    
 
           <Toast/>
         </View>

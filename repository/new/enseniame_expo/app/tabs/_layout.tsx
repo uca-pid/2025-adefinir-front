@@ -90,15 +90,18 @@ export default function RootLayout() {
       })}
       />
 
-      <Tabs.Screen name='perfil'   options={({ navigation }) =>({title:"Perfil", headerShown:false, 
+      <Tabs.Screen name={contexto.user.is_prof ? 'perfil' :'PerfilAlumno' }   options={({ navigation }) =>({title:"Perfil", headerShown:false, 
         tabBarButton: ((props) => 
-          <TouchableOpacity onPress={() => navigation.navigate('perfil')}  style={styles.navItem}>
+          <TouchableOpacity onPress={() => contexto.user.gotToProfile()}  style={styles.navItem}>
             <Ionicons name="person-circle-outline" size={22} color="#fff" />
             <Text style={styles.navText}>Perfil</Text>
           </TouchableOpacity>
         ),
       })}
-      />      
+      />
+      {contexto.user.is_prof ? (
+        <Tabs.Screen name='PerfilAlumno'  options={{href:null}} />
+      ): <Tabs.Screen name='perfil'  options={{href:null}} />}      
       
       <Tabs.Screen name='cursos'  options={{href:null,headerShown:false}} />
       <Tabs.Screen name="HomeStudent" options={{href:null,title:"Home",headerShown:false}}/>
