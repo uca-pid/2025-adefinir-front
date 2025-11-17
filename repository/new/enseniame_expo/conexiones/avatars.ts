@@ -18,4 +18,12 @@ const todos_avatares = async () => {
     return Avatar
 }
 
-export { my_avatar, todos_avatares}
+const cambiar_mi_avatar = async (user_id:number,avatar_id:number) => {
+    let { error} = await supabase.from("Users")
+        .update({"avatar":avatar_id})
+        .eq("id",user_id)
+        .select()
+    if (error) throw error;    
+}
+
+export { my_avatar, todos_avatares, cambiar_mi_avatar}

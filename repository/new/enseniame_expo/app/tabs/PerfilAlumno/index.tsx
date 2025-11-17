@@ -11,7 +11,7 @@ import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
 import { BotonLogin } from '@/components/botones';
 import { SmallPopupModal } from '@/components/modals';
-import { my_avatar, todos_avatares } from '@/conexiones/avatars';
+import { cambiar_mi_avatar, my_avatar, todos_avatares } from '@/conexiones/avatars';
 
 type Avatar = {
   id: number;
@@ -20,24 +20,28 @@ type Avatar = {
 }
 export default function Perfil (){
     
-  const [pfp,setPfp]=useState<string>();
+  const [pfp,setPfp]=useState<Avatar>();
   const [avatares,setAvatares] = useState<Avatar[]>();
-  const [loading,setLoading] = useState(false)
+  const [loading,setLoading] = useState(false);
+
+  const insignia = require("../../../assets/images/insignia.png");
     
-  const contexto = useUserContext();    
+  const contexto = useUserContext();   
 
     useFocusEffect(
       useCallback(() => {
         const fetchData = async () => {
+          setLoading(true)
           try {
             const p = await my_avatar(contexto.user.id);
             const img = require("../../../assets/images/pfp.jpg");
             
-            if (p.Avatar) {setPfp(p.Avatar.image_url)}
-            else setPfp(img);
+            if (p.Avatar) {setPfp(p.Avatar)}
+            else setPfp({image_url:img,id:1,racha_desbloquear:1});
 
             const a = await todos_avatares();
             setAvatares(a || []);
+            setLoading(false)
           } catch (error) {
             console.error(error);
             error_alert("No se pudo cargar tu perfil");
@@ -48,10 +52,23 @@ export default function Perfil (){
       }, [])
     );
 
+  const cambiar_avatar = async (a:Avatar) => {
+    try {
+      await cambiar_mi_avatar(contexto.user.id,a.id);
+      setPfp(a)
+      success_alert("¡Tu avatar fue cambiado con éxito!")
+    } catch (error) {
+      console.error(error);
+      error_alert("No se pudo cambiar tu avatar");
+    }
+  }
+
   const renderAvatar = ({ item }: { item: Avatar }) =>(
-    <TouchableOpacity>
+    <TouchableOpacity 
+    onPress={()=>cambiar_avatar(item)}
+      style={[{margin:5},item.id==pfp?.id ? styles.round_border:{}]}>
       <Image
-        style={[styles.image,{borderColor:paleta.aqua}]}
+        style={[styles.image]}
         source={item.image_url}
         contentFit="contain"
         transition={0}
@@ -67,44 +84,91 @@ export default function Perfil (){
   }   
 
     return(
-        <View style={[styles.mainView,{backgroundColor:"#ebfbfbff"}]}>
+        <View style={[styles.mainView,{backgroundColor:paleta.aqua_bck}]}>
           <View style={styles.bck_top}></View>
           
             <View style={styles.dataAndImg}>
               <Image
-                style={[styles.image,{borderColor:paleta.aqua}]}
-                source={pfp}
+                style={[styles.image]}
+                source={pfp?.image_url}
                 contentFit="contain"
                 transition={1000}
               /> 
 
-              <View>
-                <ThemedText type='defaultSemiBold'>1500</ThemedText>
+              <View style={styles.stats}>
+                <ThemedText type='bold'>1500</ThemedText>
                 <ThemedText>XP</ThemedText>
               </View>
               
-              <View>
-                <ThemedText type='defaultSemiBold'>5</ThemedText>
-                <ThemedText>días de racha</ThemedText>
+              <View style={styles.stats}>
+                <ThemedText type='bold'> 5</ThemedText>
+                <ThemedText>racha</ThemedText>
               </View>
               
-              <View>
-                <ThemedText type='defaultSemiBold'>9</ThemedText>
-                <ThemedText>módulos completados</ThemedText>
+              <View style={styles.stats}>
+                <ThemedText type='bold' > 9</ThemedText>
+                <ThemedText>módulos</ThemedText>
               </View>
             
             </View>      
-            <View style={[{marginTop:5}]}>
-              <ThemedText type='defaultSemiBold'>{contexto.user.username}</ThemedText>
-              <ThemedText>{contexto.user.mail}</ThemedText>
-              <Pressable onPress={()=>router.push("/tabs/PerfilAlumno/editar_perfil")}>
-                  <Ionicons style={styles.icon} name='pencil' size={22} color={paleta.aqua} />
-              </Pressable>                 
+            <View style={styles.nameAndMail}>
+              <ThemedText type='title'>{contexto.user.username}</ThemedText>
+              <View style={{marginTop: 5,flexDirection:"row"}}>
+                <ThemedText style={{fontSize:14}} >{contexto.user.mail}</ThemedText>
+                <Pressable onPress={()=>router.push("/tabs/PerfilAlumno/editar_perfil")}>
+                    <Ionicons style={styles.icon} name='pencil' size={22} color={paleta.aqua} />
+                </Pressable> 
+              </View>                              
             </View>    
-            {/*  <FlatList 
+            <View style={styles.form}>
+            <View style={[styles.seccion]}>
+              <View style={styles.row}>
+                <ThemedText style={styles.title}>Mis insignias</ThemedText>
+                <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
+              </View>
+
+              <View style={styles.dataInsignia}>
+              <Image
+                style={[styles.insignia]}
+                source={insignia}
+                contentFit="contain"
+                transition={0}
+              /> 
+              <View style={{alignSelf:"center"}}>
+                <ThemedText type='bold'>Insignia 1</ThemedText>
+                <ThemedText style={styles.subtitle}>La gané por motivos</ThemedText>
+              </View>
+              </View>
+              <View style={styles.dataInsignia}>
+              <Image
+                style={[styles.insignia]}
+                source={insignia}
+                contentFit="contain"
+                transition={0}
+              /> 
+              <View style={{alignSelf:"center"}}>
+                <ThemedText type='bold'>Insignia 2</ThemedText>
+                <ThemedText style={styles.subtitle}>La gané por motivos</ThemedText>
+              </View>
+              </View>
+              
+            </View>
+
+            <View style={styles.seccion}>
+              <View style={[styles.row,{marginBottom:3}]}>
+                <ThemedText style={styles.title}>Avatares debloqueados</ThemedText>
+                <ThemedText style={styles.subtitle}>Ver todos</ThemedText>
+              </View>
+              <FlatList 
+                keyExtractor={(item) => item.id.toString()}
+                style={[{maxHeight:220}]}
                 data={avatares}
                 renderItem={renderAvatar}
-                /> */}
+                numColumns={3}
+                columnWrapperStyle={{marginHorizontal:10}}
+              />
+            </View>
+            </View>
 
           <Toast/>
         </View>
@@ -115,7 +179,7 @@ export default function Perfil (){
 const styles = StyleSheet.create({
   mainView:{
     flex: 1,
-    justifyContent: "space-between",
+    justifyContent: "center",
     alignItems: "center",
     width: '100%',
     height: '100%',
@@ -127,32 +191,45 @@ const styles = StyleSheet.create({
     position: "absolute",
     top: 0,
     left:0,
-    backgroundColor: paleta.aqua,
-    height: 100
+    backgroundColor: paleta.turquesa,
+    height: 100,
+    
   },
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-    minWidth: "80%",
-    paddingBottom:60 
+  stats:{
+    marginHorizontal:15,
+    alignSelf: "flex-end",
+    alignContent: "center"
   },
+  nameAndMail: {
+    position: "absolute",
+    top:180,
+    left:30 ,
+    
+  },
+  
   dataAndImg: {
-    width: '100%',
-    borderRadius: 10,
-    padding: 20,
+    width: '100%',        
     justifyContent: "space-between",
-    alignItems: 'center',
-    height: "100%",
-    flexDirection:"row"
+    alignItems: 'center',    
+    flexDirection:"row",
+    paddingHorizontal: 10,
+    position: "absolute",
+    top: 60,
+    
   },
- 
+  row: {
+    flexDirection:"row",
+    justifyContent: "space-between"
+  }, 
   title : {
-    fontSize: 28,
-    fontWeight: 'bold',
-    color: '#333',
-    marginBottom: 40,
-    textAlign: 'center',
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    color: '#222'  
   },   
+  subtitle : {
+    fontSize: 14,
+    color: 'gray',    
+  },  
   icon: {
       marginRight: 10,
       marginLeft: 10
@@ -160,9 +237,11 @@ const styles = StyleSheet.create({
   image: {
     flex: 1,
     width: 100,
+    maxWidth: 100,
     height: 100,
-    borderRadius: 20,
-    borderWidth: 1,
+    borderRadius: 50,
+    backgroundColor: paleta.dark_aqua,
+    
   },
   loadingContainer: {
     flex: 1,
@@ -170,4 +249,38 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: '#e6f7f2',
   },
+  insignia: {
+    flex: 1,
+    width: 60,
+    maxWidth: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: paleta.dark_aqua, 
+    marginRight: 15   
+  },
+  dataInsignia:{
+    flexDirection:"row",
+    marginVertical: 10,
+    alignContent:"center",
+    backgroundColor: "#f8ffffff",
+    padding: 7,
+    borderRadius: 10
+  },
+  seccion: {
+    width:"100%", 
+    paddingHorizontal:15,
+    marginTop: 15,
+    
+  },
+  form:{
+    width:"100%",
+    position:"absolute",
+    top: 250
+  },
+  round_border:{
+    borderColor:paleta.aqua,
+    borderWidth:2,
+    borderRadius: 40,
+    backgroundColor:paleta.turquesa
+  }
 });
