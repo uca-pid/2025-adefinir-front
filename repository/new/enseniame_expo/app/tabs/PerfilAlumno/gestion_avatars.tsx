@@ -20,7 +20,7 @@ type Avatar = {
 export default function Perfil () {
   const [racha_maxima,setRacha] =useState(0)
   const [pfp,setPfp]=useState<Avatar>();
-  const [avatares,setAvatares] = useState<Avatar[]>();
+  const [avatares_desbloqueados,setAvataresDesbloqueados] = useState<Avatar[]>();
   const [loading,setLoading] = useState(false);
 
   const contexto = useUserContext();  
@@ -39,9 +39,13 @@ export default function Perfil () {
             else setPfp({image_url:img,id:1,racha_desbloquear:1});
 
             const a = await todos_avatares();                                              
-            setAvatares(a || []);                         
-
             const r = await mi_racha(contexto.user.id);
+            let avatares_desbloqueados =a;
+            if (a && a.length>0) {
+              avatares_desbloqueados = desbloqueados(a,r.racha_maxima)
+            }            
+            setAvataresDesbloqueados(avatares_desbloqueados || []);  
+            
             setRacha(r.racha_maxima);
 
             setLoading(false)
@@ -67,9 +71,7 @@ export default function Perfil () {
       }
     }
   
-  const renderAvatar = ({ item }: { item: Avatar }) =>{
-    if (fue_desbloqueado(item)) {
-      return  (
+  const renderAvatar = ({ item }: { item: Avatar }) =>  (
     <TouchableOpacity 
       onPress={()=>cambiar_avatar(item)}
       style={[{margin:10},item.id==pfp?.id ? styles.round_border:{}]}>
@@ -81,23 +83,28 @@ export default function Perfil () {
       /> 
     </TouchableOpacity>
   )
-    } else {
-      return (
-        <View style={[{margin:10}]}>
-          <Image
-            style={[styles.image]}
-            source={candado}
-            contentFit="contain"
-            transition={0}
-          /> 
-        </View>
-      )
-    }
-   }
+
+  const renderAvatarBloqueado = ({ item }: { item: Avatar }) =>  (
+    <TouchableOpacity       
+      style={[{margin:10}]}>
+      <Image
+        style={[styles.image]}
+        source={candado}
+        contentFit="contain"
+        transition={0}
+      /> 
+    </TouchableOpacity>
+  )
+    
 
   const fue_desbloqueado = (av:Avatar)=>{
     
     return av.racha_desbloquear<=racha_maxima
+  }
+
+  const desbloqueados = (avatares:Avatar[],racha_max:number)=>{
+    const d =avatares.filter(each=>each.racha_desbloquear<=racha_max)
+    return d 
   }
 
   if (loading) {
@@ -126,15 +133,31 @@ export default function Perfil () {
                 contentFit="contain"
                 transition={1000}
               />
+              <View style={styles.section}>
+                <ThemedText style={styles.sectionTitle}>Desbloqueados</ThemedText>
+                <FlatList 
+                  keyExtractor={(item) => item.id.toString()}
+                  style={[{maxHeight:220}]}
+                  data={avatares_desbloqueados}
+                  renderItem={renderAvatar}
+                  numColumns={3}
+                  columnWrapperStyle={{marginHorizontal:10}}
+                />
+              </View>
 
-            <FlatList 
-              keyExtractor={(item) => item.id.toString()}
-              style={[{maxHeight:500}]}
-              data={avatares}
-              renderItem={renderAvatar}
-              numColumns={3}
-              columnWrapperStyle={{marginHorizontal:10}}
-            />
+              <View style={styles.section}>
+                <ThemedText style={styles.sectionTitle}>¡Alcanza una racha de 5 para desbloquear!</ThemedText>
+                <FlatList 
+                  keyExtractor={(item) => item.id.toString()}
+                  style={[{maxHeight:220}]}
+                  data={avatares_desbloqueados}
+                  renderItem={renderAvatarBloqueado}
+                  numColumns={3}
+                  columnWrapperStyle={{marginHorizontal:10}}
+                />
+              </View>
+
+            
             </View>
 
            
@@ -172,7 +195,7 @@ const styles = StyleSheet.create({
   formAndImg: {
     width: '100%',
     borderRadius: 10,
-    padding: 20,
+    
     justifyContent: "center",
     alignItems: 'center',
     height: "100%"
@@ -212,8 +235,22 @@ const styles = StyleSheet.create({
     color: '#333',
     marginBottom: 40,
     textAlign: 'center',
+    position: "absolute",
+    top: 70
   },
-  
+  sectionTitle : {
+    fontSize: 18, 
+    fontWeight: 'bold', 
+    color: '#222',
+    marginVertical: 5,
+    marginLeft:7,
+    alignSelf: "flex-start"  
+  },   
+  section:{
+    marginTop: 8,
+    width:"100%"
+  },
+
   backBtn: {
     padding: 10,
     borderRadius: 8,
@@ -247,11 +284,12 @@ const styles = StyleSheet.create({
     borderRadius: 50,   
   },
   pfp: {
-    flex: 1,
     width: 100,
     maxHeight:100,
     height: 100,
     borderRadius: 20,
     borderWidth: 1,
+    position:"absolute",
+    top:0 
   },
 });

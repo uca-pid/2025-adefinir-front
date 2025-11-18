@@ -23,4 +23,9 @@ export const estilos = StyleSheet.create({
       borderBottomColor:"lightgray",
       borderBottomWidth: 1
     },
+  ver_debug: {
+    backgroundColor: "blue",
+    borderWidth: 3,
+    borderColor: "red"
+  }
 })
