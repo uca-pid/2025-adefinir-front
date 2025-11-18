@@ -11,16 +11,13 @@ import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
 import { cambiar_mi_avatar, my_avatar, todos_avatares } from '@/conexiones/avatars';
 import { mi_racha } from '@/conexiones/racha';
+import { Avatar } from '@/components/types';
 
-type Avatar = {
-  id: number;
-  image_url: string;
-  racha_desbloquear: number;
-}
 export default function Perfil () {
-  const [racha_maxima,setRacha] =useState(0)
+  const [racha,setRacha] = useState(0);
   const [pfp,setPfp]=useState<Avatar>();
   const [avatares_desbloqueados,setAvataresDesbloqueados] = useState<Avatar[]>();
+  const [avatares_bloqueados,setAvataresBloqueados] = useState<Avatar[]>();
   const [loading,setLoading] = useState(false);
 
   const contexto = useUserContext();  
@@ -41,11 +38,13 @@ export default function Perfil () {
             const a = await todos_avatares();                                              
             const r = await mi_racha(contexto.user.id);
             let avatares_desbloqueados =a;
+            let avatares_bloqueados: Avatar[] =[];
             if (a && a.length>0) {
-              avatares_desbloqueados = desbloqueados(a,r.racha_maxima)
+              avatares_desbloqueados = desbloqueados(a,r.racha_maxima);
+              avatares_bloqueados = bloqueados(a,r.racha_maxima);
             }            
-            setAvataresDesbloqueados(avatares_desbloqueados || []);  
-            
+            setAvataresDesbloqueados(avatares_desbloqueados || []);
+            setAvataresBloqueados(avatares_bloqueados || []) ;
             setRacha(r.racha_maxima);
 
             setLoading(false)
@@ -95,16 +94,14 @@ export default function Perfil () {
       /> 
     </TouchableOpacity>
   )
-    
-
-  const fue_desbloqueado = (av:Avatar)=>{
-    
-    return av.racha_desbloquear<=racha_maxima
-  }
 
   const desbloqueados = (avatares:Avatar[],racha_max:number)=>{
     const d =avatares.filter(each=>each.racha_desbloquear<=racha_max)
     return d 
+  }
+  const bloqueados = (avatares:Avatar[],racha_max:number)=>{
+    const b =avatares.filter(each=>each.racha_desbloquear>racha_max)
+    return b
   }
 
   if (loading) {
@@ -137,7 +134,7 @@ export default function Perfil () {
                 <ThemedText style={styles.sectionTitle}>Desbloqueados</ThemedText>
                 <FlatList 
                   keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220}]}
+                  style={[{maxHeight:320,minHeight:200}]}
                   data={avatares_desbloqueados}
                   renderItem={renderAvatar}
                   numColumns={3}
@@ -146,14 +143,22 @@ export default function Perfil () {
               </View>
 
               <View style={styles.section}>
-                <ThemedText style={styles.sectionTitle}>¡Alcanza una racha de 5 para desbloquear!</ThemedText>
+                {avatares_bloqueados?.length != 0 ? 
+                  <ThemedText lightColor="#005348ff" style={styles.sectionTitle}>¡Alcanza una racha de {racha+1} para desbloquear el siguiente avatar!</ThemedText>:null}
                 <FlatList 
                   keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220}]}
-                  data={avatares_desbloqueados}
+                  style={[{maxHeight:220,minHeight:150}]}
+                  data={avatares_bloqueados}
                   renderItem={renderAvatarBloqueado}
                   numColumns={3}
                   columnWrapperStyle={{marginHorizontal:10}}
+                  ListEmptyComponent={() => (
+                    <View style={[estilos.centrado, {marginTop: 80}]}>
+                    <ThemedText lightColor="#005348ff" style={styles.msg}>¡Felicidades! 🎉</ThemedText>
+                    <ThemedText lightColor={paleta.dark_aqua} type='subtitle'>Desbloqueaste todos los avatares</ThemedText>
+                    </View>
+                    
+                  )}
                 />
               </View>
 
@@ -250,7 +255,11 @@ const styles = StyleSheet.create({
     marginTop: 8,
     width:"100%"
   },
-
+  msg : {
+    fontSize: 25, 
+    fontWeight:"bold", 
+    marginBottom: 15  
+  },  
   backBtn: {
     padding: 10,
     borderRadius: 8,

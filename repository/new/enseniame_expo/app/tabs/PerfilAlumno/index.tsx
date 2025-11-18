@@ -12,12 +12,8 @@ import { Image } from 'expo-image';
 import { cambiar_mi_avatar, my_avatar, todos_avatares } from '@/conexiones/avatars';
 import { mi_racha } from '@/conexiones/racha';
 import { mis_modulos_completos } from '@/conexiones/modulos';
+import { Avatar } from '@/components/types';
 
-type Avatar = {
-  id: number;
-  image_url: string;
-  racha_desbloquear: number;
-}
 export default function Perfil (){
   const [racha,setRacha] = useState(0);
   const [modulos_completos,setModulos] = useState(0);

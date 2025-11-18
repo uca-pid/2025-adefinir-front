@@ -12,6 +12,9 @@ import { error_alert } from '@/components/alert';
 import { es_hoy, fue_ayer, now } from '@/components/validaciones';
 import { BotonLogin } from '@/components/botones';
 import { estilos } from '@/components/estilos';
+import { desbloquee_un_avatar, nuevo_avatar_desbloqueado } from '@/conexiones/avatars';
+import { Avatar } from '@/components/types';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -19,14 +22,18 @@ export default function HomeStudent() {
   const [user, setUser] = useState({ 
     id: contexto.user.id,
     nombre: contexto.user.username,
-    racha: 5,
+    racha: 0,
     modulosCompletados: 0,
-  });
+  });  
   const [progresoCategorias, setProgresoCategorias] = useState<Array<any>>([]);
 
   const [showModalRacha,setShowModalRacha] = useState(false);
   const fuego_racha = require("../../../assets/images/Streak activation.gif");
   const racha_perdida =require("../../../assets/images/Broken Stars.gif");
+
+  const [showModalAvatar,setShowModalAvatar] = useState(false);
+  const [nuevo_avatar, setNuevoAvatar] = useState<String>();
+  const [desbloqueado,setDesbloqueado] = useState(false);
 
   useFocusEffect(
       useCallback(() => {
@@ -81,10 +88,12 @@ export default function HomeStudent() {
       if (r) {
         let ultimo_login =new Date(r.last_login);        
         if (fue_ayer(ultimo_login)) { 
+          const desbloquee = await desbloquee_un_avatar(r.racha+1,r.racha_maxima);
+          setDesbloqueado(desbloquee)
           await sumar_racha(contexto.user.id);
           racha= r.racha+1;
           cambio=true;
-          console.log("sumo racha",r.last_login)
+          console.log("sumo racha",r.last_login);         
         }
         else if (!es_hoy(ultimo_login)) {
           await perder_racha(contexto.user.id);
@@ -102,6 +111,22 @@ export default function HomeStudent() {
       console.error(error);
       error_alert("Ocurrió un error al cargar la racha");
     }    
+  }
+
+  const cerrar_modal_racha = async () => {
+    try {            
+      if (desbloqueado) {        
+        //modal avatar nuevo    
+        const a:Avatar = await nuevo_avatar_desbloqueado(user.racha) ;
+        setNuevoAvatar(a.image_url);
+        setShowModalRacha(false);
+        setShowModalAvatar(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setShowModalRacha(false)
+    }
   }
 
   return (
@@ -214,11 +239,36 @@ export default function HomeStudent() {
                       transition={0}
                     />
                 
-                <BotonLogin callback={()=>setShowModalRacha(false)} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
+                <BotonLogin callback={cerrar_modal_racha} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
                 </View>
                 )}                                          
                 
               
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal de desbloaquear un nuevo avatar */}
+        <Modal
+          visible={showModalAvatar}
+          animationType="fade"
+          transparent={true}
+        >
+          <View style={[styles.modalContainer,estilos.centrado,{width:"100%"}]}>
+            <View style={[styles.modalContent,{height:"60%",borderBottomEndRadius:20,borderBottomStartRadius:20}]}>             
+                  <View>
+                    <Text style={[styles.title_racha,estilos.centrado]}>¡¡Desbloqueaste un nuevo avatar!!</Text>
+                    <Image
+                      style={[styles.image]}
+                      source={nuevo_avatar? nuevo_avatar : fuego_racha}
+                      contentFit="contain"
+                      transition={0}
+                    />
+                  <BotonLogin callback={()=>{setShowModalAvatar(false);contexto.user.gotToProfile()}} textColor={'black'} bckColor={paleta.turquesa} text={'Equipar'}  />                
+                  <Pressable style={[estilos.centrado,{marginTop:10}]} onPress={()=>setShowModalAvatar(false)}>
+                    <ThemedText lightColor={paleta.dark_aqua} type='subtitle'>Cerrar</ThemedText>
+                  </Pressable>
+                </View>                                                                                      
             </View>
           </View>
         </Modal>

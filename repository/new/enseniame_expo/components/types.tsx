@@ -140,4 +140,12 @@ type Calificaciones = {
   created_at: string
 }
 
-export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo, icon_type, Calificaciones}
+type Avatar = {
+  id: number;
+  image_url: string;
+  racha_desbloquear: number;
+}
+
+export {User,Logged_User, Logged_Profesor, Alumno, Profesor, Logged_Alumno, Senia,  Senia_Info, Modulo, icon_type, Calificaciones,
+    Avatar
+}
