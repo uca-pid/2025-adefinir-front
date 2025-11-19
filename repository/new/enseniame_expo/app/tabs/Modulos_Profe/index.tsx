@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { useFocusEffect } from "expo-router";
 import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
@@ -10,15 +10,8 @@ import Toast from "react-native-toast-message";
 import { ThemedText } from "@/components/ThemedText";
 import { Modulo } from "@/components/types";
 import { promedio_reseñas } from "@/conexiones/calificaciones";
+import { paleta } from "@/components/colores";
 
-type Calificaciones = {
-  id_alumno: number;
-  Users: {username:string};
-  id_modulo: number;
-  puntaje: number;
-  comentario? : string;
-  created_at: string
-}
 interface ModuloCalificado extends Modulo {
   promedio: number
 }
@@ -79,7 +72,7 @@ export default function MisModulosScreen() {
         <Text style={styles.addBtnText}>Agregar módulo</Text>
       </Pressable>
       {loading ? (
-        <ActivityIndicator size="large" color="#20bfa9" style={{ marginTop: 40 }} />
+        <ActivityIndicator size="large" color={paleta.sea_green} style={{ marginTop: 40 }} />
       ) : (
         <FlatList
           data={modules}
@@ -89,7 +82,7 @@ export default function MisModulosScreen() {
             <View style={styles.card}>
               <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between' }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                  <Ionicons name={item.icon || "cube-outline"} size={32} color="#20bfa9" style={{ marginRight: 10 }} />
+                  <Ionicons name={item.icon || "cube-outline"} size={32} color={paleta.sea_green} style={{ marginRight: 10 }} />
                   <View>
                     <Text style={styles.cardTitle}>{item.nombre}</Text>
                     <Text style={styles.cardSubtitle}>{item.descripcion || ''}</Text>
@@ -196,7 +189,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     alignSelf: 'center',
-    backgroundColor: '#20bfa9',
+    backgroundColor: paleta.sea_green,
     borderRadius: 30,
     paddingVertical: 12,
     paddingHorizontal: 28,
@@ -264,7 +257,7 @@ const styles = StyleSheet.create({
     marginLeft: 4,
   },
   viewBtn: {
-    backgroundColor: "#20bfa9",
+    backgroundColor: paleta.sea_green,
     borderRadius: 8,
     paddingVertical: 6,
     paddingHorizontal: 16,

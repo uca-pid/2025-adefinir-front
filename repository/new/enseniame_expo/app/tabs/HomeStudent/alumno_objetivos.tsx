@@ -214,7 +214,7 @@ export default function AlumnoObjetivosScreen() {
         ListEmptyComponent={
           <View style={{ alignItems: 'center', marginTop: 40 }}>
             <Text style={styles.empty}>No tienes objetivos aún</Text>
-            <TouchableOpacity onPress={openCreate} style={{ marginTop: 12, backgroundColor: '#0a7ea4', paddingHorizontal: 14, paddingVertical: 10, borderRadius: 8 }}>
+            <TouchableOpacity onPress={openCreate} style={{ marginTop: 12, backgroundColor: paleta.blue, paddingHorizontal: 14, paddingVertical: 10, borderRadius: 8 }}>
               <Text style={{ color: 'white', fontWeight: '600' }}>Crear tu primer objetivo</Text>
             </TouchableOpacity>
           </View>
