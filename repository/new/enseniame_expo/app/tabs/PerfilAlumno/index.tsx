@@ -13,6 +13,14 @@ import { cambiar_mi_avatar, my_avatar, todos_avatares } from '@/conexiones/avata
 import { mi_racha } from '@/conexiones/racha';
 import { mis_modulos_completos } from '@/conexiones/modulos';
 import { Avatar } from '@/components/types';
+import { todas_insignias } from '@/conexiones/insignias';
+
+type Insignia = {
+  id: number;
+  nombre: string;
+  descripcion: string;
+  image_url: string;
+}
 
 export default function Perfil (){
   const [racha,setRacha] = useState(0);
@@ -46,7 +54,10 @@ export default function Perfil (){
             setRacha(r.racha);
             
             const m= await mis_modulos_completos(contexto.user.id);
-            if (m && m.length>0) setModulos(m.length)
+            if (m && m.length>0) setModulos(m.length);
+
+            const i = await todas_insignias();
+            console.log(i);
 
             setLoading(false)
           } catch (error) {
@@ -143,7 +154,7 @@ export default function Perfil (){
               <Image
                 style={[styles.insignia]}
                 source={insignia}
-                contentFit="contain"
+                contentFit="cover"
                 transition={0}
               /> 
               <View style={{alignSelf:"center"}}>
