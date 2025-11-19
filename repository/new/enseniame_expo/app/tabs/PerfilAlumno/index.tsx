@@ -27,6 +27,7 @@ export default function Perfil (){
   const [modulos_completos,setModulos] = useState(0);
   const [pfp,setPfp]=useState<Avatar>();
   const [avatares,setAvatares] = useState<Avatar[]>();
+  const [insignias,setInsignias] = useState<Insignia[]>();
   const [loading,setLoading] = useState(false);
 
   const insignia = require("../../../assets/images/insignia.png");
@@ -57,7 +58,7 @@ export default function Perfil (){
             if (m && m.length>0) setModulos(m.length);
 
             const i = await todas_insignias();
-            console.log(i);
+            setInsignias(i || []);
 
             setLoading(false)
           } catch (error) {
@@ -92,6 +93,21 @@ export default function Perfil (){
         transition={0}
       /> 
     </TouchableOpacity>
+  )
+
+  const renderInsignia = ({ item }: { item: Insignia }) =>(
+    <View style={styles.dataInsignia}>
+      <Image
+        style={[styles.insignia]}
+        source={item.image_url}
+        contentFit="cover"
+        transition={0}
+      /> 
+      <View style={{alignSelf:"center"}}>
+        <ThemedText type='bold'>{item.nombre}</ThemedText>
+        <ThemedText style={styles.subtitle}>{item.descripcion}</ThemedText>
+      </View>
+    </View>
   )
   if (loading) {
     return (
@@ -147,33 +163,17 @@ export default function Perfil (){
             <View style={[styles.seccion]}>
               <View style={styles.row}>
                 <ThemedText style={styles.title}>Mis insignias</ThemedText>
-                <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
+                <Pressable onPress={()=>router.push("/tabs/PerfilAlumno/detalle_insignias")}>
+                  <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
+                </Pressable>
+                
               </View>
-
-              <View style={styles.dataInsignia}>
-              <Image
-                style={[styles.insignia]}
-                source={insignia}
-                contentFit="cover"
-                transition={0}
-              /> 
-              <View style={{alignSelf:"center"}}>
-                <ThemedText type='bold'>Insignia 1</ThemedText>
-                <ThemedText style={styles.subtitle}>La gané por motivos</ThemedText>
-              </View>
-              </View>
-              <View style={styles.dataInsignia}>
-              <Image
-                style={[styles.insignia]}
-                source={insignia}
-                contentFit="contain"
-                transition={0}
-              /> 
-              <View style={{alignSelf:"center"}}>
-                <ThemedText type='bold'>Insignia 2</ThemedText>
-                <ThemedText style={styles.subtitle}>La gané por motivos</ThemedText>
-              </View>
-              </View>
+              <FlatList 
+                keyExtractor={(item) => item.id.toString()}
+                style={[{maxHeight:220}]}
+                data={insignias?.slice(0,2)}
+                renderItem={renderInsignia}                
+              />             
               
             </View>
 

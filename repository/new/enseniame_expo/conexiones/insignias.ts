@@ -9,4 +9,40 @@ const todas_insignias = async () => {
     return Insignias
 }
 
-export {todas_insignias}
+const insignias_modulos = async () => {
+    let { data: Insignias, error } = await supabase
+        .from('Insignias')
+        .select('*')
+        .eq("motivo",2);
+    if (error) throw error
+    return Insignias
+}
+
+const insignias_racha = async () => {
+    let { data: Insignias, error } = await supabase
+        .from('Insignias')
+        .select('*')
+        .eq("motivo",1);
+    if (error) throw error
+    return Insignias
+}
+
+const insignias_objetivos = async () => {
+    let { data: Insignias, error } = await supabase
+        .from('Insignias')
+        .select('*')
+        .eq("motivo",4);
+    if (error) throw error
+    return Insignias
+}
+
+const insignias_senias = async () => {
+    let { data: Insignias, error } = await supabase
+        .from('Insignias')
+        .select('*')
+        .eq("motivo",3);
+    if (error) throw error
+    return Insignias
+}
+
+export {todas_insignias,insignias_modulos,insignias_objetivos,insignias_racha}
