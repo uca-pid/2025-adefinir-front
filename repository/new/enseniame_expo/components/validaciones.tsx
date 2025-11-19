@@ -64,4 +64,20 @@ const get_antiguedad = (date: string)=>{
         return 'Hace ' + a + (a==1 ? ' año' :' años');   
     }
   }
-export {validatePassword, validateEmail, validateInstitution, get_antiguedad}
+
+const now= ()=>{
+    let ya = new Date();
+    return ya.getFullYear().toString() +"-" + (ya.getMonth()+1).toString()+"-" + ya.getDate().toString()
+}
+
+const fue_ayer = (dia:Date)=>{
+    let ayer = new Date();
+    ayer.setDate(ayer.getDate()-1);      
+    return (ayer.toDateString()==dia.toDateString())
+}
+
+const es_hoy=(dia:Date)=>{
+    let hoy = new Date();
+    return (hoy.toDateString()==dia.toDateString())
+}
+export {validatePassword, validateEmail, validateInstitution, get_antiguedad, now, fue_ayer, es_hoy}

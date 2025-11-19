@@ -1,8 +1,7 @@
 import { supabase } from '../lib/supabase'
-import { icon_type, Logged_Alumno, Logged_Profesor, Modulo, Profesor, User } from '@/components/types'
-import { router } from 'expo-router';
+import { icon_type } from '@/components/types'
 import { error_alert } from '@/components/alert';
-import { visualizaciones_alumno } from './visualizaciones';
+import { now } from '@/components/validaciones';
 
 const todos_los_modulos = async () =>{
     try {
@@ -38,13 +37,21 @@ const buscar_senias_modulo = async (id:number)=>{
         //let { data: relaciones, error: relErr } = await supabase.from('Modulo_Video').select('id_video').eq("id_modulo",id);
         //if (relErr) throw relErr;
         
-        let { data: id_senias, error } = await supabase.from('Modulo_Video').select(`Senias (id)`).eq("id_modulo",id);
+       /*  let { data: id_senias, error } = await supabase.from('Modulo_Video').select(`Senias (id)`).eq("id_modulo",id);
+        if (error) throw error
         if (id_senias && id_senias.length>0) {
             const ids = (id_senias as any).map((each: any) => Number((each.Senias && each.Senias.id) ? each.Senias.id : each.id));
             let {data:senias,error} = await supabase.from("Senias").select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `).in("id",ids);
+            if (error) throw error
             if (senias && senias.length>0) return senias
-        }
-       
+        } */
+    let {data, error} = await supabase.from('Modulo_Video')
+        .select("*, Senias(*, Users: Users!id_autor (*),  Categorias (nombre))")
+        .eq("id_modulo",id);
+    
+    if (error) throw error
+    
+    return data
 }
 
 const modulos_completados_por_alumno = async (id_alumno:number) =>{
@@ -223,8 +230,75 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
     return true
 }
 
+const completar_modulo_alumno = async (id_alumno:number,id_modulo:number) =>{
+    
+    const completado = await alumno_completo_modulo(id_alumno,id_modulo);
+    if (!completado){
+        //verificar si existe el registro
+        let { data, error } = await supabase
+            .from('Alumno_Modulo')
+            .select('id_modulo')
+            .eq('id_alumno', id_alumno)
+            .eq("id_modulo",id_modulo);
+
+        if (error) throw error;
+
+        if (data && data.length>0) {
+            const { error } = await supabase
+                .from('Alumno_Modulo')
+                .update({ completado: true, fecha_completado:now() })
+                .eq('id_alumno', id_alumno)            
+                .eq('id_modulo', id_modulo); 
+                if (error) throw error;
+        } else {
+            const { error } = await supabase
+                .from('Alumno_Modulo')
+                .insert({ id_modulo: id_modulo, id_alumno:id_alumno,completado:true, fecha_completado:now() })
+                
+            if (error) throw error
+        }
+    }   
+}
+
+const alumno_completo_modulo = async (id_alumno:number,id_modulo:number) => {
+    let { data, error } = await supabase
+            .from('Alumno_Modulo')
+            .select('id_modulo')
+            .eq('id_alumno', id_alumno)
+            .eq("id_modulo",id_modulo)
+            .eq('completado', true);
+            
+        if (error) throw error;
+        if (data && data.length>0) return true
+        return false
+}
+
+const mis_modulos_completos = async (id_alumno:number) => {
+    let { data, error } = await supabase
+        .from('Alumno_Modulo')
+        .select('id_modulo')
+        .eq('id_alumno', id_alumno)            
+        .eq('completado', true);
+        
+    if (error) throw error;
+    
+    return data && data.length>0 ? data : [];
+}
+
+const sumar_descripcion_senia_modulo = async (id_modulo:number,id_senia:number,desc:string) => {
+    
+    const { data, error } = await supabase
+        .from('Modulo_Video')
+        .update({ descripcion: desc })
+        .eq('id_modulo', id_modulo)
+        .eq("id_video",id_senia)
+        .select()
+    if (error) throw error;
+    console.log(data)
+}
 
 
 export {todos_los_modulos,buscar_modulo,buscar_senias_modulo, mis_modulos, eliminar_modulo, crear_modulo, editar_modulo,
-    modulos_completados_por_alumno,progreso_por_categoria, mis_modulos_calificados
+    modulos_completados_por_alumno,progreso_por_categoria, mis_modulos_calificados, completar_modulo_alumno, alumno_completo_modulo,
+    mis_modulos_completos, sumar_descripcion_senia_modulo
 }

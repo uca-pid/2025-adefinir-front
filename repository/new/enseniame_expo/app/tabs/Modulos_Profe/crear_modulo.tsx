@@ -48,9 +48,9 @@ export default function CrearModuloScreen() {
     setLoading(true);
     try {
       if (isEdit && params.id) {
-        const exito = await editar_modulo(Number(params.id),nombre,descripcion,icon)
+        await editar_modulo(Number(params.id),nombre,descripcion,icon)
       } else {
-        const exito = await crear_modulo(nombre,descripcion,icon,contexto.user.id);
+        await crear_modulo(nombre,descripcion,icon,contexto.user.id);
       }
       contexto.user.gotToModules();
     } catch (e: any) {

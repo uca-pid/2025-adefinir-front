@@ -1,7 +1,4 @@
-import { estilos } from '@/components/estilos';
-import { MaterialIcons } from '@expo/vector-icons';
 import { Stack, Navigator } from 'expo-router';
-import { Pressable } from 'react-native';
 
 export default function Layout(){
     return(
@@ -16,8 +13,8 @@ export default function Layout(){
             },
           }}>
             <Stack.Screen name='index' options={{headerShown:false}}/>
-            <Stack.Screen name='modulo_detalle' options={{headerShown:false }}   />
-            <Stack.Screen name='lecciones' options={{headerShown:false }}   />
-
+            <Stack.Screen name='editar_perfil' options={{headerShown:false}}/>
+            <Stack.Screen name='gestion_avatars' options={{headerShown:false}}/>
+            <Stack.Screen name='detalle_insignias' options={{headerShown:false}}/>
     </Stack>)
 }

@@ -1,12 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
+import React, { useState, useEffect, useCallback,  } from 'react';
+import { View, Text, StyleSheet, Pressable, ScrollView, Modal, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
-import { router } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
 import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexiones/modulos';
-  
+import { Image } from 'expo-image';
 import Toast from 'react-native-toast-message';
 import { paleta } from '@/components/colores';
+import { mi_racha, perder_racha, sumar_racha } from '@/conexiones/racha';
+import { error_alert } from '@/components/alert';
+import { es_hoy, fue_ayer, now } from '@/components/validaciones';
+import { BotonLogin } from '@/components/botones';
+import { estilos } from '@/components/estilos';
+import { desbloquee_un_avatar, nuevo_avatar_desbloqueado } from '@/conexiones/avatars';
+import { Avatar } from '@/components/types';
+import { ThemedText } from '@/components/ThemedText';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -14,21 +22,33 @@ export default function HomeStudent() {
   const [user, setUser] = useState({ 
     id: contexto.user.id,
     nombre: contexto.user.username,
-    racha: 5,
+    racha: 0,
     modulosCompletados: 0,
-  });
-
-  useEffect(() => {
-    const fetchModulosCompletados = async () => {
-      const completados = await modulos_completados_por_alumno(contexto.user.id);
-      setUser(prev => ({ ...prev, modulosCompletados: completados || 0 }));
-      //console.log('Modulos completados actualizados:', completados);
-    };
-
-    fetchModulosCompletados();
-  }, [contexto.user.id]);
-
+  });  
   const [progresoCategorias, setProgresoCategorias] = useState<Array<any>>([]);
+
+  const [showModalRacha,setShowModalRacha] = useState(false);
+  const fuego_racha = require("../../../assets/images/Streak activation.gif");
+  const racha_perdida =require("../../../assets/images/Broken Stars.gif");
+
+  const [showModalAvatar,setShowModalAvatar] = useState(false);
+  const [nuevo_avatar, setNuevoAvatar] = useState<String>();
+  const [desbloqueado,setDesbloqueado] = useState(false);
+
+  useFocusEffect(
+      useCallback(() => {
+        const fetchModulosCompletados = async () => {
+        const completados = await modulos_completados_por_alumno(contexto.user.id);
+        setUser(prev => ({ ...prev, modulosCompletados: completados || 0 }));
+        //console.log('Modulos completados actualizados:', completados);
+        };
+
+        fetchModulosCompletados();
+        fetch_racha();
+          return () => {};
+        }, [])
+      );
+
 
   useEffect(()=>{
     let mounted = true;
@@ -60,6 +80,55 @@ export default function HomeStudent() {
     </View>
   );
 
+  const fetch_racha = async ()=>{
+    try {      
+      const r = await mi_racha(contexto.user.id);
+      let racha = 1;
+      let cambio = false;
+      if (r) {
+        let ultimo_login =new Date(r.last_login);        
+        if (fue_ayer(ultimo_login)) { 
+          const desbloquee = await desbloquee_un_avatar(r.racha+1,r.racha_maxima);
+          setDesbloqueado(desbloquee)
+          await sumar_racha(contexto.user.id);
+          racha= r.racha+1;
+          cambio=true;
+          console.log("sumo racha",r.last_login);         
+        }
+        else if (!es_hoy(ultimo_login)) {
+          await perder_racha(contexto.user.id);
+          cambio=true;
+          console.log("pierdo racha",r.last_login)
+        }
+        else {
+          racha= r.racha;
+          console.log("es hoy; no sumo ni pierdo")
+        }        
+      }
+      setUser(prev => ({ ...prev, racha: racha || 0 }));
+      setShowModalRacha(cambio);
+    } catch (error) {
+      console.error(error);
+      error_alert("Ocurrió un error al cargar la racha");
+    }    
+  }
+
+  const cerrar_modal_racha = async () => {
+    try {            
+      if (desbloqueado) {        
+        //modal avatar nuevo    
+        const a:Avatar = await nuevo_avatar_desbloqueado(user.racha) ;
+        setNuevoAvatar(a.image_url);
+        setShowModalRacha(false);
+        setShowModalAvatar(true);
+      }
+    } catch (error) {
+      console.error(error);
+    } finally {
+      setShowModalRacha(false)
+    }
+  }
+
   return (
     <View style={styles.container}>
       <ScrollView contentContainerStyle={styles.scrollContent} showsVerticalScrollIndicator={false}>
@@ -68,11 +137,11 @@ export default function HomeStudent() {
         <View style={styles.stackCards}>
           <View style={[styles.card, styles.cardLeft]}> 
             <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
-            <Text style={styles.cardTitleCursos}>{user.racha} días de racha</Text>
+            <Text style={styles.cardTitleCursos}>{user.racha} {user.racha ==1 ? "día":"días"} de racha</Text>
           </View>
           <Pressable style={[styles.card, styles.cardRight]} onPress={() => router.push('/tabs/Dashboard_Alumno')}>
             <Text style={styles.cardTitleCursos}>{user.modulosCompletados}</Text>
-            <Text style={styles.cardTitleCursos}>módulos completos</Text>
+            <Text style={styles.cardTitleCursos}>{user.modulosCompletados==1 ? "módulo completo":"módulos completos"}</Text>
           </Pressable>
         </View>
 
@@ -122,7 +191,7 @@ export default function HomeStudent() {
         visible={modalVisible}
         onRequestClose={() => setModalVisible(false)}
       >
-        <SafeAreaView style={styles.modalContainer}>
+        <View style={[styles.modalContainer]}>
           <View style={styles.modalContent}>
             <View style={styles.modalHeader}>
               <Text style={styles.modalTitle}>Todas las categorías</Text>
@@ -137,8 +206,72 @@ export default function HomeStudent() {
               ))}
             </ScrollView>
           </View>
-        </SafeAreaView>
+        </View>
       </Modal>
+
+      {/* Modal de sumar o perder racha */}
+        <Modal
+          visible={showModalRacha}
+          animationType="fade"
+          transparent={true}
+        >
+          <View style={[styles.modalContainer,estilos.centrado,{width:"100%"}]}>
+            <View style={[styles.modalContent,{height:"60%",borderBottomEndRadius:20,borderBottomStartRadius:20}]}>
+              {user.racha==1 ? (
+                <View>
+                    <Text style={[styles.title_racha]}>Perdiste tu racha</Text>
+                    <Image
+                      style={[styles.image]}
+                      source={racha_perdida}
+                      contentFit="contain"
+                      transition={0}
+                    />
+                
+                <BotonLogin callback={()=>setShowModalRacha(false)} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
+                </View>
+                ):(
+                  <View>
+                    <Text style={[styles.title_racha]}>¡¡Sumaste 1 día de racha!!</Text>
+                    <Image
+                      style={[styles.image]}
+                      source={fuego_racha}
+                      contentFit="contain"
+                      transition={0}
+                    />
+                
+                <BotonLogin callback={cerrar_modal_racha} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
+                </View>
+                )}                                          
+                
+              
+            </View>
+          </View>
+        </Modal>
+
+        {/* Modal de desbloaquear un nuevo avatar */}
+        <Modal
+          visible={showModalAvatar}
+          animationType="fade"
+          transparent={true}
+        >
+          <View style={[styles.modalContainer,estilos.centrado,{width:"100%"}]}>
+            <View style={[styles.modalContent,{height:"60%",borderBottomEndRadius:20,borderBottomStartRadius:20}]}>             
+                  <View>
+                    <Text style={[styles.title_racha,estilos.centrado]}>¡¡Desbloqueaste un nuevo avatar!!</Text>
+                    <Image
+                      style={[styles.image]}
+                      source={nuevo_avatar? nuevo_avatar : fuego_racha}
+                      contentFit="contain"
+                      transition={0}
+                    />
+                  <BotonLogin callback={()=>{setShowModalAvatar(false);contexto.user.gotToProfile()}} textColor={'black'} bckColor={paleta.turquesa} text={'Equipar'}  />                
+                  <Pressable style={[estilos.centrado,{marginTop:10}]} onPress={()=>setShowModalAvatar(false)}>
+                    <ThemedText lightColor={paleta.dark_aqua} type='subtitle'>Cerrar</ThemedText>
+                  </Pressable>
+                </View>                                                                                      
+            </View>
+          </View>
+        </Modal>
       <Toast/>
     </View>
   );
@@ -300,18 +433,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontFamily: 'System',
   },
-  smallProgressBg: {
-    width: '100%',
-    height: 10,
-    backgroundColor: '#eee',
-    borderRadius: 6,
-    overflow: 'hidden',
-  },
-  smallProgressFill: {
-    height: '100%',
-    backgroundColor: '#20bfa9',
-    borderRadius: 6,
-  },
+
   // Estilos para el modal
   modalContainer: {
     flex: 1,
@@ -342,5 +464,18 @@ const styles = StyleSheet.create({
   },
   modalScrollView: {
     paddingBottom: 20,
+  },
+  image: {
+    flex: 1,
+    width: "100%",
+    height: "100%",    
+  },
+  title_racha: {
+    fontSize: 26,
+    fontWeight: "bold",
+    marginBottom: 30,
+    marginTop:60,
+    color: paleta.dark_aqua,
+    alignSelf: "center",
   },
 });

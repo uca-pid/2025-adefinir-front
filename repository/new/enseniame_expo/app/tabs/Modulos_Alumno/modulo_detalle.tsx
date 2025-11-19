@@ -20,10 +20,12 @@ import { estilos } from "@/components/estilos";
 import { get_antiguedad } from "@/components/validaciones";
 import { AntDesign } from "@expo/vector-icons";
 
+
 type Senia_Aprendida ={
   senia: Senia_Info;
   vista: boolean;
-  aprendida: boolean
+  aprendida: boolean;
+  descripcion?: string
 }
 type Calificaciones = {
   id_alumno: number;
@@ -78,7 +80,7 @@ export default function ModuloDetalleScreen() {
 
   const fetch_senias = async ()=>{
     try {
-      const s = await  buscar_senias_modulo(Number(id));
+      const s = await  buscar_senias_modulo(Number(id));      
       const vistas = await visualizaciones_alumno(contexto.user.id);
       const aprendidas = await senias_aprendidas_alumno(contexto.user.id);
 
@@ -99,13 +101,13 @@ export default function ModuloDetalleScreen() {
       }
 
       const senias_vistas = s?.map(each=>{
-        let vista = fue_vista(each.id);
-        return {senia:each, vista:vista}
+        let vista = fue_vista(each.Senias.id);
+        return {senia:each.Senias, vista:vista, descripcion:each.descripcion}
       });
 
       const senias_vistas_aprendidas =senias_vistas?.map(each=>{
         let aprendida = fue_aprendida(each.senia.id);
-        return {senia:each.senia, vista:each.vista,aprendida:aprendida}
+        return {senia:each.senia, vista:each.vista,aprendida:aprendida,descripcion:each.descripcion}
       });
 
       setSenias(senias_vistas_aprendidas || []);
@@ -162,7 +164,7 @@ export default function ModuloDetalleScreen() {
       marcar_no_aprendida(info_senia.senia.id,contexto.user.id)
         .catch(reason=>{
           console.error(reason);
-          error_alert("No se pudo actualizar el estado")
+          error_alert("No se pudo actualizar el estado");
         })
     }
     setAprendidasMap((prev) => ({ ...prev, [info_senia.senia.id]: value }));
@@ -188,6 +190,7 @@ export default function ModuloDetalleScreen() {
       }
     } catch (e) {
       // Si hay error, no bloquea la vista
+      console.error(e);
     }
   };
 
@@ -203,6 +206,7 @@ export default function ModuloDetalleScreen() {
   const enviarCalificacion = async () => {
     try {
       await calificarModulo(Number(id), contexto.user.id, puntaje, comentario);
+      fetch_modulo();
       setShowCalificacionModal(false);
       setYaCalificado(true);
       success_alert("¡Gracias por tu calificación!");
@@ -225,9 +229,9 @@ export default function ModuloDetalleScreen() {
               style={[styles.backBtn, { marginBottom: 10, marginTop:30, flexDirection: 'row', alignItems: 'center' }]}
               onPress={() => {   contexto.user.gotToModules()   }}
             >
-              <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
-              <Text style={styles.backBtnText}>Volver</Text>
-            </Pressable>
+        <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
+        <Text style={styles.backBtnText}>Volver</Text>
+      </Pressable>
       <Text style={styles.title}> {modulo?.nombre}</Text>
 
       <TouchableOpacity style={{ backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 14, elevation: 2 }} onPress={()=>setModalCalificaciones(true)}>
@@ -248,9 +252,15 @@ export default function ModuloDetalleScreen() {
           <ThemedText lightColor="gray">Este módulo aún no tiene calificaciones</ThemedText>
           </>
         }
-      </TouchableOpacity>
+      </TouchableOpacity>  
+
+      <Pressable onPress={()=>router.push({ pathname: '/tabs/Modulos_Alumno/lecciones', params: { id: modulo?.id } })} 
+        style={styles.ctaButtonCursos}>
+        <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
+        <Text style={styles.ctaButtonTextCursos}>Empezar lección</Text>
+      </Pressable>    
       
-      <FlatList
+      <FlatList      
         data={senias ? senias : []}
         keyExtractor={(item) => item.senia.id.toString()}
         ListFooterComponent={<View style={{marginVertical:28}}></View>}
@@ -270,7 +280,7 @@ export default function ModuloDetalleScreen() {
             
           </View>
         )}
-      />
+      />      
 
         <SmallPopupModal title={selectedSenia?.senia.significado} modalVisible={modalVisible} setVisible={setModalVisible}>
           {selectedSenia && (
@@ -291,6 +301,14 @@ export default function ModuloDetalleScreen() {
           <ThemedText style={{margin:10}}>
             <ThemedText type='defaultSemiBold'>Autor:</ThemedText> {''}
             <ThemedText>{selectedSenia.senia.Users.username} </ThemedText> {''}
+          </ThemedText>
+            :null
+          }
+
+          {selectedSenia && selectedSenia.descripcion && selectedSenia.descripcion!=""  ?
+          <ThemedText style={{margin:10}}>
+            <ThemedText type='defaultSemiBold'>Descripción:</ThemedText> {''}
+            <ThemedText>{selectedSenia.descripcion} </ThemedText> {''}
           </ThemedText>
             :null
           }
@@ -514,5 +532,26 @@ const styles = StyleSheet.create({
   modalButtons: {
     flexDirection: "row",
     justifyContent: "space-between",
+  },
+  ctaButtonCursos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: paleta.dark_aqua,
+    borderRadius: 14,
+    height: 50,
+    marginVertical: 20,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  ctaButtonTextCursos: {
+    color: '#fff',
+    fontSize: 16,
+    fontWeight: 'bold',
+  },
+   buttonIcon: {
+    marginRight: 8,
   },
 });

@@ -3,26 +3,29 @@ import { View, Text, Pressable, StyleSheet, FlatList, Modal, ScrollView } from "
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import {  Modulo } from "@/components/types";
-import { todos_los_modulos } from "@/conexiones/modulos";
+import {  mis_modulos_completos,  } from "@/conexiones/modulos";
 import { calificacionesModulo } from "@/conexiones/calificaciones";
 import Toast from "react-native-toast-message";
-import { AntDesign } from "@expo/vector-icons";
 import { modulosCalificados, promedio_reseñas } from "@/conexiones/calificaciones";
 import { ThemedText } from "@/components/ThemedText";
+import { useUserContext } from "@/context/UserContext";
+import { AntDesignStars } from "@/components/review";
+import { paleta } from "@/components/colores";
 
 interface ModuloCalificado extends Modulo {
-  promedio: number
+  promedio: number;
+  completado: boolean
 }
 
 export default function ModulosScreen() {
   const router = useRouter();
 
-  //const [modulos,setModulos] = useState<Modulo[]>();
   const [modulos,setModulos] = useState<ModuloCalificado[]>();
   const [calificacionesPorModulo, setCalificacionesPorModulo] = useState<Record<number, any[]>>({});
-  const [promediosPorModulo, setPromediosPorModulo] = useState<Record<number, number>>({});
   const [comentariosModalVisible, setComentariosModalVisible] = useState(false);
   const [comentariosSeleccionados, setComentariosSeleccionados] = useState<any[]>([]);
+
+  const contexto = useUserContext();
 
   useFocusEffect(
       useCallback(() => {
@@ -33,26 +36,34 @@ export default function ModulosScreen() {
 
   const fetch_modulos = async ()=>{
     const m2 = await modulosCalificados();
-    
-    const res =m2?.map(e=>{        
-        let prom = promedio_reseñas(e.Calificaciones_Modulos)        
-        return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor}
+    const completados = await mis_modulos_completos(contexto.user.id);
+
+    const lo_complete = (id_modulo:number)=>{
+      let res = false;
+      completados.forEach(m=>{
+        if (m.id_modulo==id_modulo) res=true
       });
+      return res
+    }
+    
+    const res =m2?.map( e=>{        
+      let prom = promedio_reseñas(e.Calificaciones_Modulos);
+      fetchCalificaciones(e.id)
+      let completo = lo_complete(e.id);      
+      return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor, completado:completo}
+    });
     setModulos(res || []);    
   }
 
-      {/** const fetchCalificaciones = async (id_modulo: number) => {
+  const fetchCalificaciones = async (id_modulo: number) => {
     try {
       const calificaciones = await calificacionesModulo(id_modulo) || [];
       setCalificacionesPorModulo(prev => ({ ...prev, [id_modulo]: calificaciones }));
-      // Calcula el promedio
-      const puntajes = calificaciones.map(c => c.puntaje);
-      const promedio = puntajes.length ? puntajes.reduce((a, b) => a + b, 0) / puntajes.length : 0;
-      setPromediosPorModulo(prev => ({ ...prev, [id_modulo]: promedio }));
+      
     } catch (e) {
-      setPromediosPorModulo(prev => ({ ...prev, [id_modulo]: 0 }));
+      console.error(e);
     }
-  };**/}
+  };
 
   return (
     <View style={styles.container}>
@@ -64,27 +75,26 @@ export default function ModulosScreen() {
 
         renderItem={({ item }) => (
           <View style={styles.card}>
-            <Ionicons name={item.icon} size={36} color="#20bfa9" />
+            <View style={{flexDirection:"row",justifyContent:"space-between",alignContent:"center"}}>
+              <Ionicons name={item.icon} size={36} color="#20bfa9" />
+              {item.completado &&  (<ThemedText>🎉 ¡Completado!</ThemedText>)}
+            </View>
+            
             <Text style={styles.cardTitle}>{item.nombre}</Text>
-            <Text style={styles.cardSubtitle}>
-              {/* {item.length} señas incluidas */}
-              {item.descripcion}
-            </Text>
-        {/* <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' }}>
-              { Promedio de estrellas }
-              <View style={{ flexDirection: 'row', alignItems: 'center', marginRight: 10 }}>
-                {[...Array(5)].map((_, i) => (
-                  <AntDesign
-                    key={i}
-                    name={promediosPorModulo[item.id] > i ? "star" : "star"}
-                    size={20}
-                    color={promediosPorModulo[item.id] > i ? "#FFD700" : "#E0E0E0"}
-                  />
-                ))}
+            <Text style={styles.cardSubtitle}>  {item.descripcion}</Text>
+            <View style={{ flexDirection: 'row', alignItems: 'center', justifyContent: "space-between" }}>
+              {/* { Promedio de estrellas } */}
+              <View>
+                {item.promedio!=0 && (<AntDesignStars puntaje={item.promedio} color={paleta.soft_yellow}/>)}
+                <ThemedText lightColor="gray">
+                <ThemedText type="defaultSemiBold" lightColor="gray">Calificación: </ThemedText>
+                {item.promedio==0 ? <ThemedText>-</ThemedText> : <ThemedText>{item.promedio.toFixed(2)} / 5</ThemedText> }                
+              </ThemedText>
               </View>
-              { Botón para ver comentarios }
-              <Pressable
-                style={{ padding: 8, backgroundColor: "#20bfa9", borderRadius: 8 }}
+              
+              {/* { Botón para ver comentarios } */}
+              {item.promedio!=0 && (<Pressable
+                style={{ padding: 8, backgroundColor: paleta.strong_yellow, borderRadius: 8 }}
                 onPress={async () => {
                   if (!calificacionesPorModulo[item.id]) {
                     await fetchCalificaciones(item.id);
@@ -94,14 +104,11 @@ export default function ModulosScreen() {
                 }}
               >
                 <Text style={{ color: "#fff", fontWeight: "bold" }}>Ver comentarios</Text>
-              </Pressable> */}
+              </Pressable>)}
+              </View>
             <View>
                             
-              <ThemedText lightColor="gray">
-                <ThemedText type="defaultSemiBold" lightColor="gray">Calificación: </ThemedText>
-                {item.promedio==0 ? <ThemedText>-</ThemedText> : <ThemedText>{item.promedio.toFixed(2)} / 5</ThemedText> }
-                
-              </ThemedText>
+              
                 
             </View>
             <Pressable
@@ -180,6 +187,7 @@ const styles = StyleSheet.create({
     color: "#555",
     fontSize: 15,
     marginBottom: 12,
+    marginTop:10
   },
   button: {
     backgroundColor: "#20bfa9",
