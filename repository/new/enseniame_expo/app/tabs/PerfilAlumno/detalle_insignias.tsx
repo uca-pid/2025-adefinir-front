@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList,Text } from 'react-native';
+import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList,Text, SectionList } from 'react-native';
 import {  Ionicons  } from '@expo/vector-icons';
 import {   useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
@@ -9,20 +9,27 @@ import { useUserContext } from '@/context/UserContext';
 import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
-import { mi_racha } from '@/conexiones/racha';
-import { todas_insignias } from '@/conexiones/insignias';
+import { categorias_insignias, insignias_por_categoria, todas_insignias } from '@/conexiones/insignias';
 
 type Insignia = {
   id: number;
   nombre: string;
   descripcion: string;
   image_url: string;
+  motivo:number
+}
+
+type Seccion ={
+  title: string;
+  data: Insignia[][]
 }
 
 export default function Detalle_Insignias () {  
   
   const [insignias,setInsignias] = useState<Insignia[]>();
   const [mis_insignias,setMisInsignias] = useState<Insignia[]>();
+  const [selected_insignia,setSelectedInsignia]  = useState<Insignia>();
+  const [secciones,setSecciones] = useState<Seccion[]>([])
   const [loading,setLoading] = useState(false);
 
   const contexto = useUserContext();  
@@ -37,6 +44,16 @@ export default function Detalle_Insignias () {
             const i = await todas_insignias();
             setInsignias(i || []);
 
+            const c = await categorias_insignias();
+            if (c && c.length>0 && i){
+              let s: Seccion[] =[];
+              c.forEach(async each=>{
+                const insignias_cate = insignias_por_cate(i,each.id);                         
+                s.push({title:each.motivo,data:[insignias_cate]});
+              });
+              
+              setSecciones(s || [])
+            }
             setLoading(false)
           } catch (error) {
             console.error(error);
@@ -47,19 +64,22 @@ export default function Detalle_Insignias () {
         return () => {};
       }, [])
     );
-
+  
+  const insignias_por_cate = (i:Insignia[],cate_id:number)=>{
+    return i.filter(v=>v.motivo==cate_id)
+  }
 
 
   const renderInsignia = ({ item }: { item: Insignia }) =>(
-      <View style={styles.dataInsignia}>
+      <View style={[styles.dataInsignia,estilos.centrado]}>
         <Image
           style={[styles.insignia]}
           source={item.image_url}
           contentFit="cover"
           transition={0}
         /> 
-        <View style={{alignSelf:"center"}}>
-          <ThemedText type='bold'>{item.nombre}</ThemedText>
+        <View style={estilos.centrado} >
+          <ThemedText style={{fontSize:15}} type='bold'>{item.nombre}</ThemedText>
           <ThemedText style={styles.subtitle}>{item.descripcion}</ThemedText>
         </View>
       </View>
@@ -87,35 +107,101 @@ export default function Detalle_Insignias () {
                 <ThemedText style={styles.title} type='title'>Mis insignias</ThemedText>
             </View>
             
-            <View style={styles.formAndImg}>              
-              <View style={styles.section}>
-                <ThemedText style={styles.sectionTitle}>Racha</ThemedText>
+            <View style={styles.formAndImg}> 
+
+              <SectionList
+                sections={secciones}
+                keyExtractor={(item, index) => index.toString()}
+                ItemSeparatorComponent={() => <View style={styles.separator} />}
+                renderItem={({item})=>(
+                  <FlatList 
+                  keyExtractor={(item) => item.id.toString()}
+                  style={[{maxHeight: 320,minHeight:200}]}
+                  data={item}
+                  renderItem={renderInsignia} 
+                  horizontal={true} 
+                  showsHorizontalScrollIndicator={false}
+                />
+                )}
+                style={styles.section}
+                contentContainerStyle={{justifyContent: "flex-start",}}
+                renderSectionHeader={({section: {title}}) => (
+                  <View style={styles.row}>
+                  <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
+                  <Pressable style={{marginRight:10}}>
+                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
+                  </Pressable>
+                  
+                </View>
+                )}
+                stickySectionHeadersEnabled={false}
+                
+              />             
+              {/* <View style={styles.section}>
+                <View style={styles.row}>
+                  <ThemedText style={styles.sectionTitle}>Racha</ThemedText>
+                  <Pressable style={{marginRight:10}}>
+                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
+                  </Pressable>
+                  
+                </View>
+                
                 <FlatList 
                   keyExtractor={(item) => item.id.toString()}
                   style={[{maxHeight: 320,minHeight:200}]}
                   data={insignias}
-                  renderItem={renderInsignia}                                                      
+                  renderItem={renderInsignia} 
+                  horizontal={true} 
                 />
-              </View>
+              </View> */}
 
-              <View style={styles.section}>
-                
-                <ThemedText lightColor="#005348ff" style={styles.sectionTitle}>Señas</ThemedText>
+             {/*  <View style={styles.section}>                
+                <View style={styles.row}>
+                  <ThemedText style={styles.sectionTitle}>Señas</ThemedText>
+                  <Pressable style={{marginRight:10}}>
+                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
+                  </Pressable>                  
+                </View>
                 <FlatList 
                   keyExtractor={(item) => item.id.toString()}
                   style={[{maxHeight:220,minHeight:150}]}
-                  data={mis_insignias}
-                  renderItem={renderInsignia}
-                                    
-                  ListEmptyComponent={() => (
-                    <View style={[estilos.centrado, {marginTop: 80}]}>
-                    <ThemedText lightColor="#005348ff" style={styles.msg}>¡Felicidades! 🎉</ThemedText>
-                    <ThemedText lightColor={paleta.dark_aqua} type='subtitle'>Desbloqueaste todos los avatares</ThemedText>
-                    </View>
-                    
-                  )}
+                  data={insignias}
+                  renderItem={renderInsignia}  
+                  horizontal={true}                                                     
                 />
-              </View>
+              </View> */}
+
+              {/* <View style={styles.section}>                
+                <View style={styles.row}>
+                  <ThemedText style={styles.sectionTitle}>Módulos</ThemedText>
+                  <Pressable style={{marginRight:10}}>
+                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
+                  </Pressable>                  
+                </View>
+                <FlatList 
+                  keyExtractor={(item) => item.id.toString()}
+                  style={[{maxHeight:220,minHeight:150}]}
+                  data={insignias}
+                  renderItem={renderInsignia}  
+                  horizontal={true}                                                     
+                />
+              </View> */}
+
+             {/*  <View style={styles.section}>                
+                <View style={styles.row}>
+                  <ThemedText style={styles.sectionTitle}>Objetivos</ThemedText>
+                  <Pressable style={{marginRight:10}}>
+                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
+                  </Pressable>                  
+                </View>
+                <FlatList 
+                  keyExtractor={(item) => item.id.toString()}
+                  style={[{maxHeight:220,minHeight:150}]}
+                  data={insignias}
+                  renderItem={renderInsignia}  
+                  horizontal={true}                                                     
+                />
+              </View> */}
 
             
             </View>
@@ -151,7 +237,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: "100%"
   },  
-   title : {
+  title : {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
@@ -160,7 +246,7 @@ const styles = StyleSheet.create({
     
   },
   sectionTitle : {
-    fontSize: 30, 
+    fontSize: 26, 
     fontWeight: 'bold', 
     color: '#222',
     marginVertical: 5,
@@ -168,8 +254,11 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start"  
   },   
   section:{
-    marginTop: 8,
-    width:"100%"
+    width:"100%",
+    marginVertical: 25,
+    alignContent: "flex-start",
+    
+    marginBottom:80
   },
   msg : {
     fontSize: 25, 
@@ -204,25 +293,26 @@ const styles = StyleSheet.create({
     borderRadius: 50,   
   },
   
-  insignia: {
-    flex: 1,
-    width: 60,
-    maxWidth: 60,
-    height: 60,
-    borderRadius: 30,
-    backgroundColor: paleta.dark_aqua, 
-    marginRight: 15   
+  insignia: {    
+    width: 100,
+    height: 100,
+    borderRadius: 50,
+    backgroundColor: paleta.dark_aqua,
   },
-  dataInsignia:{
-    flexDirection:"row",
-    marginVertical: 10,
-    alignContent:"center",
-    backgroundColor: "#f8ffffff",
+  dataInsignia:{    
+    margin: 10,       
     padding: 7,
     borderRadius: 10
   },
   subtitle : {
     fontSize: 14,
     color: 'gray',    
+  },
+   row: {
+    flexDirection:"row",
+    justifyContent: "space-between"
+  },
+  separator: {
+    height: 10,
   },
 });
