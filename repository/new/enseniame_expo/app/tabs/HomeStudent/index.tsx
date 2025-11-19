@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback,  } from 'react';
-import { View, Text, StyleSheet, Pressable, ScrollView, Modal, TouchableOpacity, SafeAreaView } from "react-native";
+import { View, Text, StyleSheet, Pressable, ScrollView, Modal, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
 import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
@@ -433,18 +433,7 @@ const styles = StyleSheet.create({
     marginTop: 6,
     fontFamily: 'System',
   },
-  smallProgressBg: {
-    width: '100%',
-    height: 10,
-    backgroundColor: '#eee',
-    borderRadius: 6,
-    overflow: 'hidden',
-  },
-  smallProgressFill: {
-    height: '100%',
-    backgroundColor: '#20bfa9',
-    borderRadius: 6,
-  },
+
   // Estilos para el modal
   modalContainer: {
     flex: 1,

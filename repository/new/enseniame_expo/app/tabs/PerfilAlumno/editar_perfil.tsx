@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
+import React, {  useState } from 'react';
 import { View, StyleSheet,  ScrollView, TouchableOpacity,  Alert, Pressable, Text } from 'react-native';
 import {  Ionicons, MaterialIcons  } from '@expo/vector-icons';
-import {  router, useFocusEffect } from 'expo-router';
+import {  router } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
@@ -212,10 +212,7 @@ export default function Perfil (){
 
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-   mainView:{
+  mainView:{
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
@@ -225,12 +222,6 @@ const styles = StyleSheet.create({
     paddingTop:30 ,
     
   },
-  headerContainer: {
-    flex:1,
-    margin: 70,
-    alignItems: 'center',
-  },
-
   scrollViewContent: {
     flexGrow: 1,
     justifyContent: 'space-between',
@@ -274,7 +265,7 @@ const styles = StyleSheet.create({
     width:"100%",
     backgroundColor: "white"
   },
-   title : {
+  title : {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList,Text } from 'react-native';
 import {  Ionicons  } from '@expo/vector-icons';
-import {  router, useFocusEffect } from 'expo-router';
+import {   useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
@@ -134,7 +134,7 @@ export default function Perfil () {
                 <ThemedText style={styles.sectionTitle}>Desbloqueados</ThemedText>
                 <FlatList 
                   keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:320,minHeight:200}]}
+                  style={[{maxHeight: avatares_bloqueados?.length==0 ? 400:320,minHeight:200}]}
                   data={avatares_desbloqueados}
                   renderItem={renderAvatar}
                   numColumns={3}
@@ -172,10 +172,7 @@ export default function Perfil () {
 }
 
 const styles = StyleSheet.create({
-  safeArea: {
-    flex: 1,
-  },
-   mainView:{
+  mainView:{
     flex: 1,
     justifyContent: "space-between",
     alignItems: "center",
@@ -185,55 +182,14 @@ const styles = StyleSheet.create({
     paddingTop:30 ,
     backgroundColor: paleta.aqua_bck
   },
-  headerContainer: {
-    flex:1,
-    margin: 70,
-    alignItems: 'center',
-  },
-
-  scrollViewContent: {
-    flexGrow: 1,
-    justifyContent: 'space-between',
-    minWidth: "80%",
-    paddingBottom:60 
-  },
   formAndImg: {
     width: '100%',
-    borderRadius: 10,
-    
+    borderRadius: 10,    
     justifyContent: "center",
     alignItems: 'center',
     height: "100%"
   },
-  formContainer: {
-    width: "100%",
-    zIndex: 999,
-    marginBottom: 20,
-    marginTop: 15,
-    flex: 1
-  },
-  infoContainer: {
-    flexDirection: "row",
-    backgroundColor:"white",
-    justifyContent: "space-between",
-    width:"100%",
-    height: 50,
-    alignContent:"center",
-    alignItems:"center",
-    borderBottomColor:"lightgray",
-    borderBottomWidth:1,
-    padding: 10
-  },
-  iconButton: {
-    borderRadius: 10,
-    height: 50,
-    minWidth: "100%",
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginTop: 25,
-    width:"100%",
-    backgroundColor: "white"
-  },
+  
    title : {
     fontSize: 28,
     fontWeight: 'bold',
