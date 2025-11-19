@@ -231,9 +231,12 @@ export default function Leccion (){
                         <ThemedText>Acá va una descripcion de la seña o una aclaración en el contexto específico del módulo. 
                             Podríamos añadirlo a la tabla Senia_Modulo
                         </ThemedText>}
+
+                        <View style={styles.row}>
+                        
                         {/* Toggle Aprendida */}
                           {selectedSenia && (
-                            <View style={styles.row}>
+                            <View style={{flexDirection:"row",alignContent:"center",justifyContent:"center"}}>
                               <Checkbox
                                 value={selectedSenia.aprendida}
                                 onValueChange={(v) => toggleAprendida(selectedSenia, v)}
@@ -246,6 +249,7 @@ export default function Leccion (){
                         <Pressable style={[{marginVertical:10},estilos.centrado]} onPress={next}>
                             <ThemedText type="defaultSemiBold" lightColor={paleta.strong_yellow}>Siguiente</ThemedText>
                         </Pressable>
+                        </View>
                         </>
                     :null
                     }
@@ -330,7 +334,8 @@ const styles = StyleSheet.create({
   
   checkboxLabel: {
     fontSize: 16,
-    color: '#222'
+    color: '#222',
+    alignSelf:"center"
   },
    iconButton: {
     borderRadius: 10,
@@ -380,7 +385,8 @@ const styles = StyleSheet.create({
   row: {
     flexDirection: 'row',
     alignItems: 'center',
+    justifyContent:"space-between",
     marginTop: 10,
-    marginHorizontal: 6
+    width:"100%"
   },
 });
