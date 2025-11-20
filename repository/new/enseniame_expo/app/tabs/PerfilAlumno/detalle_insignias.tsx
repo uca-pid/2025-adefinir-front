@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList,Text, SectionList } from 'react-native';
 import {  Ionicons  } from '@expo/vector-icons';
-import {   useFocusEffect } from 'expo-router';
+import {   router, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
@@ -10,6 +10,7 @@ import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
 import { categorias_insignias, insignias_por_categoria, todas_insignias } from '@/conexiones/insignias';
+import { SmallPopupModal } from '@/components/modals';
 
 type Insignia = {
   id: number;
@@ -26,24 +27,20 @@ type Seccion ={
 
 export default function Detalle_Insignias () {  
   
-  const [insignias,setInsignias] = useState<Insignia[]>();
-  const [mis_insignias,setMisInsignias] = useState<Insignia[]>();
-  const [selected_insignia,setSelectedInsignia]  = useState<Insignia>();
   const [secciones,setSecciones] = useState<Seccion[]>([])
   const [loading,setLoading] = useState(false);
 
-  const contexto = useUserContext();  
+   const [selected_insignia, setSelectedInsignia] = useState<Insignia>();
+    const [showModalI,setShowModalI] =useState(false);
 
-  const candado = require("../../../assets/images/lock.png");
+  const contexto = useUserContext();  
 
   useFocusEffect(
       useCallback(() => {
         const fetchData = async () => {
           setLoading(true)
           try {
-            const i = await todas_insignias();
-            setInsignias(i || []);
-
+            const i = await todas_insignias();            
             const c = await categorias_insignias();
             if (c && c.length>0 && i){
               let s: Seccion[] =[];
@@ -71,7 +68,7 @@ export default function Detalle_Insignias () {
 
 
   const renderInsignia = ({ item }: { item: Insignia }) =>(
-      <View style={[styles.dataInsignia,estilos.centrado]}>
+      <TouchableOpacity onPress={()=>{setSelectedInsignia(item);setShowModalI(true)}} style={[styles.dataInsignia,estilos.centrado]}>
         <Image
           style={[styles.insignia]}
           source={item.image_url}
@@ -82,7 +79,7 @@ export default function Detalle_Insignias () {
           <ThemedText style={{fontSize:15}} type='bold'>{item.nombre}</ThemedText>
           <ThemedText style={styles.subtitle}>{item.descripcion}</ThemedText>
         </View>
-      </View>
+      </TouchableOpacity>
     )
 
 
@@ -125,10 +122,10 @@ export default function Detalle_Insignias () {
                 )}
                 style={styles.section}
                 contentContainerStyle={{justifyContent: "flex-start",}}
-                renderSectionHeader={({section: {title}}) => (
+                renderSectionHeader={({section: {title,data}}) => (
                   <View style={styles.row}>
                   <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
-                  <Pressable style={{marginRight:10}}>
+                  <Pressable style={{marginRight:10}} onPress={()=>router.push({ pathname: '/tabs/PerfilAlumno/insignias_categoria', params: { id: data[0][0].motivo } })}>
                     <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
                   </Pressable>
                   
@@ -137,75 +134,41 @@ export default function Detalle_Insignias () {
                 stickySectionHeadersEnabled={false}
                 
               />             
-              {/* <View style={styles.section}>
-                <View style={styles.row}>
-                  <ThemedText style={styles.sectionTitle}>Racha</ThemedText>
-                  <Pressable style={{marginRight:10}}>
-                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
-                  </Pressable>
-                  
-                </View>
-                
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight: 320,minHeight:200}]}
-                  data={insignias}
-                  renderItem={renderInsignia} 
-                  horizontal={true} 
-                />
-              </View> */}
-
-             {/*  <View style={styles.section}>                
-                <View style={styles.row}>
-                  <ThemedText style={styles.sectionTitle}>Señas</ThemedText>
-                  <Pressable style={{marginRight:10}}>
-                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
-                  </Pressable>                  
-                </View>
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220,minHeight:150}]}
-                  data={insignias}
-                  renderItem={renderInsignia}  
-                  horizontal={true}                                                     
-                />
-              </View> */}
-
-              {/* <View style={styles.section}>                
-                <View style={styles.row}>
-                  <ThemedText style={styles.sectionTitle}>Módulos</ThemedText>
-                  <Pressable style={{marginRight:10}}>
-                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
-                  </Pressable>                  
-                </View>
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220,minHeight:150}]}
-                  data={insignias}
-                  renderItem={renderInsignia}  
-                  horizontal={true}                                                     
-                />
-              </View> */}
-
-             {/*  <View style={styles.section}>                
-                <View style={styles.row}>
-                  <ThemedText style={styles.sectionTitle}>Objetivos</ThemedText>
-                  <Pressable style={{marginRight:10}}>
-                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
-                  </Pressable>                  
-                </View>
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220,minHeight:150}]}
-                  data={insignias}
-                  renderItem={renderInsignia}  
-                  horizontal={true}                                                     
-                />
-              </View> */}
-
-            
             </View>
+            <SmallPopupModal title={selected_insignia?.nombre} modalVisible={showModalI} setVisible={setShowModalI}>
+            {selected_insignia && (
+                <View style={[estilos.centrado,{width:"100%"}]}>
+                    <View style={{height:200}}>
+                        <Image
+                        style={styles.image2}
+                        source={selected_insignia.image_url}
+                        contentFit="contain"
+                        transition={0}
+                        /> 
+                    </View>
+                    
+                    <View style={[{flexDirection:"row"},estilos.centrado]}>
+                        <Ionicons name="people" size={24} color={"#808080"} style={styles.buttonIcon} />
+                        <ThemedText style={styles.subtitle}>100 personas obtuvieron esta insignia</ThemedText>
+                    </View>
+                    <View style={{margin:15}}>
+                        <ThemedText style={{textAlign:"center",lineHeight:29}} >                        
+                        <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Felicidades! Obtuviste una insignia por {selected_insignia.descripcion}.</ThemedText>{' '}
+                        <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Sigue practicando y aprendiendo para ganar más!</ThemedText>
+                        </ThemedText>
+                    </View>
+                    
+                    <Pressable onPress={()=>{setShowModalI(false);contexto.user.gotToModules()}} style={styles.ctaButtonCursos}>
+                        <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
+                        <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
+                    </Pressable>
 
+                    <Pressable style={estilos.centrado} onPress={()=>setShowModalI(false)}>
+                        <ThemedText style={{fontSize:20}} type='bold' lightColor={paleta.dark_aqua}>Cerrar</ThemedText>
+                    </Pressable>
+                </View>
+            )}
+        </SmallPopupModal>
            
         <Toast/>
         </View>
@@ -292,6 +255,12 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,   
   },
+  image2: {
+    minWidth: 200,
+    minHeight:200,
+    borderRadius: 100,  
+    flex:1
+  },
   
   insignia: {    
     width: 100,
@@ -314,5 +283,27 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 10,
+  },
+  ctaButtonCursos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#20bfa9',
+    borderRadius: 14,
+    height: 80,
+    marginVertical: 28,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+    width: "100%"
+  },
+  ctaButtonTextCursos: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+   buttonIcon: {
+    marginRight: 8,
   },
 });

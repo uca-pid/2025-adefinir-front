@@ -63,4 +63,15 @@ const insignias_por_categoria = async  (id_cate:number) => {
     return Insignias
 }
 
-export {todas_insignias,insignias_modulos,insignias_objetivos,insignias_racha,insignias_senias, categorias_insignias,insignias_por_categoria}
+const buscar_categoria = async (id_cate:number) => {
+    let { data: Motivos_Insignia, error } = await supabase
+        .from('Motivos_Insignia')
+        .select('*')
+        .eq("id",id_cate)
+        .single()
+    if (error) throw error
+    return Motivos_Insignia 
+}
+
+export {todas_insignias,insignias_modulos,insignias_objetivos,insignias_racha,insignias_senias, categorias_insignias,
+    insignias_por_categoria,buscar_categoria }
