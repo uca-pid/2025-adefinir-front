@@ -1,7 +1,7 @@
-import React, { useCallback, useState } from 'react';
-import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList,Text, SectionList } from 'react-native';
+import React, { useState } from 'react';
+import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList,Text } from 'react-native';
 import {  Ionicons  } from '@expo/vector-icons';
-import {   router, useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
@@ -9,7 +9,7 @@ import { useUserContext } from '@/context/UserContext';
 import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
-import { categorias_insignias, insignias_por_categoria, todas_insignias, buscar_categoria } from '@/conexiones/insignias';
+import {  insignias_por_categoria, todas_insignias, buscar_categoria } from '@/conexiones/insignias';
 import { SmallPopupModal } from '@/components/modals';
 
 type Insignia = {

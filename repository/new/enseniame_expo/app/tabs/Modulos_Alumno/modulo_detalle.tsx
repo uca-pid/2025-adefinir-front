@@ -19,6 +19,7 @@ import { RatingStars } from "@/components/review";
 import { estilos } from "@/components/estilos";
 import { get_antiguedad } from "@/components/validaciones";
 import { AntDesign } from "@expo/vector-icons";
+import { ganar_insignia_senia } from "@/conexiones/insignias";
 
 
 type Senia_Aprendida ={
@@ -159,7 +160,8 @@ export default function ModuloDetalleScreen() {
         .catch(reason =>{
           console.error(reason);
           error_alert("No se pudo actualizar el estado")
-        })
+        });
+      ganar_insignia_senia(contexto.user.id);
     } else {
       marcar_no_aprendida(info_senia.senia.id,contexto.user.id)
         .catch(reason=>{
