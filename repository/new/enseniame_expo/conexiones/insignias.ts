@@ -86,6 +86,15 @@ const mis_insignias_ganadas = async (id_alumno:number) => {
     return mis_i
 }
 
+const mis_insignias = async (id_alumno:number) => {
+    let {data: mis_i, error: e2} = await supabase
+        .from('Alumno_Insignia')
+        .select('*, Insignias(*)')
+        .eq("id_alumno",id_alumno);
+    if (e2) throw e2;
+    return mis_i?.map(e=>e.Insignias)
+}
+
 const ganar_insignia_senia = async (id_alumno:number) => {
     // buscar insignias de categoria señas que no hayas ganado aún
     
@@ -201,4 +210,4 @@ const ganar_insignia_objetivos = async (id_alumno:number) => {
 }
 
 export {todas_insignias,categorias_insignias,ganar_insignia_senia, mis_insignias_ganadas, ganar_insignia_modulo, ganar_insignia_racha,
-    insignias_por_categoria,buscar_categoria, ganar_insignia_objetivos }
+    insignias_por_categoria,buscar_categoria, ganar_insignia_objetivos, mis_insignias }

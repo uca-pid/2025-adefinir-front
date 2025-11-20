@@ -9,7 +9,7 @@ import { useUserContext } from '@/context/UserContext';
 import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
-import { categorias_insignias,  todas_insignias } from '@/conexiones/insignias';
+import { categorias_insignias,  mis_insignias_ganadas,  todas_insignias } from '@/conexiones/insignias';
 import { SmallPopupModal } from '@/components/modals';
 
 type Insignia = {
@@ -17,7 +17,8 @@ type Insignia = {
   nombre: string;
   descripcion: string;
   image_url: string;
-  motivo:number
+  motivo:number;
+  ganada: boolean
 }
 
 type Seccion ={
@@ -27,7 +28,7 @@ type Seccion ={
 
 export default function Detalle_Insignias () {  
   
-  const [secciones,setSecciones] = useState<Seccion[]>([])
+  const [secciones,setSecciones] = useState<Seccion[]>([]);
   const [loading,setLoading] = useState(false);
 
    const [selected_insignia, setSelectedInsignia] = useState<Insignia>();
@@ -42,11 +43,17 @@ export default function Detalle_Insignias () {
           try {
             const i = await todas_insignias();            
             const c = await categorias_insignias();
-            if (c && c.length>0 && i){
+            const ganadas = await mis_insignias_ganadas(contexto.user.id);
+            if (c && c.length>0 && i && ganadas){
               let s: Seccion[] =[];
               c.forEach(async each=>{
-                const insignias_cate = insignias_por_cate(i,each.id);                         
-                s.push({title:each.motivo,data:[insignias_cate]});
+                const insignias_cate = insignias_por_cate(i,each.id);
+                const res = insignias_cate.map(each=>{
+                  let g = false;
+                  if (fue_ganada(ganadas,each)) {g=true;}
+                  return {id:each.id,image_url:each.image_url,ganada:g,nombre:each.nombre,motivo:each.motivo,descripcion:each.descripcion}
+                })
+                s.push({title:each.motivo,data:[res]});
               });
               
               setSecciones(s || [])
@@ -65,19 +72,22 @@ export default function Detalle_Insignias () {
   const insignias_por_cate = (i:Insignia[],cate_id:number)=>{
     return i.filter(v=>v.motivo==cate_id)
   }
+  const fue_ganada = (ganadas:{id_insignia:number}[],i:Insignia)=>{
+    return ganadas.find(each=>each.id_insignia==i.id) != undefined
+  }
 
-
-  const renderInsignia = ({ item }: { item: Insignia }) =>(
+  const renderInsignia = ({ item }: { item: Insignia }) =>( 
       <TouchableOpacity onPress={()=>{setSelectedInsignia(item);setShowModalI(true)}} style={[styles.dataInsignia,estilos.centrado]}>
         <Image
-          style={[styles.insignia]}
+          style={[styles.insignia,{opacity: item.ganada ? 1:0.5}]}
           source={item.image_url}
           contentFit="cover"
           transition={0}
+          
         /> 
         <View style={estilos.centrado} >
           <ThemedText style={{fontSize:15}} type='bold'>{item.nombre}</ThemedText>
-          <ThemedText style={styles.subtitle}>{item.descripcion}</ThemedText>
+          <ThemedText style={styles.subtitle}>{item.descripcion}</ThemedText>          
         </View>
       </TouchableOpacity>
     )
@@ -89,7 +99,7 @@ export default function Detalle_Insignias () {
         <ActivityIndicator size="large" color={paleta.dark_aqua} />
       </View>
     );
-  }   
+  }    
     return (
         <View style={styles.mainView}>
             <View style={[styles.header]}>
@@ -136,7 +146,7 @@ export default function Detalle_Insignias () {
               />             
             </View>
             <SmallPopupModal title={selected_insignia?.nombre} modalVisible={showModalI} setVisible={setShowModalI}>
-            {selected_insignia && (
+            {selected_insignia && selected_insignia.ganada && (
                 <View style={[estilos.centrado,{width:"100%"}]}>
                     <View style={{height:200}}>
                         <Image
@@ -155,6 +165,39 @@ export default function Detalle_Insignias () {
                         <ThemedText style={{textAlign:"center",lineHeight:29}} >                        
                         <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Felicidades! Obtuviste una insignia por {selected_insignia.descripcion}.</ThemedText>{' '}
                         <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Sigue practicando y aprendiendo para ganar más!</ThemedText>
+                        </ThemedText>
+                    </View>
+                    
+                    <Pressable onPress={()=>{setShowModalI(false);contexto.user.gotToModules()}} style={styles.ctaButtonCursos}>
+                        <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
+                        <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
+                    </Pressable>
+
+                    <Pressable style={estilos.centrado} onPress={()=>setShowModalI(false)}>
+                        <ThemedText style={{fontSize:20}} type='bold' lightColor={paleta.dark_aqua}>Cerrar</ThemedText>
+                    </Pressable>
+                </View>
+            )}
+
+            {selected_insignia && !selected_insignia.ganada && (
+                <View style={[estilos.centrado,{width:"100%"}]}>
+                    <View style={{height:200}}>
+                        <Image
+                        style={[styles.image2,{opacity: 0.4}]}
+                        source={selected_insignia.image_url}
+                        contentFit="contain"
+                        transition={0}
+                        /> 
+                    </View>
+                    
+                    <View style={[{flexDirection:"row"},estilos.centrado]}>
+                        <Ionicons name="people" size={24} color={"#808080"} style={styles.buttonIcon} />
+                        <ThemedText style={styles.subtitle}>100 personas obtuvieron esta insignia</ThemedText>
+                    </View>
+                    <View style={{margin:15}}>
+                        <ThemedText style={{textAlign:"center",lineHeight:29}} >                        
+                        <ThemedText lightColor='#474646ff' style={{fontSize:20}}>Debes {selected_insignia.descripcion} para ganar esta insignia.</ThemedText>{' '}
+                        <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Sigue practicando y aprendiendo para obtenerla!</ThemedText>
                         </ThemedText>
                     </View>
                     

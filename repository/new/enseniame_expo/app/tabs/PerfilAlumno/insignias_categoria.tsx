@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList,Text } from 'react-native';
 import {  Ionicons  } from '@expo/vector-icons';
-import { useFocusEffect, useLocalSearchParams } from 'expo-router';
+import { router, useFocusEffect, useLocalSearchParams } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
@@ -9,7 +9,7 @@ import { useUserContext } from '@/context/UserContext';
 import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
-import {  insignias_por_categoria, todas_insignias, buscar_categoria } from '@/conexiones/insignias';
+import {  insignias_por_categoria, todas_insignias, buscar_categoria, mis_insignias_ganadas, mis_insignias } from '@/conexiones/insignias';
 import { SmallPopupModal } from '@/components/modals';
 
 type Insignia = {
@@ -17,6 +17,7 @@ type Insignia = {
   nombre: string;
   descripcion: string;
   image_url: string;
+  ganada: boolean
 }
 
 type Motivo_Insignia = {
@@ -28,6 +29,7 @@ export default function Categorias_Insignias () {
     const { id } = useLocalSearchParams<{ id: string }>();
     const [categoria,setCategoria] = useState<Motivo_Insignia>();
     const [insignias,setInsignias] = useState<Insignia[]>();
+    const [cant_ganadas,setCant] = useState(0);
     const [loading,setLoading] = useState(false);
 
     const [selected_insignia, setSelectedInsignia] = useState<Insignia>();
@@ -45,9 +47,21 @@ export default function Categorias_Insignias () {
         try {
             setLoading(true);
             const i = await insignias_por_categoria(Number(id));
-            const i_debug = await todas_insignias();
-            setInsignias(i || []);
-
+            const ganadas = await mis_insignias_ganadas(contexto.user.id);
+            
+            if (i && ganadas) {
+              const res = i.map(each=>{
+                  let g = false;
+                  if (fue_ganada(ganadas,each)) {
+                    g=true;
+                    setCant(prev=>prev+1);
+                  }
+                  return {id:each.id,image_url:each.image_url,ganada:g,nombre:each.nombre,motivo:each.motivo,descripcion:each.descripcion}
+                })
+              setInsignias(res || []);
+              
+            }
+            
             const c = await buscar_categoria(Number(id));
             if (c) setCategoria(c)
             setLoading(false);
@@ -57,10 +71,13 @@ export default function Categorias_Insignias () {
         }
         
     }
+   const fue_ganada = (ganadas:{id_insignia:number}[],i:Insignia)=>{
+    return ganadas.find(each=>each.id_insignia==i.id) != undefined
+  }
 const renderInsignia = ({ item }: { item: Insignia }) =>(
     <TouchableOpacity onPress={()=>{setSelectedInsignia(item);setShowModalI(true)}} style={styles.dataInsignia}>
       <Image
-        style={[styles.insignia]}
+        style={[styles.insignia,{opacity: item.ganada ? 1:0.5}]}
         source={item.image_url}
         contentFit="cover"
         transition={0}
@@ -85,17 +102,17 @@ const renderInsignia = ({ item }: { item: Insignia }) =>(
             <View style={[styles.header]}>
                 <Pressable
                 style={[styles.backBtn, { marginBottom: 10,  flexDirection: 'row', alignItems: 'center' }]}
-                onPress={() => {   contexto.user.gotToProfile()   }}
+                onPress={() => {   router.back()  }}
                 >
                 <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
                 <Text style={styles.backBtnText}>Volver</Text>
                 </Pressable>
 
-                <ThemedText style={styles.title} type='title'>Mis insignias</ThemedText>
+                <ThemedText style={styles.title} type='title'>Insignias</ThemedText>
             </View>
             <View style={styles.header2}>
             <ThemedText style={styles.sectionTitle}>{categoria?.motivo}</ThemedText>
-            <ThemedText style={styles.subtitle}>0 de {insignias?.length} ganadas</ThemedText>
+            <ThemedText style={styles.subtitle}>{cant_ganadas} de {insignias?.length} ganadas</ThemedText>
             <ThemedText style={styles.subtitle}>¡Sigue aprendiendo para ganar más!</ThemedText>
             </View>
            
@@ -111,7 +128,7 @@ const renderInsignia = ({ item }: { item: Insignia }) =>(
         </View>
 
         <SmallPopupModal title={selected_insignia?.nombre} modalVisible={showModalI} setVisible={setShowModalI}>
-            {selected_insignia && (
+            {selected_insignia && selected_insignia.ganada && (
                 <View style={[estilos.centrado,{width:"100%"}]}>
                     <View style={{height:200}}>
                         <Image
@@ -142,6 +159,38 @@ const renderInsignia = ({ item }: { item: Insignia }) =>(
                         <ThemedText style={{fontSize:20}} type='bold' lightColor={paleta.dark_aqua}>Cerrar</ThemedText>
                     </Pressable>
                 </View>
+            )}
+            {selected_insignia && !selected_insignia.ganada && (
+            <View style={[estilos.centrado,{width:"100%"}]}>
+              <View style={{height:200}}>
+                  <Image
+                  style={[styles.image2,{opacity: 0.4}]}
+                  source={selected_insignia.image_url}
+                  contentFit="contain"
+                  transition={0}
+                  /> 
+              </View>
+              
+              <View style={[{flexDirection:"row"},estilos.centrado]}>
+                  <Ionicons name="people" size={24} color={"#808080"} style={styles.buttonIcon} />
+                  <ThemedText style={styles.subtitle}>100 personas obtuvieron esta insignia</ThemedText>
+              </View>
+              <View style={{margin:15}}>
+                  <ThemedText style={{textAlign:"center",lineHeight:29}} >                        
+                  <ThemedText lightColor='#474646ff' style={{fontSize:20}}>Debes {selected_insignia.descripcion} para ganar esta insignia.</ThemedText>{' '}
+                  <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Sigue practicando y aprendiendo para obtenerla!</ThemedText>
+                  </ThemedText>
+              </View>
+                
+              <Pressable onPress={()=>{setShowModalI(false);contexto.user.gotToModules()}} style={styles.ctaButtonCursos}>
+                  <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
+                  <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
+              </Pressable>
+
+              <Pressable style={estilos.centrado} onPress={()=>setShowModalI(false)}>
+                  <ThemedText style={{fontSize:20}} type='bold' lightColor={paleta.dark_aqua}>Cerrar</ThemedText>
+              </Pressable>
+            </View>
             )}
         </SmallPopupModal>
         <Toast/>

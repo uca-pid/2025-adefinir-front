@@ -13,7 +13,7 @@ import { cambiar_mi_avatar, my_avatar, todos_avatares } from '@/conexiones/avata
 import { mi_racha } from '@/conexiones/racha';
 import { mis_modulos_completos } from '@/conexiones/modulos';
 import { Avatar } from '@/components/types';
-import { todas_insignias } from '@/conexiones/insignias';
+import { mis_insignias, mis_insignias_ganadas, todas_insignias } from '@/conexiones/insignias';
 
 type Insignia = {
   id: number;
@@ -57,8 +57,9 @@ export default function Perfil (){
             const m= await mis_modulos_completos(contexto.user.id);
             if (m && m.length>0) setModulos(m.length);
 
-            const i = await todas_insignias();
-            setInsignias(i || []);
+            const i = await mis_insignias(contexto.user.id);
+            setInsignias(i || []);  
+            console.log(i)          
 
             setLoading(false)
           } catch (error) {
