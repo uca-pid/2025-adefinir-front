@@ -240,7 +240,7 @@ export default function Leccion (){
                               <Checkbox
                                 value={selectedSenia.aprendida}
                                 onValueChange={(v) => toggleAprendida(selectedSenia, v)}
-                                color={aprendidasMap[selectedSenia.senia.id] ? '#20bfa9' : undefined}
+                                color={selectedSenia.aprendida ? paleta.turquesa : undefined}
                                 style={styles.checkbox}
                               />
                               <Text style={styles.checkboxLabel}>Aprendida</Text>
