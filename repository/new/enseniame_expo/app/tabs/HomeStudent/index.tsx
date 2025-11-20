@@ -15,6 +15,7 @@ import { estilos } from '@/components/estilos';
 import { desbloquee_un_avatar, nuevo_avatar_desbloqueado } from '@/conexiones/avatars';
 import { Avatar } from '@/components/types';
 import { ThemedText } from '@/components/ThemedText';
+import { ganar_insignia_racha } from '@/conexiones/insignias';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -103,7 +104,8 @@ export default function HomeStudent() {
         else {
           racha= r.racha;
           console.log("es hoy; no sumo ni pierdo")
-        }        
+        }      
+        ganar_insignia_racha(contexto.user.id);
       }
       setUser(prev => ({ ...prev, racha: racha || 0 }));
       setShowModalRacha(cambio);

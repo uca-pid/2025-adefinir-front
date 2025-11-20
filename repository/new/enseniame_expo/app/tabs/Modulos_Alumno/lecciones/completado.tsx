@@ -14,6 +14,7 @@ import { alumno_ya_califico_modulo, calificarModulo } from "@/conexiones/calific
 import { estilos } from "@/components/estilos";
 import { AntDesign } from "@expo/vector-icons";
 import { BotonLogin } from "@/components/botones";
+import { ganar_insignia_modulo } from "@/conexiones/insignias";
 
 export default function ModuloCompletado (){
      const { id=0 } = useLocalSearchParams<{ id: string }>();
@@ -44,7 +45,9 @@ export default function ModuloCompletado (){
           setModulo(m || []);
 
           const calificado = await alumno_ya_califico_modulo(contexto.user.id,Number(id));
-          setYaCalificado(calificado);          
+          setYaCalificado(calificado);  
+          
+          ganar_insignia_modulo(contexto.user.id);
         } catch (error) {
             error_alert("No se pudo cargar el módulo");
             console.error(error)
