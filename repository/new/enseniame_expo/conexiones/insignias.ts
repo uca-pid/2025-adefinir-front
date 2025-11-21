@@ -209,5 +209,16 @@ const ganar_insignia_objetivos = async (id_alumno:number) => {
     }                  
 }
 
+const cuantos_ganaron_insignia = async (id_insignia:number) => {
+    
+    let { data: Alumno_Insignia, error } = await supabase
+        .from('Alumno_Insignia')
+        .select('*')
+        .eq("id_insignia",id_insignia);
+    if (error) throw error;      
+    if (Alumno_Insignia) return Alumno_Insignia.length
+    return 0
+}
+
 export {todas_insignias,categorias_insignias,ganar_insignia_senia, mis_insignias_ganadas, ganar_insignia_modulo, ganar_insignia_racha,
-    insignias_por_categoria,buscar_categoria, ganar_insignia_objetivos, mis_insignias }
+    insignias_por_categoria,buscar_categoria, ganar_insignia_objetivos, mis_insignias, cuantos_ganaron_insignia }

@@ -9,7 +9,7 @@ import { useUserContext } from '@/context/UserContext';
 import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
-import { categorias_insignias,  mis_insignias_ganadas,  todas_insignias } from '@/conexiones/insignias';
+import { categorias_insignias,  cuantos_ganaron_insignia,  mis_insignias_ganadas,  todas_insignias } from '@/conexiones/insignias';
 import { SmallPopupModal } from '@/components/modals';
 
 type Insignia = {
@@ -18,7 +18,17 @@ type Insignia = {
   descripcion: string;
   image_url: string;
   motivo:number;
-  ganada: boolean
+  ganada: boolean;
+}
+
+type I ={
+  id: number;
+  nombre: string;
+  descripcion: string;
+  image_url: string;
+  motivo:number;
+  ganada: boolean;
+  cant_personas: number
 }
 
 type Seccion ={
@@ -31,8 +41,8 @@ export default function Detalle_Insignias () {
   const [secciones,setSecciones] = useState<Seccion[]>([]);
   const [loading,setLoading] = useState(false);
 
-   const [selected_insignia, setSelectedInsignia] = useState<Insignia>();
-    const [showModalI,setShowModalI] =useState(false);
+  const [selected_insignia, setSelectedInsignia] = useState<I>();
+  const [showModalI,setShowModalI] =useState(false);
 
   const contexto = useUserContext();  
 
@@ -51,6 +61,7 @@ export default function Detalle_Insignias () {
                 const res = insignias_cate.map(each=>{
                   let g = false;
                   if (fue_ganada(ganadas,each)) {g=true;}
+                  
                   return {id:each.id,image_url:each.image_url,ganada:g,nombre:each.nombre,motivo:each.motivo,descripcion:each.descripcion}
                 })
                 s.push({title:each.motivo,data:[res]});
@@ -77,7 +88,10 @@ export default function Detalle_Insignias () {
   }
 
   const renderInsignia = ({ item }: { item: Insignia }) =>( 
-      <TouchableOpacity onPress={()=>{setSelectedInsignia(item);setShowModalI(true)}} style={[styles.dataInsignia,estilos.centrado]}>
+      <TouchableOpacity onPress={async ()=>{
+        let c = await cuantos_ganaron_insignia(item.id)
+        setSelectedInsignia({id:item.id,descripcion:item.descripcion,ganada:item.ganada,cant_personas:c,nombre:item.nombre,image_url:item.image_url,motivo:item.motivo});
+        setShowModalI(true)}} style={[styles.dataInsignia,estilos.centrado]}>
         <Image
           style={[styles.insignia,{opacity: item.ganada ? 1:0.5}]}
           source={item.image_url}
@@ -159,7 +173,9 @@ export default function Detalle_Insignias () {
                     
                     <View style={[{flexDirection:"row"},estilos.centrado]}>
                         <Ionicons name="people" size={24} color={"#808080"} style={styles.buttonIcon} />
-                        <ThemedText style={styles.subtitle}>100 personas obtuvieron esta insignia</ThemedText>
+                        <ThemedText style={styles.subtitle}>{selected_insignia.cant_personas}
+                           {selected_insignia.cant_personas==1 ? " persona obtuvo esta insignia":" personas obtuvieron esta insignia"} 
+                        </ThemedText>
                     </View>
                     <View style={{margin:15}}>
                         <ThemedText style={{textAlign:"center",lineHeight:29}} >                        

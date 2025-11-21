@@ -58,8 +58,7 @@ export default function Perfil (){
             if (m && m.length>0) setModulos(m.length);
 
             const i = await mis_insignias(contexto.user.id);
-            setInsignias(i || []);  
-            console.log(i)          
+            setInsignias(i || []);                  
 
             setLoading(false)
           } catch (error) {

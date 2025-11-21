@@ -9,7 +9,7 @@ import { useUserContext } from '@/context/UserContext';
 import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
-import {  insignias_por_categoria, todas_insignias, buscar_categoria, mis_insignias_ganadas, mis_insignias } from '@/conexiones/insignias';
+import {  insignias_por_categoria, todas_insignias, buscar_categoria, mis_insignias_ganadas, mis_insignias, cuantos_ganaron_insignia } from '@/conexiones/insignias';
 import { SmallPopupModal } from '@/components/modals';
 
 type Insignia = {
@@ -18,6 +18,14 @@ type Insignia = {
   descripcion: string;
   image_url: string;
   ganada: boolean
+}
+type I ={
+  id: number;
+  nombre: string;
+  descripcion: string;
+  image_url: string;
+  ganada: boolean;
+  cant_personas: number
 }
 
 type Motivo_Insignia = {
@@ -32,7 +40,7 @@ export default function Categorias_Insignias () {
     const [cant_ganadas,setCant] = useState(0);
     const [loading,setLoading] = useState(false);
 
-    const [selected_insignia, setSelectedInsignia] = useState<Insignia>();
+    const [selected_insignia, setSelectedInsignia] = useState<I>();
     const [showModalI,setShowModalI] =useState(false);
 
     const contexto = useUserContext()
@@ -75,7 +83,10 @@ export default function Categorias_Insignias () {
     return ganadas.find(each=>each.id_insignia==i.id) != undefined
   }
 const renderInsignia = ({ item }: { item: Insignia }) =>(
-    <TouchableOpacity onPress={()=>{setSelectedInsignia(item);setShowModalI(true)}} style={styles.dataInsignia}>
+    <TouchableOpacity onPress={async ()=>{
+        let c = await cuantos_ganaron_insignia(item.id)
+        setSelectedInsignia({id:item.id,descripcion:item.descripcion,ganada:item.ganada,cant_personas:c,nombre:item.nombre,image_url:item.image_url});
+        setShowModalI(true)}} style={styles.dataInsignia}>
       <Image
         style={[styles.insignia,{opacity: item.ganada ? 1:0.5}]}
         source={item.image_url}
@@ -141,7 +152,9 @@ const renderInsignia = ({ item }: { item: Insignia }) =>(
                     
                     <View style={[{flexDirection:"row"},estilos.centrado]}>
                         <Ionicons name="people" size={24} color={"#808080"} style={styles.buttonIcon} />
-                        <ThemedText lightColor='#808080' style={{fontSize:14}}>100 personas obtuvieron esta insignia</ThemedText>
+                        <ThemedText style={styles.subtitle}>{selected_insignia.cant_personas}
+                            {selected_insignia.cant_personas==1 ? " persona obtuvo esta insignia":" personas obtuvieron esta insignia"} 
+                        </ThemedText>
                     </View>
                     <View style={{margin:15}}>
                         <ThemedText style={{textAlign:"center",lineHeight:29}} >                        
