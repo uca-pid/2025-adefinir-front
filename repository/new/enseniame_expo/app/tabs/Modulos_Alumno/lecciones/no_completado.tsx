@@ -10,9 +10,7 @@ import { useUserContext } from "@/context/UserContext";
 import Toast from "react-native-toast-message";
 import { error_alert, success_alert } from "@/components/alert";
 import { estilos } from "@/components/estilos";
-import { AntDesign } from "@expo/vector-icons";
 import { BotonLogin } from "@/components/botones";
-import { ganar_insignia_modulo } from "@/conexiones/insignias";
 
 export default function ModuloCompletado (){
     const { id=0 } = useLocalSearchParams<{ id: string }>();
@@ -22,7 +20,7 @@ export default function ModuloCompletado (){
 
     const contexto = useUserContext();
 
-    const animation = require("../../../../assets/images/Hit Missed.webm")
+    const animation = require("../../../../assets/images/Hit Missed.gif")
      
     useFocusEffect(
           useCallback(() => {
@@ -56,7 +54,7 @@ export default function ModuloCompletado (){
       return (
         <View style={styles.container}>
             <Text style={styles.title}> Lección finalizada</Text>
-            <Text style={[styles.cardTitle,estilos.centrado]}>
+            <Text style={[styles.cardTitle,estilos.centrado,{textAlign:"center"}]}>
                 Completaste la lección {modulo?.nombre}, pero aún quedan señas por aprender.
             </Text>
 
@@ -66,10 +64,13 @@ export default function ModuloCompletado (){
               contentFit="contain"
               transition={0}
             />
+            <Text style={[styles.cardTitle,estilos.centrado,{textAlign:"center"}]}>
+                ¡Sigue practicando para completar el módulo!
+            </Text>
             
             <BotonLogin callback={()=>{router.back();router.push({ pathname: '/tabs/Modulos_Alumno/lecciones', params: { id: modulo?.id } })}} 
             textColor={"white"} bckColor={paleta.dark_aqua} text={"Reintentar lección"} />
-            <Pressable style={estilos.centrado} onPress={()=>{router.back();contexto.user.goHome()}}>
+            <Pressable style={[estilos.centrado,{padding:13}]} onPress={()=>{router.back();contexto.user.goHome()}}>
                 <ThemedText style={{fontSize:20}} type='bold' lightColor={paleta.dark_aqua}>Cerrar</ThemedText>
             </Pressable>
            
@@ -168,8 +169,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
   },
    image: {
-    flex: 1,
-    height: "100%",
+    height: 400,
     width:"100%",
     margin:0 
   },
