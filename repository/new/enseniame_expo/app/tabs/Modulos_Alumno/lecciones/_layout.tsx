@@ -17,5 +17,6 @@ export default function Layout(){
           }}>
             <Stack.Screen name='index' options={{headerShown:false}}/>
             <Stack.Screen name='completado' options={{headerShown:false , presentation: "fullScreenModal"}}   />
+            <Stack.Screen name='no_completado' options={{headerShown:false , presentation: "fullScreenModal"}}   />
     </Stack>)
 }

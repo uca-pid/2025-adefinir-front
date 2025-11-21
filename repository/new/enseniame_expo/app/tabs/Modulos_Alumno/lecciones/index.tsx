@@ -28,7 +28,7 @@ export default function Leccion (){
   const [modulo,setModulo] = useState<Modulo>();
   const [completado,setCompletado] =useState(false)
   const [senias,setSenias] = useState<Senia_Aprendida[]>([]);
-  const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({});
+  const [cant_aprendidas, setCantAprendidas] = useState(0);
   const [loading, setLoading] = useState(true);
   const [selectedSenia, setSelectedSenia] = useState<Senia_Aprendida | null>(null);
   const [currentIndex,setIndex]=useState(0);
@@ -80,7 +80,10 @@ export default function Leccion (){
           const fue_aprendida =(senia_id:number)=>{
             let res = false;
             aprendidas?.forEach(each=>{
-              if (each.senia_id==senia_id && each.aprendida) res= true
+              if (each.senia_id==senia_id && each.aprendida) {
+                setCantAprendidas(prev=>prev+=1);
+                res= true;
+              }
             });
             return res
           }
@@ -149,13 +152,15 @@ export default function Leccion (){
         else {
           //terminar lección           
           if (modulo) {
-            try {           
-              await completar_modulo_alumno(contexto.user.id,modulo.id);   
-              if (!completado) {         
+            try {                         
+              if (cant_aprendidas==senias.length) {         
                 //la lección debería continuar hasta marcar todas como aprendidas o te deja salir sin completar el módulo?       
                 await completar_modulo_alumno(contexto.user.id,modulo.id);
+                router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: modulo?.id } })
+              } else {
+                router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/no_completado', params: { id: modulo?.id } });
               }
-              router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: modulo?.id } })
+              
             } catch (error) {
               console.error(error);
               router.back()
@@ -181,7 +186,7 @@ export default function Leccion (){
               error_alert("No se pudo actualizar el estado")
             })
         }
-        setAprendidasMap((prev) => ({ ...prev, [info_senia.senia.id]: value }));        
+        setCantAprendidas((prev) => (prev+=1));        
         success_alert(value ? 'Marcada como aprendida' : 'Marcada como no aprendida');
         info_senia.aprendida= value;
       }
