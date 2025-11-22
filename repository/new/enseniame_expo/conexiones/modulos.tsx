@@ -233,6 +233,7 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
 const completar_modulo_alumno = async (id_alumno:number,id_modulo:number) =>{
     
     const completado = await alumno_completo_modulo(id_alumno,id_modulo);
+    console.log(completado)
     if (!completado){
         //verificar si existe el registro
         let { data, error } = await supabase
@@ -244,12 +245,13 @@ const completar_modulo_alumno = async (id_alumno:number,id_modulo:number) =>{
         if (error) throw error;
 
         if (data && data.length>0) {
-            const { error } = await supabase
+            const { data:d,error } = await supabase
                 .from('Alumno_Modulo')
                 .update({ completado: true, fecha_completado:now() })
                 .eq('id_alumno', id_alumno)            
-                .eq('id_modulo', id_modulo); 
-                if (error) throw error;
+                .eq('id_modulo', id_modulo)
+                
+            if (error) throw error;
         } else {
             const { error } = await supabase
                 .from('Alumno_Modulo')

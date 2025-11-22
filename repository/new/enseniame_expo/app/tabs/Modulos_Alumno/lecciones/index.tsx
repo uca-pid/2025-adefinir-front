@@ -45,20 +45,20 @@ export default function Leccion (){
     );
 
     const fetch_modulo = async ()=>{
-        try {
-            setLoading(true)
-            const m = await buscar_modulo(Number(id));
-            setModulo(m || {id:0,descripcion:"",nombre:"",autor:0,icon: "paw"});
+      try {
+          setLoading(true)
+          const m = await buscar_modulo(Number(id));
+          setModulo(m || {id:0,descripcion:"",nombre:"",autor:0,icon: "paw"});
 
-            const c = await alumno_completo_modulo(contexto.user.id,Number(id));            
-            setCompletado(c);
-          
-        } catch (error) {
-          error_alert("No se pudo cargar el módulo");
-          console.error(error)
-        } finally {
-            setLoading(false)
-        }
+          const c = await alumno_completo_modulo(contexto.user.id,Number(id));            
+          setCompletado(c);
+        
+      } catch (error) {
+        error_alert("No se pudo cargar el módulo");
+        console.error(error);
+      } finally {
+          setLoading(false);
+      }
     } 
 
     const fetch_senias = async () => {
@@ -133,63 +133,70 @@ export default function Leccion (){
     }
 
     const next =async ()=>{
-        const i = senias.findIndex(each=>each.senia.id==selectedSenia?.senia.id);
-        if (i!=-1 && i<senias.length-1) {
-          setIndex(i+1);
-          setSelectedSenia(senias[i+1]);
-          const item = senias[i+1];
-          if (!item.vista){
-            alumno_ver_senia(contexto.user.id,item.senia.id)
-              .catch(reason=>{
-                error_alert("No se pudo guardar tu progreso");
-                console.error(reason);
-              })
-              .then(()=>{
-                item.vista= true
-              })              
+      const i = senias.findIndex(each=>each.senia.id==selectedSenia?.senia.id);
+      if (i!=-1 && i<senias.length-1) {
+        setIndex(i+1);
+        setSelectedSenia(senias[i+1]);
+        const item = senias[i+1];
+        if (!item.vista){
+          alumno_ver_senia(contexto.user.id,item.senia.id)
+            .catch(reason=>{
+              error_alert("No se pudo guardar tu progreso");
+              console.error(reason);
+            })
+            .then(()=>{
+              item.vista= true
+            })              
+        }
+      }
+      else {
+        //terminar lección                   
+        try {                         
+          if (cant_aprendidas==senias.length) {                         
+            await completar_modulo_alumno(contexto.user.id,Number(id));
+            router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: id } })
+          } else {
+            router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/no_completado', params: { id: id } });
           }
-        }
-        else {
-          //terminar lección           
-          if (modulo) {
-            try {                         
-              if (cant_aprendidas==senias.length) {         
-                //la lección debería continuar hasta marcar todas como aprendidas o te deja salir sin completar el módulo?       
-                await completar_modulo_alumno(contexto.user.id,modulo.id);
-                router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: modulo?.id } })
-              } else {
-                router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/no_completado', params: { id: modulo?.id } });
-              }
-              
-            } catch (error) {
-              console.error(error);
-              router.back()
-              contexto.user.gotToModules();
-              setTimeout(()=>error_alert("Ocurrió un error al completar el módulo"),300)
-            }                          
-          }                        
-        }
+          
+        } catch (error) {
+          console.error(error);
+          router.back()
+          contexto.user.gotToModules();
+          setTimeout(()=>error_alert("Ocurrió un error al completar el módulo"),300)
+        }                                                  
+      }
     }
 
     const toggleAprendida = async (info_senia: Senia_Aprendida, value: boolean) => {
       
-        if (value) {
-          marcar_aprendida(info_senia.senia.id,contexto.user.id)
-            .catch(reason =>{
-              console.error(reason);
-              error_alert("No se pudo actualizar el estado")
-            })
-        } else {
-          marcar_no_aprendida(info_senia.senia.id,contexto.user.id)
-            .catch(reason=>{
-              console.error(reason);
-              error_alert("No se pudo actualizar el estado")
-            })
-        }
-        setCantAprendidas((prev) => (prev+=1));        
-        success_alert(value ? 'Marcada como aprendida' : 'Marcada como no aprendida');
-        info_senia.aprendida= value;
-      }
+      if (value) {
+        marcar_aprendida(info_senia.senia.id,contexto.user.id)
+          .catch(reason =>{
+            console.error(reason);
+            error_alert("No se pudo actualizar el estado");
+          })
+          .then(()=>{
+            success_alert('Marcada como aprendida' );
+            info_senia.aprendida= value;
+            setCantAprendidas((prev) => (prev+=1));   
+          })
+            
+      } else if (!completado) {
+        marcar_no_aprendida(info_senia.senia.id,contexto.user.id)
+          .catch(reason=>{
+            console.error(reason);
+            error_alert("No se pudo actualizar el estado")
+          })
+          .then(()=>{
+            success_alert( 'Marcada como no aprendida');
+            info_senia.aprendida= value;
+            setCantAprendidas((prev) => (prev-=1));   
+          })
+      } else {
+        alert("No puedes marcar como no aprendida una seña en un módulo completado");
+      }                  
+    }
 
     if (loading) {
       return (
@@ -200,13 +207,13 @@ export default function Leccion (){
     }
     return (
         <View style={styles.container}>
-            <Pressable
-                style={[styles.backBtn, { marginBottom: 10, marginTop:30, flexDirection: 'row', alignItems: 'center' }]}
-                onPress={() => {   contexto.user.gotToModules()   }}
-            >
-            <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
-            <Text style={styles.backBtnText}>Volver</Text>
-            </Pressable>
+          <Pressable
+              style={[styles.backBtn, { marginBottom: 10, marginTop:30, flexDirection: 'row', alignItems: 'center' }]}
+              onPress={() => { router.back() }}
+          >
+          <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
+          <Text style={styles.backBtnText}>Volver</Text>
+          </Pressable>
             <View style={[styles.bck_content,estilos.centrado]}>
               
               <View>
