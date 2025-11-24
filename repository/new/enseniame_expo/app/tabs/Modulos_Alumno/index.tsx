@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from "react";
-import { View, Text, Pressable, StyleSheet, FlatList, Modal, ScrollView, TextInput } from "react-native";
+import { View, Text, Pressable, StyleSheet, FlatList, Modal, ScrollView, TextInput, Touchable, TouchableOpacity, ActivityIndicator } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useFocusEffect, useRouter } from "expo-router";
 import {  Modulo } from "@/components/types";
@@ -11,6 +11,7 @@ import { ThemedText } from "@/components/ThemedText";
 import { useUserContext } from "@/context/UserContext";
 import { AntDesignStars } from "@/components/review";
 import { paleta } from "@/components/colores";
+import { error_alert } from "@/components/alert";
 
 interface ModuloCalificado extends Modulo {
   promedio: number;
@@ -25,13 +26,21 @@ export default function ModulosScreen() {
   const [searchQuery, setSearchQuery] = useState('');
   const [calificacionesPorModulo, setCalificacionesPorModulo] = useState<Record<number, any[]>>({});
   const [comentariosModalVisible, setComentariosModalVisible] = useState(false);
-  const [comentariosSeleccionados, setComentariosSeleccionados] = useState<any[]>([]);
+  const [comentariosSeleccionados, setComentariosSeleccionados] = useState<any[]>([]);  
+  const [mostrar_completados,setMostrarCompletados] = useState(false);
+  const [mostrar_no_completados,setMostrarNoCompletados] = useState(false);
+  const [populares,setPopulares]= useState(false);
+  const [loading,setLoading] = useState(false);
 
   const contexto = useUserContext();
 
   useFocusEffect(
       useCallback(() => {
-        fetch_modulos();
+        
+        fetch_modulos();        
+        setMostrarCompletados(false);
+        setPopulares(false);
+        setMostrarNoCompletados(false);
         return () => {};
       }, [])
   );
@@ -41,26 +50,36 @@ export default function ModulosScreen() {
     }, [searchQuery, modulos]);
 
   const fetch_modulos = async ()=>{
-    const m2 = await modulosCalificados();
-    const completados = await mis_modulos_completos(contexto.user.id);
+    try {
+      setLoading(true);
+      const m2 = await modulosCalificados();
+      const completados = await mis_modulos_completos(contexto.user.id);
 
-    const lo_complete = (id_modulo:number)=>{
-      let res = false;
-      completados.forEach(m=>{
-        if (m.id_modulo==id_modulo) res=true
-      });
-      return res
-    }
+      const lo_complete = (id_modulo:number)=>{
+        let res = false;
+        completados.forEach(m=>{
+          if (m.id_modulo==id_modulo) res=true
+        });
+        return res
+      }
     
-    const res =m2?.map( e=>{        
-      let prom = promedio_reseñas(e.Calificaciones_Modulos);
-      fetchCalificaciones(e.id)
-      let completo = lo_complete(e.id);      
-      return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor, completado:completo}
-    });
-    setModulos(res || []);
-
-    setFilteredModulos(res || []);
+      const res =m2?.map( e=>{        
+        let prom = promedio_reseñas(e.Calificaciones_Modulos);
+        fetchCalificaciones(e.id)
+        let completo = lo_complete(e.id);      
+        return {id: e.id, descripcion: e.descripcion,icon:e.icon,nombre:e.nombre,promedio:prom, autor:e.autor, completado:completo}
+      });
+      if (res ){
+        const ordenados = ordenarModulosAlfabetico(res);
+        setModulos(ordenados || []);
+        setFilteredModulos(ordenados || []);
+      }
+    } catch (error) {
+      console.error(error);
+      error_alert('No se pudieron cargar los módulos');
+    } finally{
+      setLoading(false)
+    }       
   }
 
   const fetchCalificaciones = async (id_modulo: number) => {
@@ -73,11 +92,8 @@ export default function ModulosScreen() {
     }
   };
 
-  const filterModulosBusqueda = () => {
-    var filtered = modulos.filter(m => 
-      m.nombre.toLowerCase().includes(searchQuery.toLowerCase()) 
-    );    
-   const orderedAndFiltered =filtered.sort(function (a, b) {
+  const ordenarModulosAlfabetico = (m : ModuloCalificado[])=>{
+    const ordered = m.sort(function (a, b) {
       if (a.nombre < b.nombre) {
         return -1;
       }
@@ -86,9 +102,55 @@ export default function ModulosScreen() {
       }
       return 0;
     })
-    setFilteredModulos(orderedAndFiltered);    
+    return ordered
+  }
+  const ordenarModulosCalificacion = ()=>{
+    setLoading(true);
+    if (populares){
+      setPopulares(false);
+      setFilteredModulos(ordenarModulosAlfabetico(filteredModulos));
+    } else{
+      setPopulares(true);
+      const ordered = filteredModulos.sort(function (a, b) {
+        if (a.promedio < b.promedio) {
+          return 1;
+        }
+        if (a.promedio > b.promedio) {
+          return -1;
+        }
+        return 0;
+      })
+      setFilteredModulos(ordered); 
+      setLoading(false);
+    }    
+  }
+
+  const filterModulosBusqueda = () => {
+    var filtered = modulos.filter(m => 
+      m.nombre.toLowerCase().includes(searchQuery.toLowerCase()) 
+    );        
+    setFilteredModulos(filtered);    
   };
- 
+
+  const filterCompletados = ()=>{
+    setLoading(true);
+    setMostrarCompletados(true);
+    setMostrarNoCompletados(false);
+    filterModulosBusqueda();
+    const filtered = filteredModulos.filter(m=> m.completado);    
+    setFilteredModulos(filtered);  
+    setLoading(false);   
+  }
+  const filterNoCompletados = ()=>{
+    setLoading(true);
+    setMostrarCompletados(false);
+    setMostrarNoCompletados(true);
+    filterModulosBusqueda();
+    const filtered = filteredModulos.filter(m=> !m.completado);    
+    setFilteredModulos(filtered);    
+    setLoading(false);       
+  }
+  
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Mis módulos</Text>
@@ -104,6 +166,24 @@ export default function ModulosScreen() {
         />
         <Text style={styles.countTextCursos}>{filteredModulos.length}</Text>
       </View>
+      <View style={{flexDirection:"row"}}>
+        <TouchableOpacity style={[styles.filtros,{backgroundColor: mostrar_completados ? paleta.dark_aqua:paleta.aqua}]} 
+          onPress={filterCompletados}>
+          <ThemedText lightColor={mostrar_completados ? "white":"black"} type="defaultSemiBold">Completados</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.filtros,{backgroundColor: mostrar_no_completados ? paleta.dark_aqua:paleta.aqua}]} 
+          onPress={filterNoCompletados}>
+          <ThemedText lightColor={mostrar_no_completados ? "white":"black"} type="defaultSemiBold">No completados</ThemedText>
+        </TouchableOpacity>
+        <TouchableOpacity style={[styles.filtros,{backgroundColor: populares ? paleta.dark_aqua:paleta.aqua}]} 
+          onPress={ordenarModulosCalificacion}>
+          <ThemedText type="defaultSemiBold" lightColor={populares ? "white":"black"}>Populares</ThemedText>
+        </TouchableOpacity>
+      </View>
+      {loading ?
+      (<View style={styles.loadingContainer}>
+          <ActivityIndicator size="large" color={paleta.dark_aqua} />
+        </View>): (
       <FlatList
         data={filteredModulos}
         keyExtractor={(item) => item.id.toString()}
@@ -156,6 +236,9 @@ export default function ModulosScreen() {
           </View>
         )}
       />
+        )
+    }
+      
       <Modal
         visible={comentariosModalVisible}
         animationType="slide"
@@ -302,5 +385,19 @@ const styles = StyleSheet.create({
     paddingHorizontal: 8,
     paddingVertical: 2,
     fontFamily: 'System',
+  },
+  filtros: {
+    padding: 8,
+    borderRadius: 12,
+    borderColor: paleta.dark_aqua,
+    borderWidth: 2,
+    margin: 5,
+    marginBottom: 10
+  },
+  loadingContainer: {
+    flex: 1,
+    justifyContent: 'center',
+    alignItems: 'center',
+    backgroundColor: '#e6f7f2',
   },
 });
