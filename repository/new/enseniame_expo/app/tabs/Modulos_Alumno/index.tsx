@@ -135,20 +135,32 @@ export default function ModulosScreen() {
 
   const filterCompletados = ()=>{
     setLoading(true);
-    setMostrarCompletados(true);
-    setMostrarNoCompletados(false);
-    let aux=filterModulosBusqueda();
-    const filtered = aux.filter(m=> m.completado);    
-    setFilteredModulos(filtered);  
+    setPopulares(false);
+    if (mostrar_completados) {
+      setMostrarCompletados(false);
+      filterModulosBusqueda();
+    } else{
+      setMostrarCompletados(true);
+      setMostrarNoCompletados(false);
+      let aux=filterModulosBusqueda();
+      const filtered = aux.filter(m=> m.completado);    
+      setFilteredModulos(filtered);   
+    }    
     setLoading(false);   
   }
-  const filterNoCompletados = ()=>{
+  const filterNoCompletados = ()=>{    
     setLoading(true);
-    setMostrarCompletados(false);
-    setMostrarNoCompletados(true);
-    let aux=filterModulosBusqueda();
-    const filtered = aux.filter(m=> !m.completado);    
-    setFilteredModulos(filtered);    
+    setPopulares(false);
+    if (mostrar_no_completados) {
+      setMostrarNoCompletados(false);
+      filterModulosBusqueda();
+    } else {
+      setMostrarCompletados(false);
+      setMostrarNoCompletados(true);
+      let aux=filterModulosBusqueda();
+      const filtered = aux.filter(m=> !m.completado);    
+      setFilteredModulos(filtered); 
+    }       
     setLoading(false);       
   }
   
