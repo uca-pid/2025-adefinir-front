@@ -120,24 +120,25 @@ export default function ModulosScreen() {
         }
         return 0;
       })
-      setFilteredModulos(ordered); 
-      setLoading(false);
+      setFilteredModulos(ordered);       
     }    
+    setLoading(false);
   }
 
   const filterModulosBusqueda = () => {
     var filtered = modulos.filter(m => 
       m.nombre.toLowerCase().includes(searchQuery.toLowerCase()) 
     );        
-    setFilteredModulos(filtered);    
+    setFilteredModulos(filtered);  
+    return filtered  
   };
 
   const filterCompletados = ()=>{
     setLoading(true);
     setMostrarCompletados(true);
     setMostrarNoCompletados(false);
-    filterModulosBusqueda();
-    const filtered = filteredModulos.filter(m=> m.completado);    
+    let aux=filterModulosBusqueda();
+    const filtered = aux.filter(m=> m.completado);    
     setFilteredModulos(filtered);  
     setLoading(false);   
   }
@@ -145,8 +146,8 @@ export default function ModulosScreen() {
     setLoading(true);
     setMostrarCompletados(false);
     setMostrarNoCompletados(true);
-    filterModulosBusqueda();
-    const filtered = filteredModulos.filter(m=> !m.completado);    
+    let aux=filterModulosBusqueda();
+    const filtered = aux.filter(m=> !m.completado);    
     setFilteredModulos(filtered);    
     setLoading(false);       
   }
