@@ -29,7 +29,7 @@ export default function HomeStudent() {
   const [progresoCategorias, setProgresoCategorias] = useState<Array<any>>([]);
 
   const [showModalRacha,setShowModalRacha] = useState(false);
-  const fuego_racha = require("../../../assets/images/Streak activation.gif");
+  const fuego_racha = require("../../../assets/images/fire3.gif");
   const racha_perdida =require("../../../assets/images/Broken Stars.gif");
 
   const [showModalAvatar,setShowModalAvatar] = useState(false);
@@ -113,6 +113,9 @@ export default function HomeStudent() {
       console.error(error);
       error_alert("Ocurrió un error al cargar la racha");
     }    
+
+    //debug!!!!!!!
+    setShowModalRacha(true)
   }
 
   const cerrar_modal_racha = async () => {
@@ -217,7 +220,7 @@ export default function HomeStudent() {
           animationType="fade"
           transparent={true}
         >
-          <View style={[styles.modalContainer,estilos.centrado,{width:"100%"}]}>
+          <View style={[styles.modalContainerRacha,estilos.centrado]}>
             <View style={[styles.modalContent,{height:"60%",borderBottomEndRadius:20,borderBottomStartRadius:20}]}>
               {user.racha==1 ? (
                 <View>
@@ -233,14 +236,15 @@ export default function HomeStudent() {
                 </View>
                 ):(
                   <View>
-                    <Text style={[styles.title_racha]}>¡¡Sumaste 1 día de racha!!</Text>
+                    
                     <Image
                       style={[styles.image]}
                       source={fuego_racha}
-                      contentFit="contain"
+                      contentFit="cover"
                       transition={0}
                     />
-                
+                <ThemedText style={[styles.title_racha]}>¡¡Tienes {user.racha} días de racha!!</ThemedText>
+                <ThemedText type='defaultSemiBold' lightColor={paleta.dark_aqua}>¡Sigue aprendiendo mañana para llegar a {user.racha+1}!</ThemedText>
                 <BotonLogin callback={cerrar_modal_racha} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
                 </View>
                 )}                                          
@@ -466,6 +470,7 @@ const styles = StyleSheet.create({
   },
   modalScrollView: {
     paddingBottom: 20,
+    maxHeight: 400
   },
   image: {
     flex: 1,
@@ -479,5 +484,12 @@ const styles = StyleSheet.create({
     marginTop:60,
     color: paleta.dark_aqua,
     alignSelf: "center",
+  },
+  modalContainerRacha: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'white',
+    height:"100%",
+    width:"100%"
   },
 });
