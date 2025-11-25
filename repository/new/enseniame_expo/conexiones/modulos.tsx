@@ -53,7 +53,7 @@ const buscar_senias_modulo = async (id:number)=>{
     
     return data
 }
-
+/* 
 const modulos_completados_por_alumno = async (id_alumno:number) =>{
     try {
         let { data: senias_aprendidas, error: errorSenias } = await supabase
@@ -139,6 +139,18 @@ const modulos_completados_por_alumno = async (id_alumno:number) =>{
         console.error('Error al obtener o actualizar módulos completados:', error);
         return 0;
     }
+} */
+
+const modulos_completados_por_alumno = async (id_alumno:number) =>{
+    let { data, error } = await supabase
+        .from('Alumno_Modulo')
+        .select('id_modulo')
+        .eq('id_alumno', id_alumno)
+        .eq('completado', true);
+        
+    if (error) throw error;
+    
+    return data ? data.length : 0;
 }
 
 const progreso_por_categoria = async (id_alumno:number) =>{
