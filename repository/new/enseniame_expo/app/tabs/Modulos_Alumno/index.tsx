@@ -180,7 +180,8 @@ export default function ModulosScreen() {
         <Text style={styles.countTextCursos}>{filteredModulos.length}</Text>
       </View>
       <View style={{flexDirection:"row"}}>
-        <TouchableOpacity style={[styles.filtros,{backgroundColor: mostrar_completados ? paleta.dark_aqua:paleta.aqua}]} 
+        <TouchableOpacity style={[styles.filtros,
+        mostrar_completados ? {backgroundColor: paleta.dark_aqua}: {backgroundColor: paleta.aqua}]} 
           onPress={filterCompletados}>
           <ThemedText lightColor={mostrar_completados ? "white":"black"} type="defaultSemiBold">Completados</ThemedText>
         </TouchableOpacity>
@@ -401,11 +402,9 @@ const styles = StyleSheet.create({
   },
   filtros: {
     padding: 8,
-    borderRadius: 12,
-    borderColor: paleta.dark_aqua,
-    borderWidth: 2,
+    borderRadius: 12,        
     margin: 5,
-    marginBottom: 10
+    marginBottom: 15
   },
   loadingContainer: {
     flex: 1,

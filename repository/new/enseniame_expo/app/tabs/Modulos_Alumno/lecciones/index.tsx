@@ -26,7 +26,7 @@ export default function Leccion (){
   const { id=0 } = useLocalSearchParams<{ id: string }>();
   if (id==0) router.back();
   const [modulo,setModulo] = useState<Modulo>();
-  const [completado,setCompletado] =useState(false)
+  const [completado,setCompletado] =useState(false);
   const [senias,setSenias] = useState<Senia_Aprendida[]>([]);
   const [cant_aprendidas, setCantAprendidas] = useState(0);
   const [loading, setLoading] = useState(true);
@@ -46,12 +46,12 @@ export default function Leccion (){
 
     const fetch_modulo = async ()=>{
       try {
-          setLoading(true)
-          const m = await buscar_modulo(Number(id));
-          setModulo(m || {id:0,descripcion:"",nombre:"",autor:0,icon: "paw"});
+        setLoading(true)
+        const m = await buscar_modulo(Number(id));
+        setModulo(m || {id:0,descripcion:"",nombre:"",autor:0,icon: "paw"});
 
-          const c = await alumno_completo_modulo(contexto.user.id,Number(id));            
-          setCompletado(c);
+        const c = await alumno_completo_modulo(contexto.user.id,Number(id));            
+        setCompletado(c);
         
       } catch (error) {
         error_alert("No se pudo cargar el módulo");
@@ -180,8 +180,7 @@ export default function Leccion (){
             success_alert('Marcada como aprendida' );
             info_senia.aprendida= value;
             setCantAprendidas((prev) => (prev+=1));   
-          })
-            
+          });            
       } else if (!completado) {
         marcar_no_aprendida(info_senia.senia.id,contexto.user.id)
           .catch(reason=>{

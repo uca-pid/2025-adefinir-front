@@ -232,8 +232,7 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
 
 const completar_modulo_alumno = async (id_alumno:number,id_modulo:number) =>{
     
-    const completado = await alumno_completo_modulo(id_alumno,id_modulo);
-    console.log(completado)
+    const completado = await alumno_completo_modulo(id_alumno,id_modulo);    
     if (!completado){
         //verificar si existe el registro
         let { data, error } = await supabase
