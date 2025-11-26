@@ -48,8 +48,17 @@ export default function Perfil (){
             const a = await todos_avatares();            
             const r = await mi_racha(contexto.user.id);
             let avatares_desbloqueados =a;
+            
             if (a && a.length>0) {
-              avatares_desbloqueados = desbloqueados(a,r.racha_maxima)
+              avatares_desbloqueados = desbloqueados(a,r.racha_maxima);
+              //primero los últimos que desbloqueaste
+              avatares_desbloqueados.sort(function(a,b){
+                if (a.racha_desbloquear > b.racha_desbloquear){
+                  return -1
+                } if (a.racha_desbloquear < b.racha_desbloquear){
+                  return 1
+                } return 0
+              })
             }            
             setAvatares(avatares_desbloqueados || []);  
             setRacha(r.racha);
@@ -188,7 +197,7 @@ export default function Perfil (){
               <FlatList 
                 keyExtractor={(item) => item.id.toString()}
                 style={[{maxHeight:220}]}
-                data={avatares?.slice(0,5)}
+                data={avatares?.slice(0,6)}
                 renderItem={renderAvatar}
                 numColumns={3}
                 columnWrapperStyle={{marginHorizontal:10}}

@@ -31,7 +31,7 @@ export default function HomeStudent() {
 
   const [showModalRacha,setShowModalRacha] = useState(false);
   const fuego_racha = require("../../../assets/images/fire3.gif");
-  const racha_perdida =require("../../../assets/images/Broken Stars.gif");
+  const racha_perdida =require("../../../assets/images/disappointedBeetle.gif");
 
   const [showModalAvatar,setShowModalAvatar] = useState(false);
   const [nuevo_avatar, setNuevoAvatar] = useState<String>();
@@ -227,7 +227,7 @@ export default function HomeStudent() {
                 <View>
                     
                     <Image
-                      style={[styles.image]}
+                      style={[styles.modal_image,estilos.centrado]}
                       source={racha_perdida}
                       contentFit="contain"
                       transition={0}
@@ -366,6 +366,7 @@ const styles = StyleSheet.create({
     color: '#20bfa9',
     fontWeight: '600',
     fontSize: 10,
+    marginLeft: 20
   },
   categoriaItem: {
     marginBottom: 14,
