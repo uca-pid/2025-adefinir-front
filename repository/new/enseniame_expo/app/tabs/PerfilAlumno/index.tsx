@@ -11,6 +11,7 @@ import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
 import { cambiar_mi_avatar, my_avatar, todos_avatares } from '@/conexiones/avatars';
 import { mi_racha } from '@/conexiones/racha';
+import { useXP } from '@/components/animations/useXP';
 import { mis_modulos_completos } from '@/conexiones/modulos';
 import { Avatar } from '@/components/types';
 import { todas_insignias } from '@/conexiones/insignias';
@@ -33,6 +34,7 @@ export default function Perfil (){
   const insignia = require("../../../assets/images/insignia.png");
     
   const contexto = useUserContext();   
+  const { xp, level, delta, consumeDelta } = useXP(contexto.user.id);
 
     useFocusEffect(
       useCallback(() => {
@@ -135,8 +137,12 @@ export default function Perfil (){
               /> 
 
               <View style={styles.stats}>
-                <ThemedText type='bold'>1500</ThemedText>
+                <ThemedText type='bold'>{xp}</ThemedText>
                 <ThemedText>XP</ThemedText>
+              </View>
+              <View style={styles.stats}>
+                <ThemedText type='bold'>{level}</ThemedText>
+                <ThemedText>nivel</ThemedText>
               </View>
               
               <View style={styles.stats}>
