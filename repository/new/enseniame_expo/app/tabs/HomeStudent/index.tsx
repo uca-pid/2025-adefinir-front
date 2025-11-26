@@ -173,9 +173,9 @@ export default function HomeStudent() {
         </Pressable>
 
         <View style={styles.shortcutsRow}>
-          <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/cursos')}>
-            <Ionicons name="book" size={22} color="#20bfa9" />
-            <Text style={styles.shortcutTextCursos}>Cursos</Text>
+          <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/leaderboard_grupo')}>
+            <Ionicons name="trophy" size={22} color="#20bfa9" />
+            <Text style={styles.shortcutTextCursos}>Ranking</Text>
           </Pressable>
           <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/HomeStudent/alumno_objetivos')}>
             <Ionicons name="flag" size={22} color="#20bfa9" />

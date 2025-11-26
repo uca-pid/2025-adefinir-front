@@ -6,6 +6,7 @@ import { LeaderboardRow } from '@/components/leaderboard/LeaderboardRow';
 import { LeaderboardMyPositionCard } from '@/components/leaderboard/LeaderboardMyPositionCard';
 import { fetchGroupLeaderboard } from '@/conexiones/leaderboard';
 import type { PeriodType, LeaderboardEntry, LeaderboardResponse } from '@/components/leaderboard/types';
+import { supabase } from '@/lib/supabase';
 
 
 
@@ -18,13 +19,36 @@ export default function LeaderboardGrupoScreen() {
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [groupId, setGroupId] = useState<number>(DEFAULT_GROUP_ID);
+  const [groupName, setGroupName] = useState<string>('');
+
+  
+  useEffect(() => {
+    const loadGroup = async () => {
+      if (!user?.id) return;
+      try {
+        const { data: gu } = await supabase
+          .from('group_users')
+          .select('group_id')
+          .eq('user_id', user.id)
+          .limit(1);
+        if (gu && gu.length > 0) {
+          setGroupId(Number(gu[0].group_id));
+        } else {
+          setGroupId(DEFAULT_GROUP_ID);
+        }
+      } catch {}
+    };
+    loadGroup();
+  }, [user?.id]);
 
   const load = useCallback(async () => {
     if (!user?.id) return;
     setError(null);
     setLoading(true);
     try {
-      const resp = await fetchGroupLeaderboard(period, DEFAULT_GROUP_ID, user.id);
+      const resp = await fetchGroupLeaderboard(period, groupId, user.id);
+      setGroupName(resp.groupName);
       setData(resp);
     } catch (e: any) {
       setError('No se pudo cargar el leaderboard');
@@ -32,9 +56,26 @@ export default function LeaderboardGrupoScreen() {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [period, user?.id]);
+  }, [period, user?.id, groupId]);
 
   useEffect(() => { load(); }, [load]);
+
+  
+  useEffect(() => {
+    if (!user?.id) return;
+    const ch1 = supabase
+      .channel(`rt-leader-aprendidas-${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'Alumno_Senia', filter: `user_id=eq.${user.id}` }, () => load())
+      .subscribe();
+    const ch2 = supabase
+      .channel(`rt-leader-mods-${user.id}`)
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'modules_completed', filter: `user_id=eq.${user.id}` }, () => load())
+      .subscribe();
+    return () => {
+      try { supabase.removeChannel(ch1); } catch {}
+      try { supabase.removeChannel(ch2); } catch {}
+    };
+  }, [user?.id, load]);
 
   const onRefresh = () => { setRefreshing(true); load(); };
 
@@ -47,7 +88,7 @@ export default function LeaderboardGrupoScreen() {
         contentContainerStyle={styles.listContent}
         ListHeaderComponent={(
           <View style={styles.header}>
-            <Text style={styles.title}>Leaderboard Grupo</Text>
+            <Text style={styles.title}>{groupName ? `Leaderboard · ${groupName}` : 'Leaderboard Grupo'}</Text>
             <PeriodSelector value={period} onChange={setPeriod} disabled={loading} />
             {loading && (
               <View style={styles.loadingBox}><ActivityIndicator color="#20bfa9" /><Text style={styles.loadingText}>Cargando…</Text></View>
