@@ -37,6 +37,14 @@ export default function LeaderboardGrupoScreen() {
     try {
       // Obtener todos los usuarios del club para el ranking
       console.log('Cargando leaderboard para el club ID:', groupId);
+      if (!groupId) {
+        setClubUsers([]);
+        setGroupName('');
+        setError(null);
+        setLoading(false);
+        setRefreshing(false);
+        return;
+      }
       const clubData = await getClubUsersProgress(groupId);
       setClubUsers(clubData);
       setGroupName(clubData[0]?.clubName || '');
@@ -117,36 +125,40 @@ export default function LeaderboardGrupoScreen() {
             <Text style={styles.errorText}>{error}</Text>
           )}
           {(!loading && clubUsers.length === 0) && (
-            <Text style={styles.emptyText}>Sin datos para el club seleccionado.</Text>
+            <Text style={styles.emptyText}>Aún no tienes un club de lectura, visita Booksy para unirte a uno.</Text>
           )}
         </View>
 
         {/* Ranking principal por promedio de progreso */}
-        <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 8 }}>Ranking General (Promedio de progreso)</Text>
-        {mainRanking.map((item, idx) => (
-          <View key={item.userId} style={{ marginBottom: 12, backgroundColor: '#fff', borderRadius: 8, padding: 12 }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{idx + 1}. {item.username}</Text>
-            <Text>Promedio de progreso: {item.avgProgress.toFixed(1)}%</Text>
-          </View>
-        ))}
-
-        {/* Rankings individuales por curso */}
-        <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 24, marginBottom: 8 }}>Rankings por curso</Text>
-        {Object.entries(courseMap).map(([courseId, courseRanking]) => (
-          <View key={courseId} style={{ marginBottom: 20 }}>
-            <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 4 }}>{courseRanking.courseTitle}</Text>
-            {courseRanking.users.map((user, idx) => (
-              <View
-                key={`${user.userId}-${courseId}`} // <-- clave única combinando userId y courseId
-                style={{ marginBottom: 8, backgroundColor: '#f7f7f7', borderRadius: 8, padding: 8 }}
-              >
-                <Text>{idx + 1}. {user.username}</Text>
-                <Text>Progreso: {user.progressPercentage}%</Text>
-                <Text>Estado: {user.status}</Text>
+        {clubUsers.length > 0 && (
+          <>
+            <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 8 }}>Ranking General (Promedio de progreso)</Text>
+            {mainRanking.map((item, idx) => (
+              <View key={item.userId} style={{ marginBottom: 12, backgroundColor: '#fff', borderRadius: 8, padding: 12 }}>
+                <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{idx + 1}. {item.username}</Text>
+                <Text>Promedio de progreso: {item.avgProgress.toFixed(1)}%</Text>
               </View>
             ))}
-          </View>
-        ))}
+
+            {/* Rankings individuales por curso */}
+            <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 24, marginBottom: 8 }}>Rankings por curso</Text>
+            {Object.entries(courseMap).map(([courseId, courseRanking]) => (
+              <View key={courseId} style={{ marginBottom: 20 }}>
+                <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 4 }}>{courseRanking.courseTitle}</Text>
+                {courseRanking.users.map((user, idx) => (
+                  <View
+                    key={`${user.userId}-${courseId}`}
+                    style={{ marginBottom: 8, backgroundColor: '#f7f7f7', borderRadius: 8, padding: 8 }}
+                  >
+                    <Text>{idx + 1}. {user.username}</Text>
+                    <Text>Progreso: {user.progressPercentage}%</Text>
+                    <Text>Estado: {user.status}</Text>
+                  </View>
+                ))}
+              </View>
+            ))}
+          </>
+        )}
       </ScrollView>
     </SafeAreaView>
   );
