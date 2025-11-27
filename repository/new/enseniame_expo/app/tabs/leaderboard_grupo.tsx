@@ -1,62 +1,52 @@
 import React, { useEffect, useState, useCallback } from 'react';
-import { SafeAreaView, View, Text, FlatList, ActivityIndicator, RefreshControl, StyleSheet } from 'react-native';
+import { SafeAreaView, View, Text, ScrollView, ActivityIndicator, RefreshControl, StyleSheet } from 'react-native';
 import { useUserContext } from '@/context/UserContext';
 import { PeriodSelector } from '@/components/leaderboard/PeriodSelector';
 import { LeaderboardRow } from '@/components/leaderboard/LeaderboardRow';
 import { LeaderboardMyPositionCard } from '@/components/leaderboard/LeaderboardMyPositionCard';
 import { fetchGroupLeaderboard } from '@/conexiones/leaderboard';
+import { getUserClub, getClubUsersProgress } from '@/conexiones/leaderboard_grupo_lectura';
 import type { PeriodType, LeaderboardEntry, LeaderboardResponse } from '@/components/leaderboard/types';
 import { supabase } from '@/lib/supabase';
-
-
-
-const DEFAULT_GROUP_ID = 1; 
 
 export default function LeaderboardGrupoScreen() {
   const { user } = useUserContext();
   const [period, setPeriod] = useState<PeriodType>('week');
-  const [data, setData] = useState<LeaderboardResponse | null>(null);
+  // const [data, setData] = useState<LeaderboardResponse | null>(null);
+  const [clubUsers, setClubUsers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [groupId, setGroupId] = useState<number>(DEFAULT_GROUP_ID);
+  const [groupId, setGroupId] = useState<number | null>(null);
   const [groupName, setGroupName] = useState<string>('');
 
   
   useEffect(() => {
-    const loadGroup = async () => {
-      if (!user?.id) return;
-      try {
-        const { data: gu } = await supabase
-          .from('group_users')
-          .select('group_id')
-          .eq('user_id', user.id)
-          .limit(1);
-        if (gu && gu.length > 0) {
-          setGroupId(Number(gu[0].group_id));
-        } else {
-          setGroupId(DEFAULT_GROUP_ID);
-        }
-      } catch {}
+    const fetchUserClubs = async () => {
+      if (!user?.mail) return;
+      const club = await getUserClub(user.mail);
+      setGroupId(club);
     };
-    loadGroup();
-  }, [user?.id]);
+    fetchUserClubs();
+  }, [user?.mail]);
 
   const load = useCallback(async () => {
-    if (!user?.id) return;
+    if (!user?.mail) return;
     setError(null);
     setLoading(true);
     try {
-      const resp = await fetchGroupLeaderboard(period, groupId, user.id);
-      setGroupName(resp.groupName);
-      setData(resp);
+      // Obtener todos los usuarios del club para el ranking
+      console.log('Cargando leaderboard para el club ID:', groupId);
+      const clubData = await getClubUsersProgress(groupId);
+      setClubUsers(clubData);
+      setGroupName(clubData[0]?.clubName || '');
     } catch (e: any) {
       setError('No se pudo cargar el leaderboard');
     } finally {
       setLoading(false);
       setRefreshing(false);
     }
-  }, [period, user?.id, groupId]);
+  }, [user?.mail, groupId]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -79,37 +69,92 @@ export default function LeaderboardGrupoScreen() {
 
   const onRefresh = () => { setRefreshing(true); load(); };
 
+  // Ranking principal: promedio de progreso por usuario
+  const mainRanking = clubUsers
+    .map(user => ({
+      ...user,
+      avgProgress:
+        user.courses.length > 0
+          ? user.courses.reduce((acc: number, c: any) => acc + c.progressPercentage, 0) / user.courses.length
+          : 0,
+    }))
+    .sort((a, b) => b.avgProgress - a.avgProgress);
+
+  // Ranking por cada courseId
+  const courseMap: { [courseId: number]: { courseTitle: string; users: any[] } } = {};
+  clubUsers.forEach(user => {
+    user.courses.forEach((course: any) => {
+      if (!courseMap[course.courseId]) {
+        courseMap[course.courseId] = { courseTitle: course.courseTitle, users: [] };
+      }
+      courseMap[course.courseId].users.push({
+        userId: user.userId,
+        username: user.username,
+        progressPercentage: course.progressPercentage,
+        status: course.status,
+      });
+    });
+  });
+
+  // Ordenar usuarios por progreso en cada ranking de curso
+  Object.values(courseMap).forEach(courseRanking => {
+    courseRanking.users.sort((a, b) => b.progressPercentage - a.progressPercentage);
+  });
+
   return (
     <SafeAreaView style={styles.container}>
-      <FlatList
-        data={data?.entries || []}
-        keyExtractor={(item) => String(item.userId)}
-        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      <ScrollView
+        style={styles.scrollView}
         contentContainerStyle={styles.listContent}
-        ListHeaderComponent={(
-          <View style={styles.header}>
-            <Text style={styles.title}>{groupName ? `Leaderboard · ${groupName}` : 'Leaderboard Grupo'}</Text>
-            <PeriodSelector value={period} onChange={setPeriod} disabled={loading} />
-            {loading && (
-              <View style={styles.loadingBox}><ActivityIndicator color="#20bfa9" /><Text style={styles.loadingText}>Cargando…</Text></View>
-            )}
-            {error && (
-              <Text style={styles.errorText}>{error}</Text>
-            )}
-            <LeaderboardMyPositionCard selfEntry={data?.selfEntry} />
-            {(!loading && (!data || data.entries.length === 0)) && (
-              <Text style={styles.emptyText}>Sin datos para el período seleccionado.</Text>
-            )}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
+      >
+        <View style={styles.header}>
+          <Text style={styles.title}>{groupName ? `Leaderboard · ${groupName}` : 'Leaderboard Grupo'}</Text>
+          {loading && (
+            <View style={styles.loadingBox}><ActivityIndicator color="#20bfa9" /><Text style={styles.loadingText}>Cargando…</Text></View>
+          )}
+          {error && (
+            <Text style={styles.errorText}>{error}</Text>
+          )}
+          {(!loading && clubUsers.length === 0) && (
+            <Text style={styles.emptyText}>Sin datos para el club seleccionado.</Text>
+          )}
+        </View>
+
+        {/* Ranking principal por promedio de progreso */}
+        <Text style={{ fontSize: 20, fontWeight: 'bold', marginBottom: 8 }}>Ranking General (Promedio de progreso)</Text>
+        {mainRanking.map((item, idx) => (
+          <View key={item.userId} style={{ marginBottom: 12, backgroundColor: '#fff', borderRadius: 8, padding: 12 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 16 }}>{idx + 1}. {item.username}</Text>
+            <Text>Promedio de progreso: {item.avgProgress.toFixed(1)}%</Text>
           </View>
-        )}
-        renderItem={({ item }) => <LeaderboardRow entry={item as LeaderboardEntry} />}
-      />
+        ))}
+
+        {/* Rankings individuales por curso */}
+        <Text style={{ fontSize: 20, fontWeight: 'bold', marginTop: 24, marginBottom: 8 }}>Rankings por curso</Text>
+        {Object.entries(courseMap).map(([courseId, courseRanking]) => (
+          <View key={courseId} style={{ marginBottom: 20 }}>
+            <Text style={{ fontWeight: 'bold', fontSize: 16, marginBottom: 4 }}>{courseRanking.courseTitle}</Text>
+            {courseRanking.users.map((user, idx) => (
+              <View
+                key={`${user.userId}-${courseId}`} // <-- clave única combinando userId y courseId
+                style={{ marginBottom: 8, backgroundColor: '#f7f7f7', borderRadius: 8, padding: 8 }}
+              >
+                <Text>{idx + 1}. {user.username}</Text>
+                <Text>Progreso: {user.progressPercentage}%</Text>
+                <Text>Estado: {user.status}</Text>
+              </View>
+            ))}
+          </View>
+        ))}
+      </ScrollView>
     </SafeAreaView>
   );
 }
 
 const styles = StyleSheet.create({
   container: { flex: 1, backgroundColor: '#e6f7f2' },
+  scrollView: { flex: 1 },
   listContent: { paddingHorizontal: 16, paddingBottom: 64 },
   header: { paddingHorizontal: 8, paddingBottom: 16 },
   title: { fontSize: 28, fontWeight: 'bold', color: '#222', marginTop: 52, marginBottom: 12, alignSelf: 'center' },
