@@ -2,6 +2,7 @@ import { supabase } from '../lib/supabase'
 import { icon_type } from '@/components/types'
 import { error_alert } from '@/components/alert';
 import { now } from '@/components/validaciones';
+import { senias_aprendidas_alumno } from './visualizaciones';
 
 const todos_los_modulos = async () =>{
     try {
@@ -245,7 +246,16 @@ const editar_modulo = async (id: number,nombre:string,descripcion:string,icon: i
 const completar_modulo_alumno = async (id_alumno:number,id_modulo:number) =>{
     
     const completado = await alumno_completo_modulo(id_alumno,id_modulo);    
-    if (!completado){
+    const s  = await buscar_senias_modulo(id_modulo); //id_video
+    const aprendidas = await senias_aprendidas_alumno(id_alumno); //senia_id
+    
+    let  continuar = true;
+    s?.forEach(each=>{
+        if (aprendidas?.find(v=>v.senia_id==each.id_video)==undefined) continuar = false
+    });
+    
+    if (!completado && continuar){
+        console.log("segui")
         //verificar si existe el registro
         let { data, error } = await supabase
             .from('Alumno_Modulo')
