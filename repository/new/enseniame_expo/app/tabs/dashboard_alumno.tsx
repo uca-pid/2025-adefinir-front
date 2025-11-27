@@ -2,13 +2,15 @@ import React, { useEffect, useMemo, useState } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator, SectionList, RefreshControl, SafeAreaView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
-import { useUserContext } from '@/context/UserContext';
-import { supabase } from '@/lib/supabase';
-import ProgressCard from '@/components/ProgressCard';
-import GlobalProgress from '@/components/GlobalProgress';
-import HistorialItem from '@/components/HistorialItem';
+import { useUserContext } from '../../context/UserContext';
+import { supabase } from '../../lib/supabase';
+import ProgressCard from '../../components/ProgressCard';
+import GlobalProgress from '../../components/GlobalProgress';
+import HistorialItem from '../../components/HistorialItem';
 import { useFocusEffect } from '@react-navigation/native';
-import { fetchGroupLeaderboard } from '@/conexiones/leaderboard';
+import { fetchGroupLeaderboard } from '../../conexiones/leaderboard';
+import { useDailyMissions } from '../../hooks/useDailyMissions';
+import { MissionCard } from '../../components/missions/MissionCard';
 
 
 type Modulo = { id: number; nombre: string };
@@ -36,6 +38,8 @@ export default function DashboardAlumnoScreen() {
   const [historial, setHistorial] = useState<HistorialRow[]>([]);
   const [groupId, setGroupId] = useState<number | null>(null);
   const [leaderboardPreview, setLeaderboardPreview] = useState<Array<{ position: number; name: string; xp: number }>>([]);
+  // Misiones diarias (preview)
+  const { missions, allCompleted, progressRatio } = useDailyMissions(user?.id);
 
   const fetchData = async () => {
     setError(null);
@@ -100,7 +104,8 @@ export default function DashboardAlumnoScreen() {
           const seniaNombreMap = new Map<number, string>();
           senias?.forEach((s: any) => seniaNombreMap.set(Number(s.id), String(s.significado)));
           const moduloNombreMap = new Map<number, string>();
-          (mods || []).forEach((m) => moduloNombreMap.set(m.id, m.nombre));
+          (mods || []).forEach((m: Modulo) => moduloNombreMap.set(m.id, m.nombre));
+          //(mods || []).forEach((m) => moduloNombreMap.set(m.id, m.nombre));
           const videoToModulo = new Map<number, number>();
           relsAll?.forEach((r: any) => videoToModulo.set(Number(r.id_video), Number(r.id_modulo)));
 
@@ -137,7 +142,8 @@ export default function DashboardAlumnoScreen() {
         setGroupId(gid);
         if (gid) {
           const resp = await fetchGroupLeaderboard('week', gid, Number(user.id));
-          const top5 = (resp.entries || []).slice(0, 5).map(e => ({ position: Number(e.position || 0), name: String(e.name || 'Alumno'), xp: Number(e.xp || 0) }));
+          const top5 = (resp.entries || []).slice(0, 5).map((e: any) => ({ position: Number(e.position || 0), name: String(e.name || 'Alumno'), xp: Number(e.xp || 0) }));
+          //const top5 = (resp.entries || []).slice(0, 5).map(e => ({ position: Number(e.position || 0), name: String(e.name || 'Alumno'), xp: Number(e.xp || 0) }));
           setLeaderboardPreview(top5);
         } else {
           setLeaderboardPreview([]);
@@ -253,7 +259,8 @@ export default function DashboardAlumnoScreen() {
               <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' }}>
                 <Text style={styles.sectionTitle}>Leaderboard del grupo</Text>
                 <Text
-                  onPress={() => router.push('/tabs/leaderboard_grupo')}
+                  onPress={() => (router as any).push('/tabs/leaderboard_grupo')}
+                  //onPress={() => router.push('/tabs/leaderboard_grupo')}
                   style={{ color: '#0a7ea4', fontWeight: '600' }}
                 >
                   Ver completo
@@ -270,6 +277,22 @@ export default function DashboardAlumnoScreen() {
                   </View>
                 ))
               )}
+            </View>
+            <View style={[styles.leaderboardBox,{ marginTop:14 }]}> 
+              <View style={{ flexDirection:'row', justifyContent:'space-between', alignItems:'center' }}>
+                <Text style={styles.sectionTitle}>Misiones de hoy</Text>
+                <Text onPress={() => (router as any).push('/tabs/misiones')} style={{ color:'#0a7ea4', fontWeight:'600' }}>Ver misiones</Text>
+              </View>
+              {missions.length === 0 ? (
+                <Text style={styles.emptyText}>Se generarán al iniciar el día.</Text>
+              ) : (
+                missions.slice(0,2).map(m => (
+                  <View key={m.id} style={{ marginBottom:8 }}>
+                    <MissionCard mission={m} />
+                  </View>
+                ))
+              )}
+              <Text style={{ marginTop:4, fontSize:12, color:'#555' }}>Progreso global misiones: {Math.round(progressRatio*100)}% {allCompleted ? '✔' : ''}</Text>
             </View>
             {error && (
               <View style={styles.errorBox}>

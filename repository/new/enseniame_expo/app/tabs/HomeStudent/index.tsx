@@ -1,6 +1,10 @@
 import React, { useState, useEffect, useCallback,  } from 'react';
 import { View, Text, StyleSheet, Pressable, ScrollView, Modal, TouchableOpacity } from "react-native";
 import { Ionicons } from '@expo/vector-icons';
+import Animated, { useSharedValue, useAnimatedStyle, withRepeat, withSequence, withTiming, runOnJS } from 'react-native-reanimated';
+import ConfettiBurst from '@/components/animations/ConfettiBurst';
+import { useXP } from '@/components/animations/useXP';
+import { XPGainPop } from '@/components/animations/XPGainPop';
 import { router, useFocusEffect } from 'expo-router';
 import { useUserContext } from '@/context/UserContext';
 import { modulos_completados_por_alumno, progreso_por_categoria } from '@/conexiones/modulos';
@@ -11,10 +15,16 @@ import { mi_racha, perder_racha, sumar_racha } from '@/conexiones/racha';
 import { error_alert } from '@/components/alert';
 import { es_hoy, fue_ayer, now } from '@/components/validaciones';
 import { BotonLogin } from '@/components/botones';
+import { AnimatedButton } from '@/components/animations/AnimatedButton';
+import { ProgressBarAnimada } from '@/components/animations/ProgressBarAnimada';
+import { SuccessModal } from '@/components/animations/SuccessModal';
 import { estilos } from '@/components/estilos';
+import { useDailyMissions } from '@/hooks/useDailyMissions';
+import { MissionCard } from '@/components/missions/MissionCard';
 import { desbloquee_un_avatar, nuevo_avatar_desbloqueado } from '@/conexiones/avatars';
 import { Avatar } from '@/components/types';
 import { ThemedText } from '@/components/ThemedText';
+import type { Mission } from '@/conexiones/misiones';
 
 export default function HomeStudent() {
   const contexto = useUserContext();
@@ -34,6 +44,8 @@ export default function HomeStudent() {
   const [showModalAvatar,setShowModalAvatar] = useState(false);
   const [nuevo_avatar, setNuevoAvatar] = useState<String>();
   const [desbloqueado,setDesbloqueado] = useState(false);
+  const [streakPopTrigger, setStreakPopTrigger] = useState(0);
+  const [showConfetti, setShowConfetti] = useState(false);
 
   useFocusEffect(
       useCallback(() => {
@@ -63,6 +75,11 @@ export default function HomeStudent() {
     return ()=>{ mounted = false }
   }, [contexto.user.id]);
 
+  // Confetti al entrar a la app (refuerzo visual inmediato)
+  useEffect(() => {
+    setShowConfetti(true);
+  }, []);
+
   // Solo mostrar las primeras 3 categorías en la vista principal
   const topCategorias = progresoCategorias.slice(0, 3);
   const hayMasCategorias = progresoCategorias.length > 3;
@@ -74,44 +91,48 @@ export default function HomeStudent() {
         <Text style={styles.categoriaNombre}>{categoria.nombre}</Text>
         <Text style={styles.categoriaPorcentaje}>{categoria.porcentaje}%</Text>
       </View>
-      <View style={styles.progressBarBg}>
-        <View style={[styles.progressBarFill, {width: `${categoria.porcentaje}%`}]} />
-      </View>
+      <ProgressBarAnimada progress={categoria.porcentaje} />
     </View>
   );
 
-  const fetch_racha = async ()=>{
-    try {      
+  const { xp, level, delta, consumeDelta } = useXP(contexto.user.id);
+
+  const fetch_racha = async () => {
+    try {
       const r = await mi_racha(contexto.user.id);
-      let racha = 1;
+      let nuevaRacha = 1;
       let cambio = false;
       if (r) {
-        let ultimo_login =new Date(r.last_login);        
-        if (fue_ayer(ultimo_login)) { 
-          const desbloquee = await desbloquee_un_avatar(r.racha+1,r.racha_maxima);
-          setDesbloqueado(desbloquee)
+        const ultimoLogin = new Date(r.last_login);
+        const hoy = new Date();
+        const normalize = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate());
+        const diffDias = Math.round((normalize(hoy).getTime() - normalize(ultimoLogin).getTime()) / 86400000);
+        if (diffDias === 1) {
+          const desbloquee = await desbloquee_un_avatar(r.racha + 1, r.racha_maxima);
+          setDesbloqueado(desbloquee);
           await sumar_racha(contexto.user.id);
-          racha= r.racha+1;
-          cambio=true;
-          console.log("sumo racha",r.last_login);         
-        }
-        else if (!es_hoy(ultimo_login)) {
+          nuevaRacha = r.racha + 1;
+          cambio = true;
+          setStreakPopTrigger(t => t + 1);
+          setShowConfetti(true);
+          console.log('Racha incrementada. diffDias=1');
+        } else if (diffDias > 1) {
           await perder_racha(contexto.user.id);
-          cambio=true;
-          console.log("pierdo racha",r.last_login)
+          cambio = true;
+          nuevaRacha = 1;
+          console.log('Racha perdida. diffDias>', diffDias);
+        } else if (diffDias === 0) {
+          nuevaRacha = r.racha;
+          console.log('Racha se mantiene. diffDias=0');
         }
-        else {
-          racha= r.racha;
-          console.log("es hoy; no sumo ni pierdo")
-        }        
       }
-      setUser(prev => ({ ...prev, racha: racha || 0 }));
+      setUser(prev => ({ ...prev, racha: nuevaRacha || 0 }));
       setShowModalRacha(cambio);
     } catch (error) {
       console.error(error);
-      error_alert("Ocurrió un error al cargar la racha");
-    }    
-  }
+      error_alert('Ocurrió un error al cargar la racha');
+    }
+  };
 
   const cerrar_modal_racha = async () => {
     try {            
@@ -136,8 +157,10 @@ export default function HomeStudent() {
         
         <View style={styles.stackCards}>
           <View style={[styles.card, styles.cardLeft]}> 
-            <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
-            <Text style={styles.cardTitleCursos}>{user.racha} {user.racha ==1 ? "día":"días"} de racha</Text>
+            <AnimatedFlame trigger={streakPopTrigger} />
+            <Text style={styles.cardTitleCursos}>{user.racha} {user.racha ==1 ? 'día':'días'} de racha</Text>
+            <Text style={styles.xpInfo}>Nivel {level} • {xp} XP</Text>
+            <XPGainPop amount={delta} onDone={consumeDelta} />
           </View>
           <Pressable style={[styles.card, styles.cardRight]} onPress={() => router.push('/tabs/Dashboard_Alumno')}>
             <Text style={styles.cardTitleCursos}>{user.modulosCompletados}</Text>
@@ -167,10 +190,7 @@ export default function HomeStudent() {
           </View>
         </View>
         
-        <Pressable style={styles.ctaButtonCursos}>
-          <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
-          <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
-        </Pressable>
+        <AnimatedButton title="Practicar ahora" onPress={() => router.push('/tabs/Dashboard_Alumno')} style={styles.ctaButtonCursos} textStyle={styles.ctaButtonTextCursos} />
 
         <View style={styles.shortcutsRow}>
           <Pressable style={styles.shortcutCardCursos} onPress={() => router.push('/tabs/leaderboard_grupo')}>
@@ -182,6 +202,9 @@ export default function HomeStudent() {
             <Text style={styles.shortcutTextCursos}>Mis objetivos</Text>
           </Pressable>
         </View>
+
+        {/* Misiones Diarias Preview */}
+        <DailyMissionsPreview userId={contexto.user.id} router={router} />
       </ScrollView>
 
       {/* Modal para mostrar todas las categorías */}
@@ -247,6 +270,7 @@ export default function HomeStudent() {
             </View>
           </View>
         </Modal>
+        <SuccessModal visible={false} title="¡Excelente!" subtitle="Acción completada" onClose={() => {}} />
 
         {/* Modal de desbloaquear un nuevo avatar */}
         <Modal
@@ -272,8 +296,47 @@ export default function HomeStudent() {
             </View>
           </View>
         </Modal>
-      <Toast/>
+  {showConfetti && <ConfettiBurst visible={showConfetti} onDone={() => setShowConfetti(false)} />}
+  <Toast/>
     </View>
+  );
+}
+
+// Componente de fueguito animado (pulso continuo + leve glow)
+function AnimatedFlame({ trigger }: { trigger: number }) {
+  const scale = useSharedValue(1);
+  const glow = useSharedValue(0);
+  const pop = useSharedValue(0);
+  useEffect(() => {
+    scale.value = withRepeat(withSequence(
+      withTiming(1.18, { duration: 600 }),
+      withTiming(1.0, { duration: 600 })
+    ), -1, true);
+    glow.value = withRepeat(withSequence(
+      withTiming(1, { duration: 700 }),
+      withTiming(0, { duration: 700 })
+    ), -1, true);
+  }, []);
+  // Pop cuando trigger cambia (racha aumenta)
+  useEffect(() => {
+    if (trigger === 0) return;
+    pop.value = 0;
+    pop.value = withSequence(
+      withTiming(1, { duration: 90 }),
+      withTiming(0, { duration: 320 })
+    );
+  }, [trigger]);
+  const animatedStyle = useAnimatedStyle(() => ({
+    transform: [{ scale: scale.value + pop.value * 0.5 }],
+    shadowColor: '#ff6d00',
+    shadowOpacity: 0.4 * glow.value + 0.5 * pop.value,
+    shadowRadius: 16 + 10 * glow.value + 14 * pop.value,
+    shadowOffset: { width: 0, height: 4 }
+  }));
+  return (
+    <Animated.View style={[{ marginBottom: 8, alignSelf: 'flex-start' }, animatedStyle]}>
+      <Ionicons name="flame" size={52} color={paleta.strong_yellow} />
+    </Animated.View>
   );
 }
 
@@ -333,6 +396,12 @@ const styles = StyleSheet.create({
     fontFamily: 'System',
     letterSpacing: 0.2,
     textAlign: 'center',
+  },
+  xpInfo: {
+    marginTop: 4,
+    fontSize: 14,
+    fontWeight: '600',
+    color: '#555'
   },
   categoriasHeader: {
     flexDirection: 'row',
@@ -478,4 +547,56 @@ const styles = StyleSheet.create({
     color: paleta.dark_aqua,
     alignSelf: "center",
   },
+  missionHeaderRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: 8,
+  },
+  missionBox: {
+    marginTop: 20,
+    marginBottom: 10,
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    padding: 18,
+    borderWidth: 1.5,
+    borderColor: '#e0e0e0',
+    shadowColor: '#000',
+    shadowOpacity: 0.06,
+    shadowRadius: 8,
+  },
+  missionEmpty: {
+    color: '#777',
+    fontSize: 13,
+    alignSelf: 'center',
+    marginTop: 2,
+  },
+  seeAllLink: {
+    color:'#0a7ea4',
+    fontWeight:'600'
+  }
 });
+
+// Subcomponente para preview de misiones diarias
+function DailyMissionsPreview({ userId, router }: { userId: number; router: any }) {
+  const { missions, progressRatio, allCompleted } = useDailyMissions(userId);
+  const mostrar = missions.slice(0,2);
+  return (
+    <View style={styles.missionBox}>
+      <View style={styles.missionHeaderRow}>
+        <Text style={{ fontSize:18, fontWeight:'bold', color:'#222' }}>Misiones de hoy</Text>
+        <Text style={styles.seeAllLink} onPress={() => router.push('/tabs/misiones')}>Ver todas</Text>
+      </View>
+      {missions.length === 0 && (
+        <Text style={styles.missionEmpty}>Se generarán al comenzar el día.</Text>
+      )}
+      {mostrar.map((m: Mission) => (
+        <MissionCard key={m.id} mission={m} />
+      ))}
+      <Text style={{ marginTop:4, fontSize:12, color:'#555' }}>Progreso global: {Math.round(progressRatio*100)}% {allCompleted? '✔':''}</Text>
+      {allCompleted && (
+        <Text style={{ marginTop:6, fontSize:13, fontWeight:'600', color:'#ff9800' }}>¡Todas completadas! Bonus aplicado.</Text>
+      )}
+    </View>
+  );
+}
