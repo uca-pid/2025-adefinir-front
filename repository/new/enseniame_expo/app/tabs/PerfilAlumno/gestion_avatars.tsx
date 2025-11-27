@@ -16,7 +16,7 @@ import { Avatar } from '@/components/types';
 export default function Perfil () {
   const [racha,setRacha] = useState(0);
   const [pfp,setPfp]=useState<Avatar>();
-  const [avatares_desbloqueados,setAvataresDesbloqueados] = useState<Avatar[]>([]);
+  const [avatares,setAvatares] = useState<Avatar[]>([]);  
   const [avatares_bloqueados,setAvataresBloqueados] = useState<Avatar[]>([]);
   const [loading,setLoading] = useState(false);
 
@@ -42,9 +42,17 @@ export default function Perfil () {
             if (a && a.length>0) {
               avatares_desbloqueados = desbloqueados(a,r.racha_maxima);
               avatares_bloqueados = bloqueados(a,r.racha_maxima);
-            }            
-            setAvataresDesbloqueados(avatares_desbloqueados || []);
+              //ordenar de menos a más reciente
+              a.sort(function(a,b){
+                if (a.racha_desbloquear > b.racha_desbloquear){
+                  return 1
+                } if (a.racha_desbloquear < b.racha_desbloquear){
+                  return -1
+                } return 0
+              })
+            }                        
             setAvataresBloqueados(avatares_bloqueados || []) ;
+            setAvatares(a || []);
             setRacha(r.racha_maxima);
 
             setLoading(false)
@@ -60,14 +68,14 @@ export default function Perfil () {
 
 
   const cambiar_avatar = async (a:Avatar) => {
-      try {
-        await cambiar_mi_avatar(contexto.user.id,a.id);
-        setPfp(a)
-        success_alert("¡Tu avatar fue cambiado con éxito!")
-      } catch (error) {
-        console.error(error);
-        error_alert("No se pudo cambiar tu avatar");
-      }
+    try {
+      await cambiar_mi_avatar(contexto.user.id,a.id);
+      setPfp(a)
+      success_alert("¡Tu avatar fue cambiado con éxito!")
+    } catch (error) {
+      console.error(error);
+      error_alert("No se pudo cambiar tu avatar");
+    }
   }
 
   const fue_desbloqueado = (a:Avatar)=>{
@@ -79,23 +87,11 @@ export default function Perfil () {
   
   const renderAvatar = ({ item }: { item: Avatar }) =>  (
     <TouchableOpacity 
-      onPress={()=>cambiar_avatar(item)}
+      onPress={()=>{if (fue_desbloqueado(item))cambiar_avatar(item)}}
       style={[{margin:10},item.id==pfp?.id ? styles.round_border:{}]}>
       <Image
         style={[styles.image]}
         source={fue_desbloqueado(item) ? item.image_url: candado}
-        contentFit="contain"
-        transition={0}
-      /> 
-    </TouchableOpacity>
-  )
-
-  const renderAvatarBloqueado = ({ item }: { item: Avatar }) =>  (
-    <TouchableOpacity       
-      style={[{margin:10}]}>
-      <Image
-        style={[styles.image]}
-        source={candado}
         contentFit="contain"
         transition={0}
       /> 
@@ -142,7 +138,7 @@ export default function Perfil () {
                 <FlatList 
                   keyExtractor={(item) => item.id.toString()}
                   style={[{height: avatares_bloqueados.length==0 ? 420:450}]}
-                  data={avatares_desbloqueados.concat(avatares_bloqueados)}
+                  data={avatares}
                   renderItem={renderAvatar}
                   numColumns={3}
                   columnWrapperStyle={{marginHorizontal:10}}
@@ -155,30 +151,8 @@ export default function Perfil () {
                     <ThemedText lightColor={paleta.dark_aqua} type='subtitle'>Desbloqueaste todos los avatares</ThemedText>
                   </View>
                 }
-              </View>
-
-              <View style={styles.section}>
-               
-                {/* <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220,minHeight:150}]}
-                  data={avatares_bloqueados}
-                  renderItem={renderAvatarBloqueado}
-                  numColumns={3}
-                  columnWrapperStyle={{marginHorizontal:10}}
-                  ListEmptyComponent={() => (
-                    <View style={[estilos.centrado, {marginTop: 80}]}>
-                    <ThemedText lightColor="#005348ff" style={styles.msg}>¡Felicidades! 🎉</ThemedText>
-                    <ThemedText lightColor={paleta.dark_aqua} type='subtitle'>Desbloqueaste todos los avatares</ThemedText>
-                    </View>
-                    
-                  )}
-                /> */}
-              </View>
-
-            
+              </View>                      
             </View>
-
            
         <Toast/>
         </View>
