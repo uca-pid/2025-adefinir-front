@@ -66,6 +66,11 @@ export default function RootLayout() {
         })} />
       ) : <Tabs.Screen name='alumno_objetivos' options={{href:null}} />}
  */}
+    <Tabs.Screen name='misiones/index' options={{href:null}} />
+
+    <Tabs.Screen name='dashboard_alumno' options={{href:null}} />
+    <Tabs.Screen name='leaderboard_grupo' options={{href:null, headerShown: false,}} />
+
       {contexto.user.is_prof ? (
         <Tabs.Screen name='Modulos_Alumno'  options={{href:null}} />
       ): <Tabs.Screen name='Modulos_Profe'  options={{href:null}} />}
