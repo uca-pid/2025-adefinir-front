@@ -1,6 +1,6 @@
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { useFocusEffect } from "expo-router";
-import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator } from "react-native";
+import { View, Text, StyleSheet, FlatList, Pressable, ActivityIndicator, TextInput } from "react-native";
 import { Ionicons } from "@expo/vector-icons";
 import { useRouter } from "expo-router";
 import { eliminar_modulo,  mis_modulos_calificados } from "@/conexiones/modulos";
@@ -18,6 +18,8 @@ interface ModuloCalificado extends Modulo {
 
 export default function MisModulosScreen() {
   const [modules, setModules] = useState<ModuloCalificado[]>([]);
+  const [filteredModulos, setFilteredModulos] = useState<ModuloCalificado[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(true);
   const [showMenu, setShowMenu] = useState<number | null>(null);
   const router = useRouter();
@@ -29,6 +31,9 @@ export default function MisModulosScreen() {
       fetchModules();
     }, [])
   );
+  useEffect(() => {
+    filterModulosBusqueda();
+  }, [searchQuery, modules]);
 
   const fetchModules = async () => {
     setLoading(true);
@@ -41,12 +46,29 @@ export default function MisModulosScreen() {
       });
         
       setModules(res || []);
+      setFilteredModulos(res || [])
             
     } catch (error) {
       console.error(error);
       error_alert("Se produjo un error al buscar los módulos");
     }
     setLoading(false);
+  };
+
+  const filterModulosBusqueda = () => {
+    var filtered = modules.filter(m => 
+      m.nombre.toLowerCase().includes(searchQuery.toLowerCase()) 
+    );    
+   const orderedAndFiltered =filtered.sort(function (a, b) {
+      if (a.nombre < b.nombre) {
+        return -1;
+      }
+      if (a.nombre > b.nombre) {
+        return 1;
+      }
+      return 0;
+    })
+    setFilteredModulos(orderedAndFiltered);    
   };
 
   const handleDelete = async (id: number) => {
@@ -74,8 +96,20 @@ export default function MisModulosScreen() {
       {loading ? (
         <ActivityIndicator size="large" color={paleta.sea_green} style={{ marginTop: 40 }} />
       ) : (
+<>
+        <View style={styles.searchBarRowCursos}>
+          <Ionicons name="search" size={22} color="#20bfa9" style={styles.searchIcon} />
+          <TextInput
+            style={styles.searchInputCursos}
+            placeholder="Buscar módulo..."
+            value={searchQuery}
+            onChangeText={setSearchQuery}
+            placeholderTextColor="#20bfa980"
+          />
+          <Text style={styles.countTextCursos}>{filteredModulos.length}</Text>
+        </View>
         <FlatList
-          data={modules}
+          data={filteredModulos}
           keyExtractor={(item) => item.id.toString()}
           contentContainerStyle={{ paddingBottom: 80 }}
           renderItem={({ item }) => (
@@ -158,7 +192,7 @@ export default function MisModulosScreen() {
               )}
             </View>
           )}
-        />
+        /></>
       )}
       <Toast/>
     </View>
@@ -170,19 +204,6 @@ const styles = StyleSheet.create({
     flex: 1,
     backgroundColor: "#e6f7f2",
     padding: 16,
-  },
-  backBtn: {
-    alignSelf: 'flex-start',
-    marginBottom: 10,
-    backgroundColor: '#20bfa9',
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 14,
-  },
-  backBtnText: {
-    color: '#fff',
-    fontWeight: 'bold',
-    fontSize: 16,
   },
   addBtn: {
     flexDirection: 'row',
@@ -205,8 +226,7 @@ const styles = StyleSheet.create({
     color: '#fff',
     fontWeight: 'bold',
     fontSize: 18,
-    marginLeft: 8,
-    
+    marginLeft: 8,    
   },
   title: {
     fontSize: 28,
@@ -243,19 +263,7 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     marginTop: 8,
   },
-  editBtn: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#e6f7f2",
-    borderRadius: 8,
-    paddingVertical: 6,
-    paddingHorizontal: 12,
-  },
-  editBtnText: {
-    color: "#20bfa9",
-    fontWeight: "bold",
-    marginLeft: 4,
-  },
+  
   viewBtn: {
     backgroundColor: paleta.sea_green,
     borderRadius: 8,
@@ -265,5 +273,45 @@ const styles = StyleSheet.create({
   viewBtnText: {
     color: "#fff",
     fontWeight: "bold",
+  },
+  searchBarRowCursos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: '#fff',
+    borderRadius: 24,
+    marginHorizontal: 18,
+    marginBottom: 18,
+    paddingHorizontal: 18,
+    zIndex: 2,
+    shadowColor: '#20bfa9',
+    shadowOpacity: 0.10,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 2,
+    borderColor: '#20bfa9',
+  },
+  searchIcon: {
+    marginRight: 8,
+  },
+  searchInputCursos: {
+    flex: 1,
+    paddingVertical: 12,
+    fontSize: 16,
+    color: '#20bfa9',
+    backgroundColor: 'transparent',
+    fontWeight: 'bold',
+    letterSpacing: 0.2,
+    fontFamily: 'System',
+  },
+  countTextCursos: {
+    color: '#20bfa9',
+    fontWeight: 'bold',
+    fontSize: 15,
+    marginLeft: 8,
+    backgroundColor: '#e6f7f2',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
+    fontFamily: 'System',
   },
 });

@@ -1,5 +1,5 @@
 import React, { useCallback, useState } from 'react';
-import { View, StyleSheet,  ScrollView, TouchableOpacity,  Alert,  } from 'react-native';
+import { View, StyleSheet,  ScrollView, TouchableOpacity,  Alert, FlatList,  } from 'react-native';
 import {  Ionicons, MaterialIcons  } from '@expo/vector-icons';
 import {  router, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
@@ -16,6 +16,8 @@ import { Image } from 'expo-image';
 import { BotonLogin } from '@/components/botones';
 import { SmallPopupModal } from '@/components/modals';
 import VideoPlayer from '@/components/VideoPlayer';
+import { Avatar } from '@/components/types';
+import { cambiar_mi_avatar, my_avatar, todos_avatares } from '@/conexiones/avatars';
 
 export default function Perfil (){
     const [name,setName]= useState<string>();
@@ -27,6 +29,7 @@ export default function Perfil (){
     const [nameModalVisible, setNameModalVisible] = useState(false);
     const [PassModalVisible, setPassModalVisible] = useState(false);
     const [instModalVisible, setInstModalVisible] = useState(false);
+    const [avatarModalVisible, setAvatarModalVisible] = useState(false);
     
     const [reportesModalVisible, setReportesModalVisible] = useState(false);
 
@@ -40,14 +43,24 @@ export default function Perfil (){
     const [loadingReportes, setLoadingReportes] = useState(false);
 
     const contexto = useUserContext();
-
-    const img = require("../../assets/images/pfp.jpg");
+    
+    const [pfp,setPfp]=useState<Avatar>();
+    const [avatares,setAvatares] = useState<Avatar[]>([]);  
 
     useFocusEffect(
       useCallback(() => {
           const fetchData = async () => {
-              const reportes = await traerReportesProfe(contexto.user.id);
-              setReportes(reportes || []);
+            const reportes = await traerReportesProfe(contexto.user.id);
+            setReportes(reportes || []);
+
+            const p = await my_avatar(contexto.user.id);
+            const img = require("../../assets/images/pfp.jpg");
+            
+            if (p.Avatar) {setPfp(p.Avatar)}
+            else setPfp({image_url:img,id:1,racha_desbloquear:1});
+
+            const a = await todos_avatares();     
+            setAvatares(a || []);
           };
           fetchData();
         return () => {};
@@ -160,21 +173,44 @@ export default function Perfil (){
       setReportesModalVisible(true);
     };
 
+    const cambiar_avatar = async (a:Avatar) => {
+    try {
+      await cambiar_mi_avatar(contexto.user.id,a.id);
+      setPfp(a)
+      success_alert("¡Tu avatar fue cambiado con éxito!")
+    } catch (error) {
+      console.error(error);
+      error_alert("No se pudo cambiar tu avatar");
+    }
+  }
+    const renderAvatar = ({ item }: { item: Avatar }) =>  (
+    <TouchableOpacity 
+      onPress={()=>{cambiar_avatar(item)}}
+      style={[{margin:10},item.id==pfp?.id ? styles.round_border:{}]}>
+      <Image
+        style={[styles.image,{borderRadius:50}]}
+        source={ item.image_url}
+        contentFit="contain"
+        transition={0}
+      /> 
+    </TouchableOpacity>
+  )
+
     return(
         <View style={[styles.mainView,{backgroundColor:"#ebfbfbff"}]}>
           <ScrollView contentContainerStyle={[styles.scrollViewContent]}>
             <View style={styles.formAndImg}>
               <Image
                 style={[styles.image,{borderColor:paleta.aqua}]}
-                source={img}
+                source={pfp?.image_url}
                 contentFit="contain"
                 transition={1000}
               />
               
-                <View style={[{marginTop:25,flexDirection:"row"},estilos.centrado]}>
+                <TouchableOpacity onPress={()=>setAvatarModalVisible(true)} style={[{marginTop:25,flexDirection:"row"},estilos.centrado]}>
                   <ThemedText type='title'>{contexto.user.username}</ThemedText>
                   <Ionicons style={styles.icon} name='pencil' size={22} color={paleta.aqua} />
-                </View>
+                </TouchableOpacity>
 
                 <View style={styles.formContainer}>
                  <ThemedText type='defaultSemiBold' lightColor='gray' style={{alignSelf:"flex-start", margin:15}}>Actualizar datos</ThemedText>
@@ -334,6 +370,20 @@ export default function Perfil (){
               )}
             </SmallPopupModal>
 
+            <SmallPopupModal title={"Cambiar avatar"} modalVisible={avatarModalVisible} setVisible={setAvatarModalVisible}>
+              <View style={{alignContent:"flex-start"}}>
+              <FlatList 
+                keyExtractor={(item) => item.id.toString()}
+                style={[{height:  420}]}
+                data={avatares}
+                renderItem={renderAvatar}
+                numColumns={3}
+                columnWrapperStyle={{marginRight:5}}
+              />
+              </View>
+              
+            </SmallPopupModal>
+
           <Toast/>
         </View>
     )
@@ -427,5 +477,11 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 20,
     borderWidth: 1,
+  },
+  round_border:{
+    borderColor:paleta.aqua,
+    borderWidth:2,
+    borderRadius: 40,
+    backgroundColor:paleta.turquesa
   },
 });

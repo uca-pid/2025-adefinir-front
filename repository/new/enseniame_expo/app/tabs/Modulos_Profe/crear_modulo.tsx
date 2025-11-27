@@ -135,14 +135,14 @@ export default function CrearModuloScreen() {
       </TouchableOpacity>
 
       <SmallPopupModal title="Seleccionar ícono" modalVisible={modalIconVisible} setVisible={setIconModalVisible}>
-        <View style={[styles.iconRow,estilos.centrado]}>
+        <View style={[estilos.centrado]}>
           <FlatList
             data={iconOptions}
             renderItem={renderIcons}
-            keyExtractor={(item) => item.toString()}
-            contentContainerStyle={[estilos.centrado,styles.iconRow,{flexWrap:"wrap"}]}
+            keyExtractor={(item) => item.toString()}            
             style={[{maxHeight:400}]}
-            numColumns={5}
+            numColumns={5}            
+            columnWrapperStyle={{marginHorizontal:10}}
           />
         </View>
           

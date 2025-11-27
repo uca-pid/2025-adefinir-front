@@ -16,8 +16,9 @@ const mi_racha = async (id_alumno:number) => {
                 { id_alumno: id_alumno, racha: 1,last_login: new Date() },
             ])
             .select()
+            .single()
         if (error) throw error
-        return data[0]
+        return data
     }
 }
 

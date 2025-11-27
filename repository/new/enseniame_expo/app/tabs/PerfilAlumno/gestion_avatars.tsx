@@ -16,8 +16,8 @@ import { Avatar } from '@/components/types';
 export default function Perfil () {
   const [racha,setRacha] = useState(0);
   const [pfp,setPfp]=useState<Avatar>();
-  const [avatares_desbloqueados,setAvataresDesbloqueados] = useState<Avatar[]>();
-  const [avatares_bloqueados,setAvataresBloqueados] = useState<Avatar[]>();
+  const [avatares,setAvatares] = useState<Avatar[]>([]);  
+  const [avatares_bloqueados,setAvataresBloqueados] = useState<Avatar[]>([]);
   const [loading,setLoading] = useState(false);
 
   const contexto = useUserContext();  
@@ -42,9 +42,17 @@ export default function Perfil () {
             if (a && a.length>0) {
               avatares_desbloqueados = desbloqueados(a,r.racha_maxima);
               avatares_bloqueados = bloqueados(a,r.racha_maxima);
-            }            
-            setAvataresDesbloqueados(avatares_desbloqueados || []);
+              //ordenar de menos a más reciente
+              a.sort(function(a,b){
+                if (a.racha_desbloquear > b.racha_desbloquear){
+                  return 1
+                } if (a.racha_desbloquear < b.racha_desbloquear){
+                  return -1
+                } return 0
+              })
+            }                        
             setAvataresBloqueados(avatares_bloqueados || []) ;
+            setAvatares(a || []);
             setRacha(r.racha_maxima);
 
             setLoading(false)
@@ -60,35 +68,30 @@ export default function Perfil () {
 
 
   const cambiar_avatar = async (a:Avatar) => {
-      try {
-        await cambiar_mi_avatar(contexto.user.id,a.id);
-        setPfp(a)
-        success_alert("¡Tu avatar fue cambiado con éxito!")
-      } catch (error) {
-        console.error(error);
-        error_alert("No se pudo cambiar tu avatar");
-      }
+    try {
+      await cambiar_mi_avatar(contexto.user.id,a.id);
+      setPfp(a)
+      success_alert("¡Tu avatar fue cambiado con éxito!")
+    } catch (error) {
+      console.error(error);
+      error_alert("No se pudo cambiar tu avatar");
     }
+  }
+
+  const fue_desbloqueado = (a:Avatar)=>{
+    if (a.racha_desbloquear<=racha){
+      return true
+    }
+    return false
+  }
   
   const renderAvatar = ({ item }: { item: Avatar }) =>  (
     <TouchableOpacity 
-      onPress={()=>cambiar_avatar(item)}
+      onPress={()=>{if (fue_desbloqueado(item))cambiar_avatar(item)}}
       style={[{margin:10},item.id==pfp?.id ? styles.round_border:{}]}>
       <Image
         style={[styles.image]}
-        source={item.image_url}
-        contentFit="contain"
-        transition={0}
-      /> 
-    </TouchableOpacity>
-  )
-
-  const renderAvatarBloqueado = ({ item }: { item: Avatar }) =>  (
-    <TouchableOpacity       
-      style={[{margin:10}]}>
-      <Image
-        style={[styles.image]}
-        source={candado}
+        source={fue_desbloqueado(item) ? item.image_url: candado}
         contentFit="contain"
         transition={0}
       /> 
@@ -131,40 +134,25 @@ export default function Perfil () {
                 transition={1000}
               />
               <View style={styles.section}>
-                <ThemedText style={styles.sectionTitle}>Desbloqueados</ThemedText>
+                
                 <FlatList 
                   keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight: avatares_bloqueados?.length==0 ? 400:320,minHeight:200}]}
-                  data={avatares_desbloqueados}
+                  style={[{height: avatares_bloqueados.length==0 ? 420:450}]}
+                  data={avatares}
                   renderItem={renderAvatar}
                   numColumns={3}
                   columnWrapperStyle={{marginHorizontal:10}}
                 />
-              </View>
-
-              <View style={styles.section}>
-                {avatares_bloqueados?.length != 0 ? 
-                  <ThemedText lightColor="#005348ff" style={styles.sectionTitle}>¡Alcanza una racha de {racha+1} para desbloquear el siguiente avatar!</ThemedText>:null}
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220,minHeight:150}]}
-                  data={avatares_bloqueados}
-                  renderItem={renderAvatarBloqueado}
-                  numColumns={3}
-                  columnWrapperStyle={{marginHorizontal:10}}
-                  ListEmptyComponent={() => (
-                    <View style={[estilos.centrado, {marginTop: 80}]}>
-                    <ThemedText lightColor="#005348ff" style={styles.msg}>¡Felicidades! 🎉</ThemedText>
+                 {avatares_bloqueados.length != 0 ? 
+                  <ThemedText lightColor="#005348ff" style={[styles.msg]}>¡Alcanza una racha de {racha+1} para desbloquear el siguiente avatar!</ThemedText>
+                  :
+                  <View style={[estilos.centrado]}>
+                    <ThemedText lightColor="#005348ff" style={[styles.msg]}>¡Felicidades! 🎉</ThemedText>
                     <ThemedText lightColor={paleta.dark_aqua} type='subtitle'>Desbloqueaste todos los avatares</ThemedText>
-                    </View>
-                    
-                  )}
-                />
-              </View>
-
-            
+                  </View>
+                }
+              </View>                      
             </View>
-
            
         <Toast/>
         </View>
@@ -189,8 +177,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: "100%"
   },
-  
-   title : {
+  title : {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
@@ -198,23 +185,16 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     position: "absolute",
     top: 70
-  },
-  sectionTitle : {
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: '#222',
-    marginVertical: 5,
-    marginLeft:7,
-    alignSelf: "flex-start"  
-  },   
-  section:{
-    marginTop: 8,
+  }, 
+  section:{    
     width:"100%"
   },
   msg : {
     fontSize: 25, 
     fontWeight:"bold", 
-    marginBottom: 15  
+    marginBottom: 15  ,
+    textAlign:"center",
+    marginTop: 25
   },  
   backBtn: {
     padding: 10,

@@ -1,7 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, StyleSheet,   TouchableOpacity, Pressable, ActivityIndicator, FlatList,Text, SectionList } from 'react-native';
 import {  Ionicons  } from '@expo/vector-icons';
-import {   useFocusEffect } from 'expo-router';
+import {   router, useFocusEffect } from 'expo-router';
 import { ThemedText } from '@/components/ThemedText';
 import { error_alert, success_alert } from '@/components/alert';
 import Toast from 'react-native-toast-message';
@@ -9,14 +9,26 @@ import { useUserContext } from '@/context/UserContext';
 import { paleta, paleta_colores } from '@/components/colores';
 import { estilos } from '@/components/estilos';
 import { Image } from 'expo-image';
-import { categorias_insignias, insignias_por_categoria, todas_insignias } from '@/conexiones/insignias';
+import { categorias_insignias,  cuantos_ganaron_insignia,  mis_insignias_ganadas,  todas_insignias } from '@/conexiones/insignias';
+import { SmallPopupModal } from '@/components/modals';
 
 type Insignia = {
   id: number;
   nombre: string;
   descripcion: string;
   image_url: string;
-  motivo:number
+  motivo:number;
+  ganada: boolean;
+}
+
+type I ={
+  id: number;
+  nombre: string;
+  descripcion: string;
+  image_url: string;
+  motivo:number;
+  ganada: boolean;
+  cant_personas: number
 }
 
 type Seccion ={
@@ -26,30 +38,33 @@ type Seccion ={
 
 export default function Detalle_Insignias () {  
   
-  const [insignias,setInsignias] = useState<Insignia[]>();
-  const [mis_insignias,setMisInsignias] = useState<Insignia[]>();
-  const [selected_insignia,setSelectedInsignia]  = useState<Insignia>();
-  const [secciones,setSecciones] = useState<Seccion[]>([])
+  const [secciones,setSecciones] = useState<Seccion[]>([]);
   const [loading,setLoading] = useState(false);
 
-  const contexto = useUserContext();  
+  const [selected_insignia, setSelectedInsignia] = useState<I>();
+  const [showModalI,setShowModalI] =useState(false);
 
-  const candado = require("../../../assets/images/lock.png");
+  const contexto = useUserContext();  
 
   useFocusEffect(
       useCallback(() => {
         const fetchData = async () => {
           setLoading(true)
           try {
-            const i = await todas_insignias();
-            setInsignias(i || []);
-
+            const i = await todas_insignias();            
             const c = await categorias_insignias();
-            if (c && c.length>0 && i){
+            const ganadas = await mis_insignias_ganadas(contexto.user.id);
+            if (c && c.length>0 && i && ganadas){
               let s: Seccion[] =[];
               c.forEach(async each=>{
-                const insignias_cate = insignias_por_cate(i,each.id);                         
-                s.push({title:each.motivo,data:[insignias_cate]});
+                const insignias_cate = insignias_por_cate(i,each.id);
+                const res = insignias_cate.map(each=>{
+                  let g = false;
+                  if (fue_ganada(ganadas,each)) {g=true;}
+                  
+                  return {id:each.id,image_url:each.image_url,ganada:g,nombre:each.nombre,motivo:each.motivo,descripcion:each.descripcion}
+                })
+                s.push({title:each.motivo,data:[res]});
               });
               
               setSecciones(s || [])
@@ -68,21 +83,27 @@ export default function Detalle_Insignias () {
   const insignias_por_cate = (i:Insignia[],cate_id:number)=>{
     return i.filter(v=>v.motivo==cate_id)
   }
+  const fue_ganada = (ganadas:{id_insignia:number}[],i:Insignia)=>{
+    return ganadas.find(each=>each.id_insignia==i.id) != undefined
+  }
 
-
-  const renderInsignia = ({ item }: { item: Insignia }) =>(
-      <View style={[styles.dataInsignia,estilos.centrado]}>
+  const renderInsignia = ({ item }: { item: Insignia }) =>( 
+      <TouchableOpacity onPress={async ()=>{
+        let c = await cuantos_ganaron_insignia(item.id)
+        setSelectedInsignia({id:item.id,descripcion:item.descripcion,ganada:item.ganada,cant_personas:c,nombre:item.nombre,image_url:item.image_url,motivo:item.motivo});
+        setShowModalI(true)}} style={[styles.dataInsignia,estilos.centrado]}>
         <Image
-          style={[styles.insignia]}
+          style={[styles.insignia,{opacity: item.ganada ? 1:0.5}]}
           source={item.image_url}
           contentFit="cover"
           transition={0}
+          
         /> 
         <View style={estilos.centrado} >
           <ThemedText style={{fontSize:15}} type='bold'>{item.nombre}</ThemedText>
-          <ThemedText style={styles.subtitle}>{item.descripcion}</ThemedText>
+          <ThemedText style={styles.subtitle}>{item.descripcion}</ThemedText>          
         </View>
-      </View>
+      </TouchableOpacity>
     )
 
 
@@ -92,7 +113,7 @@ export default function Detalle_Insignias () {
         <ActivityIndicator size="large" color={paleta.dark_aqua} />
       </View>
     );
-  }   
+  }    
     return (
         <View style={styles.mainView}>
             <View style={[styles.header]}>
@@ -125,10 +146,10 @@ export default function Detalle_Insignias () {
                 )}
                 style={styles.section}
                 contentContainerStyle={{justifyContent: "flex-start",}}
-                renderSectionHeader={({section: {title}}) => (
+                renderSectionHeader={({section: {title,data}}) => (
                   <View style={styles.row}>
                   <ThemedText style={styles.sectionTitle}>{title}</ThemedText>
-                  <Pressable style={{marginRight:10}}>
+                  <Pressable style={{marginRight:10}} onPress={()=>router.push({ pathname: '/tabs/PerfilAlumno/insignias_categoria', params: { id: data[0][0].motivo } })}>
                     <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
                   </Pressable>
                   
@@ -137,75 +158,76 @@ export default function Detalle_Insignias () {
                 stickySectionHeadersEnabled={false}
                 
               />             
-              {/* <View style={styles.section}>
-                <View style={styles.row}>
-                  <ThemedText style={styles.sectionTitle}>Racha</ThemedText>
-                  <Pressable style={{marginRight:10}}>
-                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
-                  </Pressable>
-                  
-                </View>
-                
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight: 320,minHeight:200}]}
-                  data={insignias}
-                  renderItem={renderInsignia} 
-                  horizontal={true} 
-                />
-              </View> */}
-
-             {/*  <View style={styles.section}>                
-                <View style={styles.row}>
-                  <ThemedText style={styles.sectionTitle}>Señas</ThemedText>
-                  <Pressable style={{marginRight:10}}>
-                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
-                  </Pressable>                  
-                </View>
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220,minHeight:150}]}
-                  data={insignias}
-                  renderItem={renderInsignia}  
-                  horizontal={true}                                                     
-                />
-              </View> */}
-
-              {/* <View style={styles.section}>                
-                <View style={styles.row}>
-                  <ThemedText style={styles.sectionTitle}>Módulos</ThemedText>
-                  <Pressable style={{marginRight:10}}>
-                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
-                  </Pressable>                  
-                </View>
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220,minHeight:150}]}
-                  data={insignias}
-                  renderItem={renderInsignia}  
-                  horizontal={true}                                                     
-                />
-              </View> */}
-
-             {/*  <View style={styles.section}>                
-                <View style={styles.row}>
-                  <ThemedText style={styles.sectionTitle}>Objetivos</ThemedText>
-                  <Pressable style={{marginRight:10}}>
-                    <ThemedText style={styles.subtitle}>Ver todas</ThemedText>
-                  </Pressable>                  
-                </View>
-                <FlatList 
-                  keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight:220,minHeight:150}]}
-                  data={insignias}
-                  renderItem={renderInsignia}  
-                  horizontal={true}                                                     
-                />
-              </View> */}
-
-            
             </View>
+            <SmallPopupModal title={selected_insignia?.nombre} modalVisible={showModalI} setVisible={setShowModalI}>
+            {selected_insignia && selected_insignia.ganada && (
+                <View style={[estilos.centrado,{width:"100%"}]}>
+                    <View style={{height:200}}>
+                        <Image
+                        style={styles.image2}
+                        source={selected_insignia.image_url}
+                        contentFit="contain"
+                        transition={0}
+                        /> 
+                    </View>
+                    
+                    <View style={[{flexDirection:"row"},estilos.centrado]}>
+                        <Ionicons name="people" size={24} color={"#808080"} style={styles.buttonIcon} />
+                        <ThemedText style={styles.subtitle}>{selected_insignia.cant_personas}
+                           {selected_insignia.cant_personas==1 ? " persona obtuvo esta insignia":" personas obtuvieron esta insignia"} 
+                        </ThemedText>
+                    </View>
+                    <View style={{margin:15}}>
+                        <ThemedText style={{textAlign:"center",lineHeight:29}} >                        
+                        <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Felicidades! Obtuviste una insignia por {selected_insignia.descripcion}.</ThemedText>{' '}
+                        <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Sigue practicando y aprendiendo para ganar más!</ThemedText>
+                        </ThemedText>
+                    </View>
+                    
+                    <Pressable onPress={()=>{setShowModalI(false);contexto.user.gotToModules()}} style={styles.ctaButtonCursos}>
+                        <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
+                        <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
+                    </Pressable>
 
+                    <Pressable style={estilos.centrado} onPress={()=>setShowModalI(false)}>
+                        <ThemedText style={{fontSize:20}} type='bold' lightColor={paleta.dark_aqua}>Cerrar</ThemedText>
+                    </Pressable>
+                </View>
+            )}
+
+            {selected_insignia && !selected_insignia.ganada && (
+                <View style={[estilos.centrado,{width:"100%"}]}>
+                    <View style={{height:200}}>
+                        <Image
+                        style={[styles.image2,{opacity: 0.4}]}
+                        source={selected_insignia.image_url}
+                        contentFit="contain"
+                        transition={0}
+                        /> 
+                    </View>
+                    
+                    <View style={[{flexDirection:"row"},estilos.centrado]}>
+                        <Ionicons name="people" size={24} color={"#808080"} style={styles.buttonIcon} />
+                        <ThemedText style={styles.subtitle}>100 personas obtuvieron esta insignia</ThemedText>
+                    </View>
+                    <View style={{margin:15}}>
+                        <ThemedText style={{textAlign:"center",lineHeight:29}} >                        
+                        <ThemedText lightColor='#474646ff' style={{fontSize:20}}>Debes {selected_insignia.descripcion} para ganar esta insignia.</ThemedText>{' '}
+                        <ThemedText lightColor='#474646ff' style={{fontSize:20}}>¡Sigue practicando y aprendiendo para obtenerla!</ThemedText>
+                        </ThemedText>
+                    </View>
+                    
+                    <Pressable onPress={()=>{setShowModalI(false);contexto.user.gotToModules()}} style={styles.ctaButtonCursos}>
+                        <Ionicons name="flash" size={24} color="#fff" style={styles.buttonIcon} />
+                        <Text style={styles.ctaButtonTextCursos}>Practicar ahora</Text>
+                    </Pressable>
+
+                    <Pressable style={estilos.centrado} onPress={()=>setShowModalI(false)}>
+                        <ThemedText style={{fontSize:20}} type='bold' lightColor={paleta.dark_aqua}>Cerrar</ThemedText>
+                    </Pressable>
+                </View>
+            )}
+        </SmallPopupModal>
            
         <Toast/>
         </View>
@@ -292,6 +314,12 @@ const styles = StyleSheet.create({
     height: 100,
     borderRadius: 50,   
   },
+  image2: {
+    minWidth: 200,
+    minHeight:200,
+    borderRadius: 100,  
+    flex:1
+  },
   
   insignia: {    
     width: 100,
@@ -314,5 +342,27 @@ const styles = StyleSheet.create({
   },
   separator: {
     height: 10,
+  },
+  ctaButtonCursos: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: '#20bfa9',
+    borderRadius: 14,
+    height: 80,
+    marginVertical: 28,
+    shadowColor: '#000',
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+    width: "100%"
+  },
+  ctaButtonTextCursos: {
+    color: '#fff',
+    fontSize: 20,
+    fontWeight: 'bold',
+  },
+   buttonIcon: {
+    marginRight: 8,
   },
 });

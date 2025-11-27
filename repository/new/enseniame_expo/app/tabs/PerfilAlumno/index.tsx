@@ -14,7 +14,7 @@ import { mi_racha } from '@/conexiones/racha';
 import { useXP } from '@/components/animations/useXP';
 import { mis_modulos_completos } from '@/conexiones/modulos';
 import { Avatar } from '@/components/types';
-import { todas_insignias } from '@/conexiones/insignias';
+import { mis_insignias, mis_insignias_ganadas, todas_insignias } from '@/conexiones/insignias';
 
 type Insignia = {
   id: number;
@@ -50,8 +50,17 @@ export default function Perfil (){
             const a = await todos_avatares();            
             const r = await mi_racha(contexto.user.id);
             let avatares_desbloqueados =a;
+            
             if (a && a.length>0) {
-              avatares_desbloqueados = desbloqueados(a,r.racha_maxima)
+              avatares_desbloqueados = desbloqueados(a,r.racha_maxima);
+              //primero los últimos que desbloqueaste
+              avatares_desbloqueados.sort(function(a,b){
+                if (a.racha_desbloquear > b.racha_desbloquear){
+                  return -1
+                } if (a.racha_desbloquear < b.racha_desbloquear){
+                  return 1
+                } return 0
+              })
             }            
             setAvatares(avatares_desbloqueados || []);  
             setRacha(r.racha);
@@ -59,8 +68,8 @@ export default function Perfil (){
             const m= await mis_modulos_completos(contexto.user.id);
             if (m && m.length>0) setModulos(m.length);
 
-            const i = await todas_insignias();
-            setInsignias(i || []);
+            const i = await mis_insignias(contexto.user.id);
+            setInsignias(i || []);                  
 
             setLoading(false)
           } catch (error) {
@@ -194,7 +203,7 @@ export default function Perfil (){
               <FlatList 
                 keyExtractor={(item) => item.id.toString()}
                 style={[{maxHeight:220}]}
-                data={avatares?.slice(0,5)}
+                data={avatares?.slice(0,6)}
                 renderItem={renderAvatar}
                 numColumns={3}
                 columnWrapperStyle={{marginHorizontal:10}}

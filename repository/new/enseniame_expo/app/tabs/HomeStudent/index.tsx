@@ -24,6 +24,8 @@ import { MissionCard } from '@/components/missions/MissionCard';
 import { desbloquee_un_avatar, nuevo_avatar_desbloqueado } from '@/conexiones/avatars';
 import { Avatar } from '@/components/types';
 import { ThemedText } from '@/components/ThemedText';
+import { ganar_insignia_racha } from '@/conexiones/insignias';
+import { XPCard } from '@/components/cards';
 import type { Mission } from '@/conexiones/misiones';
 
 export default function HomeStudent() {
@@ -38,8 +40,8 @@ export default function HomeStudent() {
   const [progresoCategorias, setProgresoCategorias] = useState<Array<any>>([]);
 
   const [showModalRacha,setShowModalRacha] = useState(false);
-  const fuego_racha = require("../../../assets/images/Streak activation.gif");
-  const racha_perdida =require("../../../assets/images/Broken Stars.gif");
+  const fuego_racha = require("../../../assets/images/fire3.gif");
+  const racha_perdida =require("../../../assets/images/disappointedBeetle.gif");
 
   const [showModalAvatar,setShowModalAvatar] = useState(false);
   const [nuevo_avatar, setNuevoAvatar] = useState<String>();
@@ -125,13 +127,21 @@ export default function HomeStudent() {
           nuevaRacha = r.racha;
           console.log('Racha se mantiene. diffDias=0');
         }
+        else {
+          racha= r.racha;
+          console.log("es hoy; no sumo ni pierdo")
+        }      
+        ganar_insignia_racha(contexto.user.id);
       }
       setUser(prev => ({ ...prev, racha: nuevaRacha || 0 }));
       setShowModalRacha(cambio);
     } catch (error) {
       console.error(error);
-      error_alert('Ocurrió un error al cargar la racha');
-    }
+      error_alert("Ocurrió un error al cargar la racha");
+    }    
+
+    //debug!!!!!!!
+    //setShowModalRacha(true)
   };
 
   const cerrar_modal_racha = async () => {
@@ -238,30 +248,38 @@ export default function HomeStudent() {
           animationType="fade"
           transparent={true}
         >
-          <View style={[styles.modalContainer,estilos.centrado,{width:"100%"}]}>
-            <View style={[styles.modalContent,{height:"60%",borderBottomEndRadius:20,borderBottomStartRadius:20}]}>
+          <View style={[styles.modalContainerRacha,estilos.centrado]}>
+            <View style={[styles.modalContent,{height:"100%"}]}>
               {user.racha==1 ? (
                 <View>
-                    <Text style={[styles.title_racha]}>Perdiste tu racha</Text>
+                    
                     <Image
-                      style={[styles.image]}
+                      style={[styles.modal_image,estilos.centrado]}
                       source={racha_perdida}
                       contentFit="contain"
                       transition={0}
                     />
+                    <Text style={[styles.title_racha]}>Perdiste tu racha</Text>
+                    <ThemedText type='defaultSemiBold' lightColor={paleta.dark_aqua}>Practica diariamente para volver a encaminarte</ThemedText>
                 
                 <BotonLogin callback={()=>setShowModalRacha(false)} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
                 </View>
                 ):(
-                  <View>
-                    <Text style={[styles.title_racha]}>¡¡Sumaste 1 día de racha!!</Text>
+                  <View >
+                    <View style={[{flexDirection:"row",alignSelf:"flex-end"}]}> 
+                      <Ionicons name="flame" size={28} color={paleta.strong_yellow} style={{marginBottom: 8}} />
+                      <Text style={[styles.cardTitleCursos,estilos.centrado]}>{user.racha} </Text>
+                    </View>
                     <Image
-                      style={[styles.image]}
+                      style={[styles.modal_image,estilos.centrado]}
                       source={fuego_racha}
-                      contentFit="contain"
+                      contentFit="cover"
                       transition={0}
                     />
-                
+                  <XPCard borderColor={paleta.turquesa} bckColor={paleta.turquesa} textColor={'white'} 
+                    title={'XP ganado'} cant={user.racha*2} icon='barbell' iconColor={paleta.dark_aqua}/>
+                <ThemedText style={[styles.title_racha]}>¡¡Tienes {user.racha} días de racha!!</ThemedText>
+                <ThemedText type='defaultSemiBold' lightColor={paleta.dark_aqua}>¡Sigue aprendiendo mañana para llegar a {user.racha+1}!</ThemedText>
                 <BotonLogin callback={cerrar_modal_racha} textColor={'black'} bckColor={paleta.turquesa} text={'Aceptar'}  />
                 </View>
                 )}                                          
@@ -358,7 +376,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#222',
     marginTop: 32,
-    marginBottom: 18,
+    marginBottom: 38,
     alignSelf: 'center',
     zIndex: 2,
     letterSpacing: 0.5,
@@ -421,6 +439,7 @@ const styles = StyleSheet.create({
     color: '#20bfa9',
     fontWeight: '600',
     fontSize: 10,
+    marginLeft: 20
   },
   categoriaItem: {
     marginBottom: 14,
@@ -533,6 +552,7 @@ const styles = StyleSheet.create({
   },
   modalScrollView: {
     paddingBottom: 20,
+    maxHeight: 400
   },
   image: {
     flex: 1,
@@ -547,6 +567,17 @@ const styles = StyleSheet.create({
     color: paleta.dark_aqua,
     alignSelf: "center",
   },
+  modalContainerRacha: {
+    flex: 1,
+    justifyContent: 'flex-end',
+    backgroundColor: 'white',
+    height:"100%",
+    width:"100%"
+  },
+  modal_image:{
+    flex: 2,
+    width: "120%",
+    height: "120%", 
   missionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',

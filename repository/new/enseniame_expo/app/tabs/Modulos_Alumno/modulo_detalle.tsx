@@ -2,7 +2,7 @@ import React, { useCallback, useEffect, useState } from "react";
 import { View, Text, Pressable, StyleSheet, FlatList,  TouchableOpacity, ActivityIndicator, Modal, TextInput } from "react-native";
 import { useLocalSearchParams, router, useFocusEffect } from "expo-router";
 import { Senia_Info, Modulo } from "@/components/types";
-import { buscar_modulo, buscar_senias_modulo } from "@/conexiones/modulos";
+import { alumno_completo_modulo, buscar_modulo, buscar_senias_modulo, completar_modulo_alumno } from "@/conexiones/modulos";
 import { Ionicons } from "@expo/vector-icons";
 import { ThemedText } from "@/components/ThemedText";
 import VideoPlayer from "@/components/VideoPlayer";
@@ -19,6 +19,7 @@ import { RatingStars } from "@/components/review";
 import { estilos } from "@/components/estilos";
 import { get_antiguedad } from "@/components/validaciones";
 import { AntDesign } from "@expo/vector-icons";
+import { ganar_insignia_senia } from "@/conexiones/insignias";
 
 
 type Senia_Aprendida ={
@@ -41,7 +42,9 @@ export default function ModuloDetalleScreen() {
   const { id=0 } = useLocalSearchParams<{ id: string }>();
   if (id==0) router.back();
   const [modulo,setModulo] = useState<Modulo | undefined>();
+  const [completado,setCompletado] =useState(false);
   const [senias,setSenias] = useState<Senia_Aprendida[]>();
+  const [cant_aprendidas, setCantAprendidas] = useState(0);
   const [aprendidasMap, setAprendidasMap] = useState<Record<number, boolean>>({});
   const [calificaciones_modulo,setCalificacionesModulo] = useState<Calificaciones[]>()
 
@@ -72,6 +75,9 @@ export default function ModuloDetalleScreen() {
       setModulo(m || []);
       const calificaciones =await calificacionesModulo(Number(id));
       setCalificacionesModulo(calificaciones || []);
+
+      const c = await alumno_completo_modulo(contexto.user.id,Number(id));            
+      setCompletado(c);
     } catch (error) {
       error_alert("No se pudo cargar el módulo");
       console.error(error)
@@ -95,7 +101,10 @@ export default function ModuloDetalleScreen() {
       const fue_aprendida =(senia_id:number)=>{
         let res = false;
         aprendidas?.forEach(each=>{
-          if (each.senia_id==senia_id && each.aprendida) res= true
+          if (each.senia_id==senia_id && each.aprendida) {
+            res= true;
+            setCantAprendidas(prev=>prev+=1);            
+          }
         });
         return res
       }
@@ -147,31 +156,65 @@ export default function ModuloDetalleScreen() {
         })
         .then(()=>{
           item.vista= true
-        })
-        
+        })        
     }
   }
 
-  const toggleAprendida = async (info_senia: Senia_Aprendida, value: boolean) => {
-  
+  const toggleAprendida = async (info_senia: Senia_Aprendida, value: boolean) => {    
     if (value) {
       marcar_aprendida(info_senia.senia.id,contexto.user.id)
         .catch(reason =>{
           console.error(reason);
           error_alert("No se pudo actualizar el estado")
         })
-    } else {
+        .then(async ()=>{
+          success_alert('Marcada como aprendida' );
+          info_senia.aprendida= value;
+          setAprendidasMap((prev) => ({ ...prev, [info_senia.senia.id]: value }));
+          setCantAprendidas((prev) => (prev+=1));  
+          //si aprendiste todas, completar el módulo:
+          if (!completado && todas_aprendidas()){
+            try {
+              setModalVisible(false);
+              await completar_modulo_alumno(contexto.user.id,Number(id));
+              //router.push({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: id } })
+            } catch (error) {
+              console.error(error);
+              error_alert("No se pudo guardar tu progreso.");
+            }
+          }
+          
+        })
+      ganar_insignia_senia(contexto.user.id);
+    } else if (!completado) {
       marcar_no_aprendida(info_senia.senia.id,contexto.user.id)
         .catch(reason=>{
           console.error(reason);
           error_alert("No se pudo actualizar el estado");
         })
-    }
-    setAprendidasMap((prev) => ({ ...prev, [info_senia.senia.id]: value }));
-    success_alert(value ? 'Marcada como aprendida' : 'Marcada como no aprendida')
-    info_senia.aprendida= value;
+        .then(()=>{
+          success_alert( 'Marcada como no aprendida');
+          info_senia.aprendida= value;
+          setCantAprendidas((prev) => (prev-=1));   
+          setAprendidasMap((prev) => ({ ...prev, [info_senia.senia.id]: value }));
+        })
+    } else {
+      alert("No puedes marcar como no aprendida una seña en un módulo completado");
+    }  
   }
 
+  const todas_aprendidas = ()=>{    
+    let res = true;
+    if (senias){
+      senias.forEach(s=>{
+        if (!s.aprendida) res = false
+      })
+    } else {
+      res=false;
+    }
+    return res
+  }
+  
   const promedio_reseñas = ()=>{
     let promedio =0;
     calificaciones_modulo?.forEach(each=>{
@@ -317,9 +360,9 @@ export default function ModuloDetalleScreen() {
           {selectedSenia && (
             <View style={styles.row}>
               <Checkbox
-                value={!!aprendidasMap[selectedSenia.senia.id]}
+                value={selectedSenia.aprendida}
                 onValueChange={(v) => toggleAprendida(selectedSenia, v)}
-                color={aprendidasMap[selectedSenia.senia.id] ? '#20bfa9' : undefined}
+                color={selectedSenia.aprendida ? '#20bfa9' : undefined}
                 style={styles.checkbox}
               />
               <Text style={styles.checkboxLabel}>Aprendida</Text>
