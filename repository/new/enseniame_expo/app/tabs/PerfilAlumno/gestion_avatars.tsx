@@ -16,8 +16,8 @@ import { Avatar } from '@/components/types';
 export default function Perfil () {
   const [racha,setRacha] = useState(0);
   const [pfp,setPfp]=useState<Avatar>();
-  const [avatares_desbloqueados,setAvataresDesbloqueados] = useState<Avatar[]>();
-  const [avatares_bloqueados,setAvataresBloqueados] = useState<Avatar[]>();
+  const [avatares_desbloqueados,setAvataresDesbloqueados] = useState<Avatar[]>([]);
+  const [avatares_bloqueados,setAvataresBloqueados] = useState<Avatar[]>([]);
   const [loading,setLoading] = useState(false);
 
   const contexto = useUserContext();  
@@ -68,7 +68,14 @@ export default function Perfil () {
         console.error(error);
         error_alert("No se pudo cambiar tu avatar");
       }
+  }
+
+  const fue_desbloqueado = (a:Avatar)=>{
+    if (a.racha_desbloquear<=racha){
+      return true
     }
+    return false
+  }
   
   const renderAvatar = ({ item }: { item: Avatar }) =>  (
     <TouchableOpacity 
@@ -76,7 +83,7 @@ export default function Perfil () {
       style={[{margin:10},item.id==pfp?.id ? styles.round_border:{}]}>
       <Image
         style={[styles.image]}
-        source={item.image_url}
+        source={fue_desbloqueado(item) ? item.image_url: candado}
         contentFit="contain"
         transition={0}
       /> 
@@ -131,21 +138,28 @@ export default function Perfil () {
                 transition={1000}
               />
               <View style={styles.section}>
-                <ThemedText style={styles.sectionTitle}>Desbloqueados</ThemedText>
+                
                 <FlatList 
                   keyExtractor={(item) => item.id.toString()}
-                  style={[{maxHeight: avatares_bloqueados?.length==0 ? 400:320,minHeight:200}]}
-                  data={avatares_desbloqueados}
+                  style={[{height: avatares_bloqueados.length==0 ? 420:450}]}
+                  data={avatares_desbloqueados.concat(avatares_bloqueados)}
                   renderItem={renderAvatar}
                   numColumns={3}
                   columnWrapperStyle={{marginHorizontal:10}}
                 />
+                 {avatares_bloqueados.length != 0 ? 
+                  <ThemedText lightColor="#005348ff" style={[styles.msg]}>¡Alcanza una racha de {racha+1} para desbloquear el siguiente avatar!</ThemedText>
+                  :
+                  <View style={[estilos.centrado]}>
+                    <ThemedText lightColor="#005348ff" style={[styles.msg]}>¡Felicidades! 🎉</ThemedText>
+                    <ThemedText lightColor={paleta.dark_aqua} type='subtitle'>Desbloqueaste todos los avatares</ThemedText>
+                  </View>
+                }
               </View>
 
               <View style={styles.section}>
-                {avatares_bloqueados?.length != 0 ? 
-                  <ThemedText lightColor="#005348ff" style={styles.sectionTitle}>¡Alcanza una racha de {racha+1} para desbloquear el siguiente avatar!</ThemedText>:null}
-                <FlatList 
+               
+                {/* <FlatList 
                   keyExtractor={(item) => item.id.toString()}
                   style={[{maxHeight:220,minHeight:150}]}
                   data={avatares_bloqueados}
@@ -159,7 +173,7 @@ export default function Perfil () {
                     </View>
                     
                   )}
-                />
+                /> */}
               </View>
 
             
@@ -208,13 +222,15 @@ const styles = StyleSheet.create({
     alignSelf: "flex-start"  
   },   
   section:{
-    marginTop: 8,
+    //marginTop: 8,
     width:"100%"
   },
   msg : {
     fontSize: 25, 
     fontWeight:"bold", 
-    marginBottom: 15  
+    marginBottom: 15  ,
+    textAlign:"center",
+    marginTop: 25
   },  
   backBtn: {
     padding: 10,
