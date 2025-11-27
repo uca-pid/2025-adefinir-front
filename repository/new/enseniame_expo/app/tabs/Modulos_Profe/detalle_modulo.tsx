@@ -394,6 +394,7 @@ const styles = StyleSheet.create({
     fontWeight: 'bold',
     color: '#222',
     alignSelf: 'center',
+    textAlign:"center",
     marginBottom: 18,
     marginTop:15
   },
