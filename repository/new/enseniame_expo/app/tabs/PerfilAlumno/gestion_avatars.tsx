@@ -177,8 +177,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     height: "100%"
   },
-  
-   title : {
+  title : {
     fontSize: 28,
     fontWeight: 'bold',
     color: '#333',
@@ -186,17 +185,8 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     position: "absolute",
     top: 70
-  },
-  sectionTitle : {
-    fontSize: 18, 
-    fontWeight: 'bold', 
-    color: '#222',
-    marginVertical: 5,
-    marginLeft:7,
-    alignSelf: "flex-start"  
-  },   
-  section:{
-    //marginTop: 8,
+  }, 
+  section:{    
     width:"100%"
   },
   msg : {
