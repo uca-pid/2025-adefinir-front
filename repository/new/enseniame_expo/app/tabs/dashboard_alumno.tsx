@@ -105,6 +105,7 @@ export default function DashboardAlumnoScreen() {
           senias?.forEach((s: any) => seniaNombreMap.set(Number(s.id), String(s.significado)));
           const moduloNombreMap = new Map<number, string>();
           (mods || []).forEach((m: Modulo) => moduloNombreMap.set(m.id, m.nombre));
+          //(mods || []).forEach((m) => moduloNombreMap.set(m.id, m.nombre));
           const videoToModulo = new Map<number, number>();
           relsAll?.forEach((r: any) => videoToModulo.set(Number(r.id_video), Number(r.id_modulo)));
 
@@ -142,6 +143,7 @@ export default function DashboardAlumnoScreen() {
         if (gid) {
           const resp = await fetchGroupLeaderboard('week', gid, Number(user.id));
           const top5 = (resp.entries || []).slice(0, 5).map((e: any) => ({ position: Number(e.position || 0), name: String(e.name || 'Alumno'), xp: Number(e.xp || 0) }));
+          //const top5 = (resp.entries || []).slice(0, 5).map(e => ({ position: Number(e.position || 0), name: String(e.name || 'Alumno'), xp: Number(e.xp || 0) }));
           setLeaderboardPreview(top5);
         } else {
           setLeaderboardPreview([]);
@@ -258,6 +260,7 @@ export default function DashboardAlumnoScreen() {
                 <Text style={styles.sectionTitle}>Leaderboard del grupo</Text>
                 <Text
                   onPress={() => (router as any).push('/tabs/leaderboard_grupo')}
+                  //onPress={() => router.push('/tabs/leaderboard_grupo')}
                   style={{ color: '#0a7ea4', fontWeight: '600' }}
                 >
                   Ver completo
