@@ -33,19 +33,7 @@ const buscar_modulo = async (id:number) =>{
 }
 
 const buscar_senias_modulo = async (id:number)=>{
-    //try {
-        // Primero obtener los IDs de seña (id_video) del módulo
-        //let { data: relaciones, error: relErr } = await supabase.from('Modulo_Video').select('id_video').eq("id_modulo",id);
-        //if (relErr) throw relErr;
-        
-       /*  let { data: id_senias, error } = await supabase.from('Modulo_Video').select(`Senias (id)`).eq("id_modulo",id);
-        if (error) throw error
-        if (id_senias && id_senias.length>0) {
-            const ids = (id_senias as any).map((each: any) => Number((each.Senias && each.Senias.id) ? each.Senias.id : each.id));
-            let {data:senias,error} = await supabase.from("Senias").select(`*,  Users: Users!id_autor (*),  Categorias (nombre) `).in("id",ids);
-            if (error) throw error
-            if (senias && senias.length>0) return senias
-        } */
+    
     let {data, error} = await supabase.from('Modulo_Video')
         .select("*, Senias(*, Users: Users!id_autor (*),  Categorias (nombre))")
         .eq("id_modulo",id);
@@ -54,93 +42,7 @@ const buscar_senias_modulo = async (id:number)=>{
     
     return data
 }
-/* 
-const modulos_completados_por_alumno = async (id_alumno:number) =>{
-    try {
-        let { data: senias_aprendidas, error: errorSenias } = await supabase
-            .from('Alumno_Senia')
-            .select('senia_id')
-            .eq('user_id', id_alumno)
-            .eq('aprendida', true);
-        
-        if (errorSenias) throw errorSenias;
-        
-        if (senias_aprendidas && senias_aprendidas.length > 0) {
-            const ids_senias_aprendidas = senias_aprendidas.map((s) => s.senia_id);
-            
-            let { data: modulos, error: errorModulos } = await supabase
-                .from('Modulos')
-                .select('id');
-                
-            if (errorModulos) throw errorModulos;
-            
-            if (modulos) {
-                for (const modulo of modulos) {
-                    let { data: senias_modulo, error: errorModuloSenias } = await supabase
-                        .from('Modulo_Video')
-                        .select('id_video')
-                        .eq('id_modulo', modulo.id);
-                    
-                    if (errorModuloSenias) throw errorModuloSenias;
-                    
-                    if (senias_modulo && senias_modulo.length > 0) {
-                        const ids_senias_modulo = senias_modulo.map((s) => s.id_video);
-                        
-                        const todas_aprendidas = ids_senias_modulo.every(id => 
-                            ids_senias_aprendidas.includes(id)
-                        );
-                        
-                        if (todas_aprendidas) {
-                            let { data: modulo_alumno, error: errorModuloAlumno } = await supabase
-                                .from('Alumno_Modulo')
-                                .select('*')
-                                .eq('id_alumno', id_alumno)
-                                .eq('id_modulo', modulo.id)
-                                .maybeSingle();
-                            
-                            if (errorModuloAlumno && errorModuloAlumno.code !== 'PGRST116') {
-                                throw errorModuloAlumno;
-                            }
-                            
-                            if (!modulo_alumno) {
-                                const { error: errorInsert } = await supabase
-                                    .from('Alumno_Modulo')
-                                    .insert({
-                                        id_alumno: id_alumno,
-                                        id_modulo: modulo.id,
-                                        completado: true
-                                    });
-                                
-                                if (errorInsert) throw errorInsert;
-                            } else if (!modulo_alumno.completado) {
-                                const { error: errorUpdate } = await supabase
-                                    .from('Alumno_Modulo')
-                                    .update({ completado: true })
-                                    .eq('id_alumno', id_alumno)
-                                    .eq('id_modulo', modulo.id);
-                                
-                                if (errorUpdate) throw errorUpdate;
-                            }
-                        }
-                    }
-                }
-            }
-        }
-        
-        let { data, error } = await supabase
-            .from('Alumno_Modulo')
-            .select('id_modulo')
-            .eq('id_alumno', id_alumno)
-            .eq('completado', true);
-            
-        if (error) throw error;
-        
-        return data ? data.length : 0;
-    } catch (error) {
-        console.error('Error al obtener o actualizar módulos completados:', error);
-        return 0;
-    }
-} */
+
 
 const modulos_completados_por_alumno = async (id_alumno:number) =>{
     let { data, error } = await supabase
@@ -254,8 +156,7 @@ const completar_modulo_alumno = async (id_alumno:number,id_modulo:number) =>{
         if (aprendidas?.find(v=>v.senia_id==each.id_video)==undefined) continuar = false
     });
     
-    if (!completado && continuar){
-        console.log("segui")
+    if (!completado && continuar){        
         //verificar si existe el registro
         let { data, error } = await supabase
             .from('Alumno_Modulo')
