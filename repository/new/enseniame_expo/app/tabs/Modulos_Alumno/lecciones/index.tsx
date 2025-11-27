@@ -151,11 +151,12 @@ export default function Leccion (){
       }
       else {
         //terminar lección                   
-        try {                         
-          if (cant_aprendidas==senias.length) {                         
+        try {      
+                         
+          if (cant_aprendidas==senias.length) {                                     
             await completar_modulo_alumno(contexto.user.id,Number(id));
             router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/completado', params: { id: id } })
-          } else {
+          } else {            
             router.navigate({ pathname: '/tabs/Modulos_Alumno/lecciones/no_completado', params: { id: id } });
           }
           
@@ -208,7 +209,7 @@ export default function Leccion (){
         <View style={styles.container}>
           <Pressable
               style={[styles.backBtn, { marginBottom: 10, marginTop:30, flexDirection: 'row', alignItems: 'center' }]}
-              onPress={() => { router.back() }}
+              onPress={() => { router.push({ pathname: '/tabs/Modulos_Alumno/modulo_detalle', params: { id: modulo?.id } }) }} 
           >
           <Ionicons name="arrow-back" size={20} color="#20bfa9" style={{ marginRight: 6 }} />
           <Text style={styles.backBtnText}>Volver</Text>

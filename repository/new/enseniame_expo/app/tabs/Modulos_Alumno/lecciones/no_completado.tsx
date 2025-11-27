@@ -20,7 +20,7 @@ export default function ModuloCompletado (){
 
     const contexto = useUserContext();
 
-    const animation = require("../../../../assets/images/Hit Missed.gif")
+    const animation = require("../../../../assets/images/disappointedBeetle.gif")
      
     useFocusEffect(
           useCallback(() => {
