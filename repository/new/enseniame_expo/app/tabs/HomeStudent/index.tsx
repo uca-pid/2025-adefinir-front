@@ -101,7 +101,7 @@ export default function HomeStudent() {
 
   const fetch_racha = async () => {
     try {
-      const r = await mi_racha(contexto.user.id);
+      /* const r = await mi_racha(contexto.user.id);
       let nuevaRacha = 1;
       let cambio = false;
       if (r) {
@@ -133,8 +133,31 @@ export default function HomeStudent() {
         }      
         ganar_insignia_racha(contexto.user.id);
       }
-      setUser(prev => ({ ...prev, racha: nuevaRacha || 0 }));
-      setShowModalRacha(cambio);
+      setUser(prev => ({ ...prev, racha: nuevaRacha || 0 })); */
+      const r = await mi_racha(contexto.user.id);
+      let racha = 1;
+      let cambio = false;
+      if (r) {
+        let ultimo_login =new Date(r.last_login);        
+        if (fue_ayer(ultimo_login)) { 
+          await sumar_racha(contexto.user.id);
+          racha= r.racha+1;
+          console.log("sumo racha",r.last_login)
+          cambio=true;
+        }
+        else if (!es_hoy(ultimo_login)) {
+          await perder_racha(contexto.user.id);
+          console.log("pierdo racha",r.last_login);
+          cambio=true;
+        }
+        else {
+          racha= r.racha;
+          console.log("es hoy; no sumo ni pierdo")
+        }        
+      }
+      setUser(prev => ({ ...prev, racha: racha || 0 }));
+      setTimeout(()=>{setShowModalRacha(cambio);},400)
+      
     } catch (error) {
       console.error(error);
       error_alert("Ocurrió un error al cargar la racha");
@@ -577,7 +600,7 @@ const styles = StyleSheet.create({
   modal_image:{
     flex: 2,
     width: "120%",
-    height: "120%", 
+    height: "120%", },
   missionHeaderRow: {
     flexDirection: 'row',
     justifyContent: 'space-between',
